@@ -1,6 +1,7 @@
-/Lab01-solution.X/nbproject/private/
-/Lab01-solution.X/build/
-/Lab01-solution.X/debug/
-/Lab01-solution.X/dist/
-/Lab01-solution.X/nbproject/Makefile-variables.mk
-/Lab01-solution.X/nbproject/Makefile-genesis.properties
+nbproject/private/
+build/
+debug/
+dist/
+nbproject/Makefile-variables.mk
+nbproject/Makefile-genesis.properties
+*.o
