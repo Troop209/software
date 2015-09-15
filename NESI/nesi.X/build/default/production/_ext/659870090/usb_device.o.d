@@ -1,0 +1,23 @@
+build/default/production/_ext/659870090/usb_device.o:  \
+ ../src/usb/usb_device.c  \
+../src/usb/../drivers/usb.h  \
+ ../src/usb/../drivers/../dev/GenericTypeDefs.h  \
+ ../src/usb/../drivers/../dev/Compiler.h  \
+ ../src/usb/../drivers/../usb/usb_config.h  \
+ ../src/usb/../drivers/../usb/usb_common.h  \
+ ../src/usb/../drivers/../usb/usb_ch9.h  \
+ ../src/usb/../drivers/../usb/usb_device.h  \
+ ../src/usb/../drivers/../usb/usb_hal.h  \
+ ../src/usb/../drivers/../usb/usb_hal_pic24f.h  \
+ ../src/usb/../drivers/../usb/../dev/Compiler.h  \
+ ../src/usb/../drivers/../usb/usb_config.h  \
+../src/usb/../drivers/system.h  \
+ ../src/usb/../drivers/../dev/p24FJ256GB106.h  \
+ ../src/usb/HardwareProfile.h  \
+../src/usb/usb_device_local.h  \
+ ../src/usb/usb_config.h  \
+../src/usb/usb_function_msd.h  \
+ ../src/usb/../dev/Compiler.h  \
+../src/usb/../dev/GenericTypeDefs.h  \
+ ../src/usb/../mdd/FSDefs.h  \
+../src/usb/../mdd/../dev/GenericTypeDefs.h 
