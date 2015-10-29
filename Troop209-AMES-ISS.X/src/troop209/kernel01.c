@@ -43,7 +43,7 @@ int kernel01(void)
     {
         switch (whatToDo) {
             case 1:
-                CopCar();
+                CopCar(); 
                 break;
             case 2:
                 if (written == 0) {

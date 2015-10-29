@@ -28,7 +28,7 @@ int kernel02(void)
     dataLog.init();
     //camera.on();
     
-    if (xcamera.init()) showCode(2);
+    if (xcamera.init()) showCode(2); 
     
     showCode(3);
     

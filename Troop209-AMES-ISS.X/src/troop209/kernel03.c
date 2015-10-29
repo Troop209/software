@@ -19,7 +19,7 @@ int kernel03(void)
     blueLed.init();
     sdcard.init();
     moisture.init();
-    dataLog.init();
+    dataLog.init(); 
 
     dataLog.add("Start: ",0);
     dataLog.add("Q1: ",moisture.readQ1());
