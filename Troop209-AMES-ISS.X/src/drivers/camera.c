@@ -612,5 +612,18 @@ static void turnOn(void)
     setPowerOutput(ON);   // turn module power on
 }
 
+static boolean initIt(void)
+{
+        // initialize camera and image storage
+        cameraComPort.init();
+        cameraComPort.baudrate(14400);
+
+        imageFile = getFileStream();
+        return (initCamera());
+    
+}
+
 const Camera camera = {getPic:retrievePic, on:turnOn, off:turnOff};
+const XCamera xcamera =
+    {getPic:retrievePic, on:turnOn, off:turnOff, init:initIt};
 

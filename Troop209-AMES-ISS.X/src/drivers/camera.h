@@ -92,3 +92,31 @@ typedef struct {
 } Camera;
 
 extern const Camera camera;
+
+/**
+ * Wrapper for the C329-UART camera
+ */
+typedef struct {
+    /**
+     * Takes a picture and saves it to the SD card using the passed filename
+     * @param filename - as a <code>String</code> to store the image as
+     */
+    //int (*getPic)(String filename);
+    int (*getPic)(void);
+    /**
+     * Initializes the Camera software module
+     */
+    boolean (*init)(void);
+
+    /**
+     * Turns on the camera
+     */
+    void (*on)(void);
+    /**
+     * Turns off the camera
+     */
+    void (*off)(void);
+
+} XCamera;
+
+extern const XCamera xcamera;
