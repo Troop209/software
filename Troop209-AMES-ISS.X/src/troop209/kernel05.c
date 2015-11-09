@@ -18,19 +18,19 @@ int kernel05(void)
     {
         blueLed.dutycycle(0);
         redLed.dutycycle(100);   
-        delay(400);
+        delay(200);
         blueLed.dutycycle(25);
         redLed.dutycycle(75);
-        delay(400);
+        delay(200);
         blueLed.dutycycle(50);
         redLed.dutycycle(50);
-        delay(400);
+        delay(200);
         blueLed.dutycycle(75);
         redLed.dutycycle(25);
-        delay(400);
+        delay(200);
         blueLed.dutycycle(100);
         redLed.dutycycle(0);
-        delay(400);
+        delay(200);
     }
     
     return(1);

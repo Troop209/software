@@ -21,6 +21,6 @@ typedef struct {
     void (*init)();
 } PWM;
 
-extern const PWM pwm1;
+extern const PWM pwm1, pwm2;
 
 #endif /* PWM_H */
