@@ -26,7 +26,17 @@ typedef struct {
     /**
      * Initializes the PWM software module
      */
+
     void (*init)();
+
+    /**
+     * Initializes the PWM software with Timer1
+     * @param dutycycle - the desired duty cycle of the output signal as a positive integer percentage
+     * @param duration - the duration of the PWM in clock cycles
+     */
+    void (*initTimer1)(unsigned period, unsigned duration);
+    
+    void (*turnOnPwm1)();
 } PWM;
 
 extern const PWM pwm1;
