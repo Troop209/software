@@ -2,10 +2,10 @@
 #define TIMER1_H
 
 // From Chap 11 of Data Sheet
-#define TIMER_PRE_SCALE_256 = 3 // 11
-#define TIMER_PRE_SCALE_64 = 2  // 10
-#define TIMER_PRE_SCALE_8 = 1   // 01 
-#define TIMER_PRE_SCALE_1 = 0    // 00 
+#define TIMER_PRE_SCALE_256 3  // 11
+#define TIMER_PRE_SCALE_64  2  // 10
+#define TIMER_PRE_SCALE_8   1  // 01 
+#define TIMER_PRE_SCALE_1   0  // 00 
 
 /**
  * Wrapper for Timer1 using prescaled internal clock (FOSC/2)

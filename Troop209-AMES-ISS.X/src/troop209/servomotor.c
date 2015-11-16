@@ -1,16 +1,16 @@
 #include "../drivers/system.h"
 #include "tmr1.h"
-#include "pwm.h"
+#include "pwm1.h"
 
 
-int kernel07(void)  
+int servomortor(void)  
 {
     // initialize all modules
     
     system.init();
     pwm1.init(PWM_TIMER_SELECTION_TIMER1);
-     
-    timer1.start( TIMER_PRE_SCALE_64, 0);  // Set to 1ms clock
+    
+    timer1.start( TIMER_PRE_SCALE_64, 0);  
     pwm1.turnOn( 60000, 50);
     delay(10000);
     
