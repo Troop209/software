@@ -8,9 +8,9 @@ int kernel07(void)
     // initialize all modules
     
     system.init();
-    pwm1.init(4);
-    
-    timer1.start( 3, 0);  // Set to 1ms clock
+    pwm1.init(PWM_TIMER_SELECTION_TIMER1);
+     
+    timer1.start( TIMER_PRE_SCALE_64, 0);  // Set to 1ms clock
     pwm1.turnOn( 60000, 50);
     delay(10000);
     

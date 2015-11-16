@@ -1,6 +1,14 @@
 #ifndef PWM_H
 #define PWM_H
 
+// From Chap 14 of Data Sheet (page )
+#define PWM_TIMER_SELECTION_TIMER1 = 4 // 100
+#define PWM_TIMER_SELECTION_TIMER2 = 0 // 
+#define PWM_TIMER_SELECTION_TIMER3 = 1 // 
+#define PWM_TIMER_SELECTION_TIMER4 = 2 // 
+#define PWM_TIMER_SELECTION_TIMER5 = 3 //
+#define PWM_TIMER_SELECTION_SYSTEM = 8 //
+
 /**
  * Wrapper for raw pulse width modulated signal
  */
