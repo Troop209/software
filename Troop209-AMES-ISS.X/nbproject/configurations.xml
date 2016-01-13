@@ -30,6 +30,17 @@
         <itemPath>src/mdd/FSIO.c</itemPath>
         <itemPath>src/mdd/SD-SPI.c</itemPath>
       </logicalFolder>
+      <logicalFolder name="troop209" displayName="troop209" projectFiles="true">
+        <itemPath>src/troop209/pwm.c</itemPath>
+        <itemPath>src/troop209/pwm.h</itemPath>
+        <itemPath>src/troop209/tmr1.c</itemPath>
+        <itemPath>src/troop209/tmr1.h</itemPath>
+        <itemPath>src/troop209/kernel09.c</itemPath>
+        <itemPath>src/troop209/servomotor.c</itemPath>
+        <itemPath>src/troop209/pwm1.c</itemPath>
+        <itemPath>src/troop209/pwm1.h</itemPath>
+        <itemPath>src/troop209/servomotor2.c</itemPath>
+      </logicalFolder>
       <logicalFolder name="usb" displayName="usb" projectFiles="true">
         <itemPath>src/usb/usb_descriptors.c</itemPath>
         <itemPath>src/usb/usb_device.c</itemPath>
