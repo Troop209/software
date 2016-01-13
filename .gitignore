@@ -2,6 +2,6 @@ nbproject/private/
 build/
 debug/
 dist/
-nbproject/Makefile-variables.mk
-nbproject/Makefile-genesis.properties
+nbproject/Makefile-*.mk
+nbproject/Makefile-*.properties
 *.o

@@ -45,17 +45,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=src/drivers/button.c src/drivers/camera.c src/drivers/co2.c src/drivers/datalog.c src/drivers/file.c src/drivers/led.c src/drivers/moisture.c src/drivers/powerDriver.c src/drivers/sdcard.c src/drivers/system.c src/drivers/usb.c src/mdd/FSIO.c src/mdd/SD-SPI.c src/usb/usb_descriptors.c src/usb/usb_device.c src/usb/usb_function_msd.c src/main.c
+SOURCEFILES_QUOTED_IF_SPACED=src/drivers/button.c src/drivers/camera.c src/drivers/co2.c src/drivers/datalog.c src/drivers/file.c src/drivers/led.c src/drivers/moisture.c src/drivers/powerDriver.c src/drivers/sdcard.c src/drivers/system.c src/drivers/usb.c src/mdd/FSIO.c src/mdd/SD-SPI.c src/troop209/pwm.c src/troop209/tmr1.c src/troop209/kernel09.c src/troop209/servomotor.c src/troop209/pwm1.c src/troop209/servomotor2.c src/usb/usb_descriptors.c src/usb/usb_device.c src/usb/usb_function_msd.c src/main.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/src/drivers/button.o ${OBJECTDIR}/src/drivers/camera.o ${OBJECTDIR}/src/drivers/co2.o ${OBJECTDIR}/src/drivers/datalog.o ${OBJECTDIR}/src/drivers/file.o ${OBJECTDIR}/src/drivers/led.o ${OBJECTDIR}/src/drivers/moisture.o ${OBJECTDIR}/src/drivers/powerDriver.o ${OBJECTDIR}/src/drivers/sdcard.o ${OBJECTDIR}/src/drivers/system.o ${OBJECTDIR}/src/drivers/usb.o ${OBJECTDIR}/src/mdd/FSIO.o ${OBJECTDIR}/src/mdd/SD-SPI.o ${OBJECTDIR}/src/usb/usb_descriptors.o ${OBJECTDIR}/src/usb/usb_device.o ${OBJECTDIR}/src/usb/usb_function_msd.o ${OBJECTDIR}/src/main.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/src/drivers/button.o.d ${OBJECTDIR}/src/drivers/camera.o.d ${OBJECTDIR}/src/drivers/co2.o.d ${OBJECTDIR}/src/drivers/datalog.o.d ${OBJECTDIR}/src/drivers/file.o.d ${OBJECTDIR}/src/drivers/led.o.d ${OBJECTDIR}/src/drivers/moisture.o.d ${OBJECTDIR}/src/drivers/powerDriver.o.d ${OBJECTDIR}/src/drivers/sdcard.o.d ${OBJECTDIR}/src/drivers/system.o.d ${OBJECTDIR}/src/drivers/usb.o.d ${OBJECTDIR}/src/mdd/FSIO.o.d ${OBJECTDIR}/src/mdd/SD-SPI.o.d ${OBJECTDIR}/src/usb/usb_descriptors.o.d ${OBJECTDIR}/src/usb/usb_device.o.d ${OBJECTDIR}/src/usb/usb_function_msd.o.d ${OBJECTDIR}/src/main.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/src/drivers/button.o ${OBJECTDIR}/src/drivers/camera.o ${OBJECTDIR}/src/drivers/co2.o ${OBJECTDIR}/src/drivers/datalog.o ${OBJECTDIR}/src/drivers/file.o ${OBJECTDIR}/src/drivers/led.o ${OBJECTDIR}/src/drivers/moisture.o ${OBJECTDIR}/src/drivers/powerDriver.o ${OBJECTDIR}/src/drivers/sdcard.o ${OBJECTDIR}/src/drivers/system.o ${OBJECTDIR}/src/drivers/usb.o ${OBJECTDIR}/src/mdd/FSIO.o ${OBJECTDIR}/src/mdd/SD-SPI.o ${OBJECTDIR}/src/troop209/pwm.o ${OBJECTDIR}/src/troop209/tmr1.o ${OBJECTDIR}/src/troop209/kernel09.o ${OBJECTDIR}/src/troop209/servomotor.o ${OBJECTDIR}/src/troop209/pwm1.o ${OBJECTDIR}/src/troop209/servomotor2.o ${OBJECTDIR}/src/usb/usb_descriptors.o ${OBJECTDIR}/src/usb/usb_device.o ${OBJECTDIR}/src/usb/usb_function_msd.o ${OBJECTDIR}/src/main.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/src/drivers/button.o.d ${OBJECTDIR}/src/drivers/camera.o.d ${OBJECTDIR}/src/drivers/co2.o.d ${OBJECTDIR}/src/drivers/datalog.o.d ${OBJECTDIR}/src/drivers/file.o.d ${OBJECTDIR}/src/drivers/led.o.d ${OBJECTDIR}/src/drivers/moisture.o.d ${OBJECTDIR}/src/drivers/powerDriver.o.d ${OBJECTDIR}/src/drivers/sdcard.o.d ${OBJECTDIR}/src/drivers/system.o.d ${OBJECTDIR}/src/drivers/usb.o.d ${OBJECTDIR}/src/mdd/FSIO.o.d ${OBJECTDIR}/src/mdd/SD-SPI.o.d ${OBJECTDIR}/src/troop209/pwm.o.d ${OBJECTDIR}/src/troop209/tmr1.o.d ${OBJECTDIR}/src/troop209/kernel09.o.d ${OBJECTDIR}/src/troop209/servomotor.o.d ${OBJECTDIR}/src/troop209/pwm1.o.d ${OBJECTDIR}/src/troop209/servomotor2.o.d ${OBJECTDIR}/src/usb/usb_descriptors.o.d ${OBJECTDIR}/src/usb/usb_device.o.d ${OBJECTDIR}/src/usb/usb_function_msd.o.d ${OBJECTDIR}/src/main.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/src/drivers/button.o ${OBJECTDIR}/src/drivers/camera.o ${OBJECTDIR}/src/drivers/co2.o ${OBJECTDIR}/src/drivers/datalog.o ${OBJECTDIR}/src/drivers/file.o ${OBJECTDIR}/src/drivers/led.o ${OBJECTDIR}/src/drivers/moisture.o ${OBJECTDIR}/src/drivers/powerDriver.o ${OBJECTDIR}/src/drivers/sdcard.o ${OBJECTDIR}/src/drivers/system.o ${OBJECTDIR}/src/drivers/usb.o ${OBJECTDIR}/src/mdd/FSIO.o ${OBJECTDIR}/src/mdd/SD-SPI.o ${OBJECTDIR}/src/usb/usb_descriptors.o ${OBJECTDIR}/src/usb/usb_device.o ${OBJECTDIR}/src/usb/usb_function_msd.o ${OBJECTDIR}/src/main.o
+OBJECTFILES=${OBJECTDIR}/src/drivers/button.o ${OBJECTDIR}/src/drivers/camera.o ${OBJECTDIR}/src/drivers/co2.o ${OBJECTDIR}/src/drivers/datalog.o ${OBJECTDIR}/src/drivers/file.o ${OBJECTDIR}/src/drivers/led.o ${OBJECTDIR}/src/drivers/moisture.o ${OBJECTDIR}/src/drivers/powerDriver.o ${OBJECTDIR}/src/drivers/sdcard.o ${OBJECTDIR}/src/drivers/system.o ${OBJECTDIR}/src/drivers/usb.o ${OBJECTDIR}/src/mdd/FSIO.o ${OBJECTDIR}/src/mdd/SD-SPI.o ${OBJECTDIR}/src/troop209/pwm.o ${OBJECTDIR}/src/troop209/tmr1.o ${OBJECTDIR}/src/troop209/kernel09.o ${OBJECTDIR}/src/troop209/servomotor.o ${OBJECTDIR}/src/troop209/pwm1.o ${OBJECTDIR}/src/troop209/servomotor2.o ${OBJECTDIR}/src/usb/usb_descriptors.o ${OBJECTDIR}/src/usb/usb_device.o ${OBJECTDIR}/src/usb/usb_function_msd.o ${OBJECTDIR}/src/main.o
 
 # Source Files
-SOURCEFILES=src/drivers/button.c src/drivers/camera.c src/drivers/co2.c src/drivers/datalog.c src/drivers/file.c src/drivers/led.c src/drivers/moisture.c src/drivers/powerDriver.c src/drivers/sdcard.c src/drivers/system.c src/drivers/usb.c src/mdd/FSIO.c src/mdd/SD-SPI.c src/usb/usb_descriptors.c src/usb/usb_device.c src/usb/usb_function_msd.c src/main.c
+SOURCEFILES=src/drivers/button.c src/drivers/camera.c src/drivers/co2.c src/drivers/datalog.c src/drivers/file.c src/drivers/led.c src/drivers/moisture.c src/drivers/powerDriver.c src/drivers/sdcard.c src/drivers/system.c src/drivers/usb.c src/mdd/FSIO.c src/mdd/SD-SPI.c src/troop209/pwm.c src/troop209/tmr1.c src/troop209/kernel09.c src/troop209/servomotor.c src/troop209/pwm1.c src/troop209/servomotor2.c src/usb/usb_descriptors.c src/usb/usb_device.c src/usb/usb_function_msd.c src/main.c
 
 
 CFLAGS=
@@ -172,6 +172,48 @@ ${OBJECTDIR}/src/mdd/SD-SPI.o: src/mdd/SD-SPI.c  nbproject/Makefile-${CND_CONF}.
 	@${RM} ${OBJECTDIR}/src/mdd/SD-SPI.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  src/mdd/SD-SPI.c  -o ${OBJECTDIR}/src/mdd/SD-SPI.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/src/mdd/SD-SPI.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -mlarge-data -msmall-scalar -O0 -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/src/mdd/SD-SPI.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/src/troop209/pwm.o: src/troop209/pwm.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/src/troop209" 
+	@${RM} ${OBJECTDIR}/src/troop209/pwm.o.d 
+	@${RM} ${OBJECTDIR}/src/troop209/pwm.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  src/troop209/pwm.c  -o ${OBJECTDIR}/src/troop209/pwm.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/src/troop209/pwm.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -mlarge-data -msmall-scalar -O0 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/src/troop209/pwm.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/src/troop209/tmr1.o: src/troop209/tmr1.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/src/troop209" 
+	@${RM} ${OBJECTDIR}/src/troop209/tmr1.o.d 
+	@${RM} ${OBJECTDIR}/src/troop209/tmr1.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  src/troop209/tmr1.c  -o ${OBJECTDIR}/src/troop209/tmr1.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/src/troop209/tmr1.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -mlarge-data -msmall-scalar -O0 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/src/troop209/tmr1.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/src/troop209/kernel09.o: src/troop209/kernel09.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/src/troop209" 
+	@${RM} ${OBJECTDIR}/src/troop209/kernel09.o.d 
+	@${RM} ${OBJECTDIR}/src/troop209/kernel09.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  src/troop209/kernel09.c  -o ${OBJECTDIR}/src/troop209/kernel09.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/src/troop209/kernel09.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -mlarge-data -msmall-scalar -O0 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/src/troop209/kernel09.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/src/troop209/servomotor.o: src/troop209/servomotor.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/src/troop209" 
+	@${RM} ${OBJECTDIR}/src/troop209/servomotor.o.d 
+	@${RM} ${OBJECTDIR}/src/troop209/servomotor.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  src/troop209/servomotor.c  -o ${OBJECTDIR}/src/troop209/servomotor.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/src/troop209/servomotor.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -mlarge-data -msmall-scalar -O0 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/src/troop209/servomotor.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/src/troop209/pwm1.o: src/troop209/pwm1.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/src/troop209" 
+	@${RM} ${OBJECTDIR}/src/troop209/pwm1.o.d 
+	@${RM} ${OBJECTDIR}/src/troop209/pwm1.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  src/troop209/pwm1.c  -o ${OBJECTDIR}/src/troop209/pwm1.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/src/troop209/pwm1.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -mlarge-data -msmall-scalar -O0 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/src/troop209/pwm1.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/src/troop209/servomotor2.o: src/troop209/servomotor2.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/src/troop209" 
+	@${RM} ${OBJECTDIR}/src/troop209/servomotor2.o.d 
+	@${RM} ${OBJECTDIR}/src/troop209/servomotor2.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  src/troop209/servomotor2.c  -o ${OBJECTDIR}/src/troop209/servomotor2.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/src/troop209/servomotor2.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -mlarge-data -msmall-scalar -O0 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/src/troop209/servomotor2.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 ${OBJECTDIR}/src/usb/usb_descriptors.o: src/usb/usb_descriptors.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}/src/usb" 
@@ -292,6 +334,48 @@ ${OBJECTDIR}/src/mdd/SD-SPI.o: src/mdd/SD-SPI.c  nbproject/Makefile-${CND_CONF}.
 	@${RM} ${OBJECTDIR}/src/mdd/SD-SPI.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  src/mdd/SD-SPI.c  -o ${OBJECTDIR}/src/mdd/SD-SPI.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/src/mdd/SD-SPI.o.d"        -g -omf=elf -mlarge-data -msmall-scalar -O0 -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/src/mdd/SD-SPI.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/src/troop209/pwm.o: src/troop209/pwm.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/src/troop209" 
+	@${RM} ${OBJECTDIR}/src/troop209/pwm.o.d 
+	@${RM} ${OBJECTDIR}/src/troop209/pwm.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  src/troop209/pwm.c  -o ${OBJECTDIR}/src/troop209/pwm.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/src/troop209/pwm.o.d"        -g -omf=elf -mlarge-data -msmall-scalar -O0 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/src/troop209/pwm.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/src/troop209/tmr1.o: src/troop209/tmr1.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/src/troop209" 
+	@${RM} ${OBJECTDIR}/src/troop209/tmr1.o.d 
+	@${RM} ${OBJECTDIR}/src/troop209/tmr1.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  src/troop209/tmr1.c  -o ${OBJECTDIR}/src/troop209/tmr1.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/src/troop209/tmr1.o.d"        -g -omf=elf -mlarge-data -msmall-scalar -O0 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/src/troop209/tmr1.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/src/troop209/kernel09.o: src/troop209/kernel09.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/src/troop209" 
+	@${RM} ${OBJECTDIR}/src/troop209/kernel09.o.d 
+	@${RM} ${OBJECTDIR}/src/troop209/kernel09.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  src/troop209/kernel09.c  -o ${OBJECTDIR}/src/troop209/kernel09.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/src/troop209/kernel09.o.d"        -g -omf=elf -mlarge-data -msmall-scalar -O0 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/src/troop209/kernel09.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/src/troop209/servomotor.o: src/troop209/servomotor.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/src/troop209" 
+	@${RM} ${OBJECTDIR}/src/troop209/servomotor.o.d 
+	@${RM} ${OBJECTDIR}/src/troop209/servomotor.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  src/troop209/servomotor.c  -o ${OBJECTDIR}/src/troop209/servomotor.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/src/troop209/servomotor.o.d"        -g -omf=elf -mlarge-data -msmall-scalar -O0 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/src/troop209/servomotor.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/src/troop209/pwm1.o: src/troop209/pwm1.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/src/troop209" 
+	@${RM} ${OBJECTDIR}/src/troop209/pwm1.o.d 
+	@${RM} ${OBJECTDIR}/src/troop209/pwm1.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  src/troop209/pwm1.c  -o ${OBJECTDIR}/src/troop209/pwm1.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/src/troop209/pwm1.o.d"        -g -omf=elf -mlarge-data -msmall-scalar -O0 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/src/troop209/pwm1.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/src/troop209/servomotor2.o: src/troop209/servomotor2.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/src/troop209" 
+	@${RM} ${OBJECTDIR}/src/troop209/servomotor2.o.d 
+	@${RM} ${OBJECTDIR}/src/troop209/servomotor2.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  src/troop209/servomotor2.c  -o ${OBJECTDIR}/src/troop209/servomotor2.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/src/troop209/servomotor2.o.d"        -g -omf=elf -mlarge-data -msmall-scalar -O0 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/src/troop209/servomotor2.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 ${OBJECTDIR}/src/usb/usb_descriptors.o: src/usb/usb_descriptors.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}/src/usb" 
