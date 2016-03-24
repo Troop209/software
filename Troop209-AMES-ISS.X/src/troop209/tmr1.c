@@ -1,4 +1,4 @@
-#include "../drivers/system.h"
+#include "../core/system.h"
 #include "tmr1.h" 
 
 /* Initializes the timer */

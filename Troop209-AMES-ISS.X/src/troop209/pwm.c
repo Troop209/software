@@ -1,4 +1,4 @@
-#include "../drivers/system.h"
+#include "../core/system.h"
 #include "pwm.h"
 
 /* Initializes the OC module */

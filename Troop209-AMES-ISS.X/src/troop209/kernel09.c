@@ -1,6 +1,6 @@
-#include "../drivers/system.h"
-#include "../drivers/moisture.h"
-#include "../drivers/led.h"
+#include "../core/system.h"
+#include "../core/moisture.h"
+#include "../core/led.h"
 #include "tmr1.h"
 #include "pwm.h"
 
