@@ -26,18 +26,18 @@
 static void initialize(void)
 {
     system.init();
-//    ledR.init();
-//    ledB.init();
-//    powerDriverA.init();
-//    powerDriverB.init();
-//    button.init();
-//    co2.init();
-//    resistiveSensors.init();
+    ledR.init();
+    ledB.init();
+    powerDriverA.init();
+    powerDriverB.init();
+    button.init();
+    co2.init();
+    resistiveSensors.init();
     sdcard.init();
     usb.init();
     dataLog.init();
     camera.init();
-//    dateTime.init();
+    dateTime.init();
 }
 
 /**
