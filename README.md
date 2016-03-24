@@ -10,3 +10,6 @@ http://ww1.microchip.com/downloads/en/DeviceDoc/51284H.pdf
 
 More about the project
 http://spacestationndc.weebly.com/
+http://nesiwiki.tamu.edu
+
+Base software from https://github.com/NESIBoard/nesi-source
