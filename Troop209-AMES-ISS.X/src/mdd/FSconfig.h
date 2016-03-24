@@ -40,22 +40,22 @@
 
 // Summary: A macro indicating whether Long File Name is supported
 // Description: If this macro is disabled then only 8.3 format file name is enabled.
-//              If this macro is enabled then long file names upto 256 characters are
+//              If this macro is enabled then long file names up to 256 characters are
 //              supported.
-#define	SUPPORT_LFN
+#define SUPPORT_LFN
 
 // Summary: A macro indicating the maximum number of concurrently open files
 // Description: The FS_MAX_FILES_OPEN #define is only applicable when dynamic memory allocation is not used (FS_DYNAMIC_MEM is not defined).
 //              This macro defines the maximum number of open files at any given time.  The amount of RAM used by FSFILE objects will
-//              be equal to the size of an FSFILE object multipled by this macro value.  This value should be kept as small as possible
+//              be equal to the size of an FSFILE object multiplied by this macro value.  This value should be kept as small as possible
 //              as dictated by the application.  This will reduce memory usage.
-#define FS_MAX_FILES_OPEN 	3
+#define FS_MAX_FILES_OPEN   3
 
 
 // Summary: A macro defining the size of a sector
 // Description: The MEDIA_SECTOR_SIZE macro will define the size of a sector on the FAT file system.  This value must equal 512 bytes,
 //              1024 bytes, 2048 bytes, or 4096 bytes.  The value of a sector will usually be 512 bytes.
-#define MEDIA_SECTOR_SIZE 	512
+#define MEDIA_SECTOR_SIZE   512
 
 
 
@@ -95,12 +95,12 @@
 // Description: The ALLOW_FSFPRINTF definition can be commented out to disable the FSfprintf function.  This will save code space.  Note that
 //              if FSfprintf is enabled and the PIC18 architecture is used, integer promotions must be enabled in the Project->Build Options
 //              menu.  Write operations must be enabled to use FSfprintf.
-//#define ALLOW_FSFPRINTF
+#define ALLOW_FSFPRINTF
 
 // Summary: A macro to enable/disable the FSGetDiskProperties function.
 // Description: The ALLOW_GET_DISK_PROPERTIES definition can be commented out to disable the FSGetDiskProperties function in the library.
 //              This will save code space.
-//#define ALLOW_GET_DISK_PROPERTIES
+#define ALLOW_GET_DISK_PROPERTIES
 
 // Summary: A macro to enable/disable FAT32 support.
 // Description: The SUPPORT_FAT32 definition can be commented out to disable support for FAT32 functionality.  This will save a small amount
@@ -117,34 +117,34 @@
 // Description: The USEREALTIMECLOCK macro will configure the code to automatically
 //              generate timestamp information for files from the RTCC module. The user
 //              must enable and configure the RTCC module before creating or modifying
-//              files.                                                                 
-//#define USEREALTIMECLOCK
+//              files.
+#define USEREALTIMECLOCK
 
 // Summary: A macro to enable manual timestamp generation
 // Description: The USERDEFINEDCLOCK macro will allow the user to manually set
 //              timestamp information using the SetClockVars function. The user will
 //              need to set the time variables immediately before creating or closing a
-//              file or directory.                                                    
+//              file or directory.
 //#define USERDEFINEDCLOCK
 
 // Summary: A macro to enable don't-care timestamp generation
 // Description: The INCREMENTTIMESTAMP macro will set the create time of a file to a
 //              static value and increment it when a file is updated. This timestamp
 //              generation method should only be used in applications where file times
-//              are not necessary.                                                    
-#define INCREMENTTIMESTAMP
+//              are not necessary.
+//#define INCREMENTTIMESTAMP
 
 
 #ifdef __18CXX
-	#ifdef USEREALTIMECLOCK
-		#error The PIC18 architecture does not have a Real-time clock and calander module
-	#endif
+    #ifdef USEREALTIMECLOCK
+        #error The PIC18 architecture does not have a Real-time clock and calander module
+    #endif
 #endif
 
 #ifdef ALLOW_PGMFUNCTIONS
-	#ifndef __18CXX
-		#error The pgm functions are unneccessary when not using PIC18
-	#endif
+    #ifndef __18CXX
+        #error The pgm functions are unneccessary when not using PIC18
+    #endif
 #endif
 
 #ifndef USEREALTIMECLOCK
@@ -165,16 +165,16 @@
     // Summary: A macro indicating that FSFILE objects will be allocated dynamically
     // Description: The FS_DYNAMIC_MEM macro will cause FSFILE objects to be allocated from a dynamic heap.  If it is undefined,
     //              the file objects will be allocated using a static array.
-	#define FS_DYNAMIC_MEM
-	#ifdef __18CXX
+    #define FS_DYNAMIC_MEM
+    #ifdef __18CXX
         // Description: Function pointer to a dynamic memory allocation function
-		#define FS_malloc	SRAMalloc
+        #define FS_malloc   SRAMalloc
         // Description: Function pointer to a dynamic memory free function
-		#define FS_free		SRAMfree
-	#else
-		#define FS_malloc	malloc
-		#define FS_free		free
-	#endif
+        #define FS_free     SRAMfree
+    #else
+        #define FS_malloc   malloc
+        #define FS_free     free
+    #endif
 #endif
 
 // Function definitions
@@ -287,7 +287,7 @@
     #define MDD_SectorWrite         USBHostMSDSCSISectorWrite
 
     // Description: Function pointer to the I/O Initialization Physical Layer function
-    #define MDD_InitIO();              
+    #define MDD_InitIO();
 
     // Description: Function pointer to the Media Shutdown Physical Layer function
     #define MDD_ShutdownMedia       USBHostMSDSCSIMediaReset
