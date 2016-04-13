@@ -68,6 +68,8 @@
         <itemPath>../../src/core/uart2.h</itemPath>
         <itemPath>../../src/core/uart3.c</itemPath>
         <itemPath>../../src/core/uart3.h</itemPath>
+        <itemPath>../../src/core/motor.c</itemPath>
+        <itemPath>../../src/core/motor.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f3" displayName="dev" projectFiles="true">
         <itemPath>../../src/dev/Compiler.h</itemPath>
@@ -126,7 +128,7 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>XC16</languageToolchain>
-        <languageToolchainVersion>1.25</languageToolchainVersion>
+        <languageToolchainVersion>1.26</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
