@@ -25,6 +25,8 @@ int main(void) {
         }
         --mot;
     }
+    
+    return (0);
 }
 
 int mainCamera(void) {
@@ -62,7 +64,7 @@ int mainCamera(void) {
     
     // change first character to 2 for file name to denote 2nd camera
     filename[0] = '2';
-    Boolean b = camera2.getPix(filename);
+    b = camera2.getPix(filename);
     //  camera.off();
 
     return (0);

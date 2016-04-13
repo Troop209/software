@@ -91,6 +91,6 @@ typedef struct {
 
 } Camera;
 
-extern const Camera camera;
+extern const Camera camera, camera2;
 
 #endif /* CAMERA_H */
