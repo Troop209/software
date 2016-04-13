@@ -24,9 +24,17 @@ typedef struct {
      * @param newDutyCycle - the desired duty cycle of the output signal as a positive integer percentage
      *                       (range: <code>MIN_DUTYCYCLE</code> to <code>MAX_DUTYCYCLE</code>)
      */
+
     void (*dutycycle)(Uint16 newDutyCycle);
     /**
-     * Initializes the LED software module
+     * Configures the duty cycle of the PWM output signal
+     * @param newDutyCycle - the desired duty cycle of the output signal as a positive integer percentage
+     *                       (range: <code>MIN_DUTYCYCLE</code> to <code>MAX_DUTYCYCLE</code>)
+     */
+    void (*period)(Uint16 newPeriod);
+
+    /**
+     * Initializes the Motor software module
      */
     void (*init)(void);
 } Motor;

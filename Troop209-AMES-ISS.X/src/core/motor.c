@@ -30,8 +30,9 @@
     // OC9CON1 = 0x1C08;     // clock source Fcy, trigger mode 1, disabled
     OC9CON1 = 0x1C08;        // clock source Tmr5, trigger mode 1, disabled
     OC9CON2 = 0x008F;        // triggered, non inverted signal (active high)
-    setPwm9Period(3125)  ;
-    setPwm9DutyCycle(24000)  ;
+    
+    OC9RS   =   24000;
+    OC9R    =   1;  
     
     /* configure pins */
     _PCFG8  = 1;  // PWM 1 is digital and NOT Analog input           
