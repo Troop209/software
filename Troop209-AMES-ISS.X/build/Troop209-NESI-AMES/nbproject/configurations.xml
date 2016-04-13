@@ -70,6 +70,7 @@
         <itemPath>../../src/core/uart3.h</itemPath>
         <itemPath>../../src/core/motor.c</itemPath>
         <itemPath>../../src/core/motor.h</itemPath>
+        <itemPath>../../src/core/camera2.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f3" displayName="dev" projectFiles="true">
         <itemPath>../../src/dev/Compiler.h</itemPath>

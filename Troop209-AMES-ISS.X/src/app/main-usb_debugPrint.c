@@ -29,8 +29,6 @@ int main(void) {
 
 int mainCamera(void) {
     nesi.init();
-    // Initializes NESI modules
-    nesi.init();
 
     // Set military time and Date
     DateAndTime timeTemp;
@@ -49,7 +47,7 @@ int mainCamera(void) {
 
     //   camera.on();
     char filename[32] = {0};
-    sprintf(filename, "%s.jpg", dateTime.getStamp());
+    sprintf(filename, "1_%s.jpg", dateTime.getStamp());
 
     // the ':' character is an invalid character, so it needs to be changed
     String temp = filename;
@@ -58,7 +56,13 @@ int mainCamera(void) {
             *temp = '.';
         ++temp;
     }
+    
+    // first character is 1 for file name
     Boolean b = camera.getPix(filename);
+    
+    // change first character to 2 for file name to denote 2nd camera
+    filename[0] = '2';
+    Boolean b = camera2.getPix(filename);
     //  camera.off();
 
     return (0);
