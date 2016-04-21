@@ -2,7 +2,7 @@
 
 #include "motor.h"
 
-int main(void) {
+int mainPwm(void) {
     int PWM_Positions[18] = {16000, 17000, 18000, 19000, 20000, 21000, 22000, 23000, 24000,
         25000, 26000, 27000, 28000, 29000, 30000, 31000, 32000, 16000};
 
@@ -29,7 +29,7 @@ int main(void) {
     return (0);
 }
 
-int mainCamera(void) {
+int main(void) {
     nesi.init();
 
     // Set military time and Date
@@ -60,7 +60,7 @@ int mainCamera(void) {
     }
     
     // first character is 1 for file name
-    Boolean b = camera.getPix(filename);
+    Boolean b = camera2.getPix(filename);
     
     // change first character to 2 for file name to denote 2nd camera
     filename[0] = '2';

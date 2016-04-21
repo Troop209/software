@@ -250,8 +250,8 @@ static void setPowerOutput2(Boolean desiredOutputState)
 {
    // _TRISE1 = 0;    /* configure port as output */
    //_RE1 = !!desiredOutputState; /* set the output (active high) */
-   _TRISE7 = 0;    /* configure port as output */
-   _RE7 = desiredOutputState; /* set the output */
+   _TRISE0 = 0;    /* configure port as output */
+   _RE0 = desiredOutputState; /* set the output */
 }
 
 static void turnOff2(void)
