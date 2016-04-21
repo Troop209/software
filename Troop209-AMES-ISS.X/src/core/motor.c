@@ -57,7 +57,7 @@
        newDutyCycle = MAX_DUTYCYCLE; // set value to max allowable duty cycle
 */
     OC9RS   =   newDutyCycle;
-    OC9R    =   1;  // (KYu) why is this 1? 
+    OC9R    =   1; 
 }
 
 static void setPwm9Period(Uint16 newPeriod)
@@ -65,4 +65,21 @@ static void setPwm9Period(Uint16 newPeriod)
     PR5   = newPeriod  ;   // Write Period Value into TIMER5 Preset Register
 }
 
-const Motor motor = {dutycycle:setPwm9DutyCycle, period:setPwm9Period, init:initPwm9};
+// Need to update these calues based on new motor to work
+int PWM_Positions[18] = {16000, 17000, 18000, 19000, 20000, 21000, 22000, 23000, 24000,
+        25000, 26000, 27000, 28000, 29000, 30000, 31000, 32000, 16000};
+
+static void setPwm9Position(Uint16 position) {
+    setPwm9DutyCycle(PWM_Positions[position]);
+    delay(10000);
+}
+
+void    SET_PWM9_JOG(int jog) 
+{   // add an offset to the current motor position 
+     // intended to do small move until Align switch makes 
+     OC9R=OC9R+jog ; 
+     return ; 
+}    
+
+    
+const Motor motor = {dutycycle:setPwm9DutyCycle, period:setPwm9Period, init:initPwm9, positionTo:setPwm9Position};
