@@ -65,7 +65,7 @@ static void setPwm9Period(Uint16 newPeriod)
     PR5   = newPeriod  ;   // Write Period Value into TIMER5 Preset Register
 }
 
-// Need to update these calues based on new motor to work
+// Need to update these values based on motor to work
 int PWM_Positions[18] = {16000, 17000, 18000, 19000, 20000, 21000, 22000, 23000, 24000,
         25000, 26000, 27000, 28000, 29000, 30000, 31000, 32000, 16000};
 
@@ -82,4 +82,4 @@ void    SET_PWM9_JOG(int jog)
 }    
 
     
-const Motor motor = {dutycycle:setPwm9DutyCycle, period:setPwm9Period, init:initPwm9, positionTo:setPwm9Position};
+const Motor motor = {init:initPwm9, dutycycle:setPwm9DutyCycle, period:setPwm9Period, positionTo:setPwm9Position};

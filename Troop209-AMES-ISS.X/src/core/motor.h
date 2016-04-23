@@ -37,6 +37,12 @@ typedef struct {
      * Initializes the Motor software module
      */
     void (*init)(void);
+    
+    /**
+     * Configures the motor to the position 1 - 8
+     * @param newPosition - 
+     */
+    void (*positionTo) (Uint16 newPosition);
 } Motor;
 
 extern const Motor motor;
