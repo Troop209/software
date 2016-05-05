@@ -2,6 +2,31 @@
 
 #include "motor.h"
 
+int main(void) {
+        system.init();
+
+        usb.connect();
+
+    char input[64] = {0};
+    int bytesRead = 0;
+    char message[128] = {0};
+    
+    while(1)
+    {
+        sprintf(message, "Time is: %s\r\n", dateTime.getStamp());
+        usb.print(message);
+        wait(1500);
+
+        
+        if((bytesRead = usb.read(input,64)))
+        {
+            input[bytesRead] = '\0'; // terminate string
+            usb.printf("At time %s, %d bytes of data received:\r\n\"%s\"\r\n\r\n",
+                    dateTime.getStamp(), bytesRead, input);
+        }
+    }
+    
+}
 int mainPwm(void) {
     int PWM_Positions[18] = {16000, 17000, 18000, 19000, 20000, 21000, 22000, 23000, 24000,
         25000, 26000, 27000, 28000, 29000, 30000, 31000, 32000, 16000};
@@ -29,7 +54,7 @@ int mainPwm(void) {
     return (0);
 }
 
-int main(void) {
+int mainCamera(void) {
     nesi.init();
 
     // Set military time and Date
