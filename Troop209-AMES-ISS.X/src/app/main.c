@@ -9,6 +9,6 @@ int main(void)
     //kernel06();  
     //kernel07();  
     //kernel08();  
-    kernel09();  
+    kernel12();  
     //servomotor2();
 }
