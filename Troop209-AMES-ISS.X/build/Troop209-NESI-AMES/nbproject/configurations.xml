@@ -88,6 +88,24 @@
         <itemPath>../../src/mdd/SD-SPI.c</itemPath>
         <itemPath>../../src/mdd/SD-SPI.h</itemPath>
       </logicalFolder>
+      <logicalFolder name="f5" displayName="norm" projectFiles="true">
+        <itemPath>../../src/norm/PIC24_I2C2_R6.c</itemPath>
+        <itemPath>../../src/norm/PIC24_I2C2_R6.h</itemPath>
+        <itemPath>../../src/norm/Accelerometer.c</itemPath>
+        <itemPath>../../src/norm/Accelerometer.h</itemPath>
+        <itemPath>../../src/norm/Gyroscope.c</itemPath>
+        <itemPath>../../src/norm/Gyroscope.h</itemPath>
+        <itemPath>../../src/norm/Magnetometer.c</itemPath>
+        <itemPath>../../src/norm/Magnetometer.h</itemPath>
+        <itemPath>../../src/norm/RealTimeClock.c</itemPath>
+        <itemPath>../../src/norm/RealTimeClock.h</itemPath>
+        <itemPath>../../src/norm/RedGreenBlue.c</itemPath>
+        <itemPath>../../src/norm/RedGreenBlue.h</itemPath>
+        <itemPath>../../src/norm/Switch_Align_Home.c</itemPath>
+        <itemPath>../../src/norm/Switch_Align_Home.h</itemPath>
+        <itemPath>../../src/norm/TempPresHumd.c</itemPath>
+        <itemPath>../../src/norm/TempPresHumd.h</itemPath>
+      </logicalFolder>
       <logicalFolder name="f6" displayName="troop209app" projectFiles="true">
         <itemPath>../../src/troop209app/kernel12.c</itemPath>
         <itemPath>../../src/troop209app/main.c</itemPath>
