@@ -33,6 +33,8 @@
         <itemPath>../../src/app/main-usb_print_time.c</itemPath>
         <itemPath>../../src/app/main-usb_echo.c</itemPath>
         <itemPath>../../src/app/main-usb_debugPrint.c</itemPath>
+        <itemPath>../../src/app/main-troop209.c</itemPath>
+        <itemPath>../../src/app/main.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f4" displayName="core" projectFiles="true">
         <itemPath>../../src/core/button.c</itemPath>
@@ -47,6 +49,8 @@
         <itemPath>../../src/core/file.h</itemPath>
         <itemPath>../../src/core/led.c</itemPath>
         <itemPath>../../src/core/led.h</itemPath>
+        <itemPath>../../src/core/moisture.c</itemPath>
+        <itemPath>../../src/core/moisture.h</itemPath>
         <itemPath>../../src/core/nesi.c</itemPath>
         <itemPath>../../src/core/nesi.h</itemPath>
         <itemPath>../../src/core/powerDriver.c</itemPath>
@@ -417,6 +421,7 @@
         <property key="UART 3" value="true"/>
         <property key="UART 4" value="true"/>
         <property key="UCNFG1" value="true"/>
+        <property key="firmware.download.all" value="false"/>
         <property key="hwtoolclock.frcindebug" value="false"/>
         <property key="memories.aux" value="false"/>
         <property key="memories.bootflash" value="false"/>
