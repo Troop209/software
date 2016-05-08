@@ -12,7 +12,6 @@ int kernel12(void)
 {
     // initialize all modules
     system.init();
-    nesi.init();
     moisture.init();
     CopCarInit();
     
@@ -117,35 +116,7 @@ void  takePictureCamera1() {
     
     flash(6);
     wait(STEP_WAIT);
-     // Set military time and Date
-    DateAndTime timeTemp;
-
-    // time = 12:52:50
-    timeTemp.hour = 16;
-    timeTemp.minute = 0;
-    timeTemp.second = 0;
-
-    // date = 10/29/13
-    timeTemp.month = NOVEMBER;
-    timeTemp.day = 25;
-    timeTemp.year = 13;
-
-    dateTime.set(timeTemp);
-
-    //   camera.on();
-    char filename[32] = {0};
-    sprintf(filename, "camera_1_%s.jpg", dateTime.getStamp());
-
-    // the ':' character is an invalid character, so it needs to be changed
-    String temp = filename;
-    while (*temp) {
-        if (*temp == ':')
-            *temp = '.';
-        ++temp;
-    }
-    
-    // first character is 1 for file name
-    Boolean b = camera.getPix(filename);
+            
 }
 
 // takePictureCamera2 - Take picture on camera 2
@@ -154,36 +125,7 @@ void takePictureCamera2() {
     
     flash(7);
     wait(STEP_WAIT);
-    
-         // Set military time and Date
-    DateAndTime timeTemp;
-
-    // time = 12:52:50
-    timeTemp.hour = 16;
-    timeTemp.minute = 0;
-    timeTemp.second = 0;
-
-    // date = 10/29/13
-    timeTemp.month = NOVEMBER;
-    timeTemp.day = 25;
-    timeTemp.year = 13;
-
-    dateTime.set(timeTemp);
-
-    //   camera.on();
-    char filename[32] = {0};
-    sprintf(filename, "camera_2_%s.jpg", dateTime.getStamp());
-
-    // the ':' character is an invalid character, so it needs to be changed
-    String temp = filename;
-    while (*temp) {
-        if (*temp == ':')
-            *temp = '.';
-        ++temp;
-    }
-    
-    // first character is 1 for file name
-    Boolean b = camera2.getPix(filename);
+            
 }
 
 // waitForExternalEvent - Wait for a DIP switch to be set
