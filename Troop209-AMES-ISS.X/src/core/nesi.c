@@ -37,6 +37,7 @@ static void initialize(void)
     usb.init();
     dataLog.init();
     camera.init();
+    camera2.init();
     dateTime.init();
 }
 
