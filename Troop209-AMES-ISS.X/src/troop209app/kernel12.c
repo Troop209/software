@@ -5,15 +5,22 @@
 #include <nesi.h>
 #include <led.h>
 #include <moisture.h>
+#include <camera.h>
+
 #define STEP_WAIT 3000
 
+int picNumber;
 
 int kernel12(void)
 {
     // initialize all modules
+    nesi.init();
     system.init();
     moisture.init();
+    camera.init();
     CopCarInit();
+    
+    picNumber = 800;
     
     //  Never ending loop
     //    1. Initialize all hardware
@@ -21,7 +28,7 @@ int kernel12(void)
     //    3. Run scheduled tasks
     //    4. Wait for an external event to loop
     
-    while (1) {
+    while ( getDips() < 2 ) {
         
         init();
     
@@ -29,10 +36,12 @@ int kernel12(void)
     
         schedule();
         
-        waitForExternalEvent();
+        //waitForExternalEvent();
     
     }
     
+    //usb.disconnect();
+    while(1);
     
     return 0;
 }
@@ -43,6 +52,7 @@ void init() {
     
     flash(1);
     wait(1000);
+    //usb.connect();
 
 }
 
@@ -76,7 +86,7 @@ void schedule() {
 
         takePictureCamera1();
 
-        takePictureCamera2(); 
+        //takePictureCamera2(); 
         
     }
     
@@ -116,7 +126,14 @@ void  takePictureCamera1() {
     
     flash(6);
     wait(STEP_WAIT);
-            
+    
+    char filename[32] = {0};
+    sprintf(filename, "picture%i.jpg", ++picNumber);
+    
+    //camera.on();
+    camera.getPix(filename);
+    //camera.off();
+    
 }
 
 // takePictureCamera2 - Take picture on camera 2
