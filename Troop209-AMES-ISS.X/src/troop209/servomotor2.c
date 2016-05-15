@@ -15,8 +15,8 @@ int servomotor2(void)
 }
 
 void ServoInit() {
-    pwma1.init(4);  // degree calculation is -2.5 * degree + 250
-    timer1.start(2,0);
+    pwma1.init(PWM_TIMER_SELECTION_TIMER5);  // degree calculation is -2.5 * degree + 250
+    timer5.start(2,0);
 }
 
 void ServoRun()

@@ -19,6 +19,7 @@ int kernel12(void)
     moisture.init();
     camera.init();
     CopCarInit();
+    ServoInit();
     
     picNumber = 800;
     
@@ -116,6 +117,7 @@ void positionToPlate(int plate) {
     
     flash(5);
     flash(plate);
+    goTo( 30 * plate, 10);
     wait(STEP_WAIT);
             
 }
