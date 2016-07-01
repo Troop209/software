@@ -102,6 +102,8 @@
         <itemPath>../../src/norm/TempPresHumd.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f6" displayName="troop209app" projectFiles="true">
+        <itemPath>../../src/troop209app/camera_main.c</itemPath>
+        <itemPath>../../src/troop209app/non_pwm_led.c</itemPath>
         <itemPath>../../src/troop209app/camtest.c</itemPath>
         <itemPath>../../src/troop209app/kernel12.c</itemPath>
         <itemPath>../../src/troop209app/servomotor2.c</itemPath>

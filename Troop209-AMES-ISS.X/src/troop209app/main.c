@@ -10,6 +10,7 @@ int main(void)
     //kernel07();  
     //kernel08();  
     //kernel12();  
-    camtest();
+    // camtest();
     //servomotor2();
+    camera_main();
 }

@@ -5,8 +5,6 @@
 
 #define STEP_WAIT 3000
 
-int mirrorPicNumber;
-
 int camtest(void)
 {
     // initialize all modules
@@ -15,7 +13,7 @@ int camtest(void)
     camera.init();
     CopCarInit();
     
-    mirrorPicNumber = 800;
+    int mirrorPicNumber = 800;
     
     //  Never ending loop
     //    1. Wait for pushbutton to be pressed
