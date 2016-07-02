@@ -35,8 +35,8 @@ int camera_main(void)
     // 2.  camera #
     // 3.  servo position (hard code some value for now)
     // -------------------------------------------------------------------------------
-    int camera_num = "1";
-    int servo_pos = "2";
+    char camera_num = "1";
+    char servo_pos = "2";
     sprintf(filename, "%s_%s_%s.jpg", camera_num, servo_pos, dateTime.getStamp());
 
     // the ':' character is an invalid character, so it needs to be changed

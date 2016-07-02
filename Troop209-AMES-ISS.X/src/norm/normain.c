@@ -16,7 +16,7 @@
 #include "Switch_Align_Home.h"
 #include "PIC24_Peripherals.h"
 #include "PIC24_I2C2_R5.h"
-#include "Real Time Clock.h"
+//#include "Real Time Clock.h"
 
 
 int main(int argc, char** argv) 
@@ -210,7 +210,7 @@ int main(int argc, char** argv)
 //    RTC I2C2 Decive Testing
 // *********************************************      
         case 70    :
-         i2c2_TalkToDevice(0x68, RTC_GET_LENGTH, PTR_SET_TIME, RTC_RSP_LENGTH, STG_GET_TIME)              ;  ;      // Real Time Clock Set Time
+//         i2c2_TalkToDevice(0x68, RTC_GET_LENGTH, PTR_SET_TIME, RTC_RSP_LENGTH, STG_GET_TIME)              ;  ;      // Real Time Clock Set Time
          delay(1)           ;
          break              ;
         case 71    :

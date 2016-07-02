@@ -1,4 +1,4 @@
-int main(void)
+void ff_main(void)
 {
     // initialize all modules
     //kernel01();
@@ -12,5 +12,5 @@ int main(void)
     //kernel12();  
     // camtest();
     //servomotor2();
-    camera_main();
+    servomotor2();
 }

@@ -63,5 +63,5 @@ static void setOffLED2(void) {
  * modulated signal to control the LED banks. ledR controls the R bank
  * and ledB controls the B bank.
  */
-const NonPWMLed led1 = {on : setOnLED1, off : setOnLED1},
+const NonPWMLed led1 = {on : setOnLED1, off : setOffLED1},
 led2 = {on : setOnLED2, off : setOffLED2};

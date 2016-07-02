@@ -1,6 +1,6 @@
 #include "system.h"
 #include "nesi.h"
-#include "PIC24_i2c2_R5.h"
+#include "PIC24_i2c2_R7.h"
 #include "TempPresHumd.h"
 
 signed int SNS_Temerature   ;

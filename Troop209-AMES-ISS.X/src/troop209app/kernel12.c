@@ -117,7 +117,7 @@ void positionToPlate(int plate) {
     
     flash(5);
     flash(plate);
-    goTo( 30 * plate, 10);
+    //goTo( 30 * plate, 10);
     wait(STEP_WAIT);
             
 }

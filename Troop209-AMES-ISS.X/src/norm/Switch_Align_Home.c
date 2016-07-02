@@ -7,13 +7,17 @@
 // Read (with automatic initiialize of all bit registers) for Align switch
 // Signal is Activ e lOw !!!  1== oFF; 0 == ON        
 int Read_Switch_Align(void)
-{   AD1PCFGLbits.PCFG12 = 1     ;   // prevent use as A/D input #12
+{   int Align   =0 ;
+    AD1PCFGLbits.PCFG12 = 1     ;   // prevent use as A/D input #12
     AD1CSSLbits.CSSL12  = 0     ;   // A/D shall not scan this input
     CNPU2bits.CN30PUE   = 1     ;   // Enable internal pullup for switch
+    CNPU1bits.CN15PUE   = 1     ;   // Enable internal pullup for switch
     TRISBbits.TRISB12   = 1     ;   // Set Port B bit 12 to input
+    TRISDbits.TRISD6    = 1     ;   // Set Port D bit 6 to input
     nop()   ;
     nop()   ;
-    return (PORTBbits.RB12) ;
+    Align=PORTDbits.RD6 *2 + PORTBbits.RB12  ;
+    return (Align) ;
 }
 // Read (with automatic initialize of all bit registers) for Home switch
 // Signal is Activ e lOw !!!  1== oFF; 0 == ON        
@@ -121,8 +125,8 @@ void setOutputLED2(Boolean desiredOutputState)
 {   __builtin_write_OSCCONL(OSCCON & 0xBF)  ; // unlock Peripheral Pin Select Registers
      RPOR4=0x0000                           ; /* clear RP8 and RP9 so Port drives pins */
     __builtin_write_OSCCONL(OSCCON | 0x40)  ; // lock Peripheral Pin Select Registers
-    _TRISB9 = 0;    /* configure port as output */
-    _RB9 = desiredOutputState; /* set the output */
+    _TRISB8 = 0;    /* configure port as output */
+    _RB8 = desiredOutputState; /* set the output */
 
 }
 

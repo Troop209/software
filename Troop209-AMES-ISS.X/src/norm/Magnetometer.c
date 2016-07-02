@@ -1,6 +1,6 @@
 #include "system.h"
 #include "nesi.h"
-#include "PIC24_I2C2_R6.h"
+#include "PIC24_I2C2_R7.h"
 #include "Magnetometer.h"
 
 // $ $ $ $ $ $ $ $ $ $ $ $ $ $ $ $ $ $ $ $ $ $ $ $ $ $ $ $ $ $ $ $ $$ $ $ $ $ $

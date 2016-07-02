@@ -1,59 +1,57 @@
 #include "../core/system.h"
 #include "tmr5.h"
-#include "pwm9.h"
+#include "../norm/PIC24_Peripherals.h"
 
+int main(int argc, char** argv) {
+    // initialize all modules
 
-int servomotor2(void)  
-{
-   // initialize all modules
-    
     system.init();
-    ServoInit();
-    ServoRun();
-    
-    return (0);
+    system.on6volt();
+    int period = 3125;
+    int dutcycl = 24000;
+    int pos = 0;
+    int position = 16000;
+    int mot = 5000;
+    int PWM_Positions[10] = {16000, 18000, 20000, 22000, 24000, 26000, 28000, 30000, 32000, 16000};
+    long Mdelay  = 10000      ;
+
+    PWM9_init();
+    SET_PWM9_Period(period);
+    SET_PWM9_DutyCycle(dutcycl);
+
+    while (mot > 0) {
+        pos = 0;
+        while (pos < 9) {
+            position = PWM_Positions[pos];
+            SET_PWM9_DutyCycle(position);
+            delay(Mdelay);
+            pos++;
+        }
+        --mot;
+    }
+    return (TRUE);
 }
 
 void ServoInit() {
-    pwma9.init(PWM_TIMER_SELECTION_TIMER5);  // degree calculation is -2.5 * degree + 250
-    timer5.start(2,0);
+    int dutcycl = 24000;
+    int period = 3125;
+
+    PWM9_init();
+    SET_PWM9_Period(period);
+    SET_PWM9_DutyCycle(dutcycl);
 }
 
-void ServoRun()
-{
-//    goTo( -90, 500);
-//    delay(2000);
-//    goTo( -60, 500);
-//    delay(2000);
-//    goTo( -30, 500);
-//    delay(2000);
-//    goTo( 0, 500);
-//    delay(2000);
-    goTo( 30, 500);
-    delay(2000);
-    goTo( 60, 500);
-    delay(2000);
-    goTo( 90, 500);
-    delay(2000);
-    goTo( 60, 500);
-    delay(2000);
-    goTo( 30, 500);
-    delay(2000);
-//    goTo( 0, 500);
-//    delay(2000);
-//    goTo( -30, 500);
-//    delay(2000);
-//    goTo( -60, 500);
-//    delay(2000);
-//    goTo( -90, 500);
-//    delay(2000);
-    
-    delay(1000);
+void ServoRun() {
+    int pos = 0;
+    int position = 0;
+    int PWM_Positions[10] = {16000, 18000, 20000, 22000, 24000, 26000, 28000, 30000, 32000, 16000};
+    long Mdelay = 10000;
+    while (pos < 9) {
+        position = PWM_Positions[pos];
+        SET_PWM9_DutyCycle(position);
+        delay(Mdelay);
+        pos++;
+    }
+
 }
 
-void goTo(int degrees, int micros)
-{
-    int width = 350 - (degrees * 2.5);
-    pwma9.turnOn( 10000, width);
-    delay(micros);
-}

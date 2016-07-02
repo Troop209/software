@@ -25,7 +25,7 @@
  */
 static void initialize(void)
 {
-    system.init();
+    system.init(); /*
     ledR.init();
     ledB.init();
     powerDriverA.init();
@@ -39,6 +39,7 @@ static void initialize(void)
     camera.init();
     camera2.init();
     dateTime.init();
+                    */
 }
 
 /**

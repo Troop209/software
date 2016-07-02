@@ -56,8 +56,6 @@
         <itemPath>../../src/core/system.h</itemPath>
         <itemPath>../../src/core/usb.c</itemPath>
         <itemPath>../../src/core/usb.h</itemPath>
-        <itemPath>../../src/core/dateTime.h</itemPath>
-        <itemPath>../../src/core/dateTime.c</itemPath>
         <itemPath>../../src/core/uart.h</itemPath>
         <itemPath>../../src/core/uart1.c</itemPath>
         <itemPath>../../src/core/uart1.h</itemPath>
@@ -65,8 +63,6 @@
         <itemPath>../../src/core/uart2.h</itemPath>
         <itemPath>../../src/core/uart3.c</itemPath>
         <itemPath>../../src/core/uart3.h</itemPath>
-        <itemPath>../../src/core/motor.c</itemPath>
-        <itemPath>../../src/core/motor.h</itemPath>
         <itemPath>../../src/core/camera2.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f3" displayName="dev" projectFiles="true">
@@ -84,15 +80,19 @@
         <itemPath>../../src/mdd/SD-SPI.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f5" displayName="norm" projectFiles="true">
-        <itemPath>../../src/norm/PIC24_I2C2_R6.c</itemPath>
-        <itemPath>../../src/norm/PIC24_I2C2_R6.h</itemPath>
+        <itemPath>Accelerometer.h</itemPath>
         <itemPath>../../src/norm/Accelerometer.c</itemPath>
-        <itemPath>../../src/norm/Accelerometer.h</itemPath>
+        <itemPath>../../src/norm/GenericTypeDefs_1.h</itemPath>
         <itemPath>../../src/norm/Gyroscope.c</itemPath>
         <itemPath>../../src/norm/Gyroscope.h</itemPath>
+        <itemPath>../../src/norm/I2C2_dateTime.c</itemPath>
+        <itemPath>../../src/norm/I2C2_dateTime.h</itemPath>
         <itemPath>../../src/norm/Magnetometer.c</itemPath>
         <itemPath>../../src/norm/Magnetometer.h</itemPath>
-        <itemPath>../../src/norm/RealTimeClock.c</itemPath>
+        <itemPath>../../src/norm/PIC24_I2C2 R7.c</itemPath>
+        <itemPath>../../src/norm/PIC24_I2C2_R7.h</itemPath>
+        <itemPath>../../src/norm/PIC24_Peripherals.c</itemPath>
+        <itemPath>../../src/norm/PIC24_Peripherals.h</itemPath>
         <itemPath>../../src/norm/RealTimeClock.h</itemPath>
         <itemPath>../../src/norm/RedGreenBlue.c</itemPath>
         <itemPath>../../src/norm/RedGreenBlue.h</itemPath>
@@ -100,16 +100,10 @@
         <itemPath>../../src/norm/Switch_Align_Home.h</itemPath>
         <itemPath>../../src/norm/TempPresHumd.c</itemPath>
         <itemPath>../../src/norm/TempPresHumd.h</itemPath>
+        <itemPath>../../src/norm/resistiveSensors.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f6" displayName="troop209app" projectFiles="true">
-        <itemPath>../../src/troop209app/camera_main.c</itemPath>
-        <itemPath>../../src/troop209app/non_pwm_led.c</itemPath>
-        <itemPath>../../src/troop209app/camtest.c</itemPath>
-        <itemPath>../../src/troop209app/kernel12.c</itemPath>
         <itemPath>../../src/troop209app/servomotor2.c</itemPath>
-        <itemPath>../../src/troop209app/main.c</itemPath>
-        <itemPath>../../src/troop209app/tmr5.c</itemPath>
-        <itemPath>../../src/troop209app/pwm9.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="usb" projectFiles="true">
         <itemPath>../../src/usb/HardwareProfile.h</itemPath>
@@ -436,6 +430,7 @@
         <property key="UART 3" value="true"/>
         <property key="UART 4" value="true"/>
         <property key="UCNFG1" value="true"/>
+        <property key="firmware.download.all" value="false"/>
         <property key="hwtoolclock.frcindebug" value="false"/>
         <property key="memories.aux" value="false"/>
         <property key="memories.bootflash" value="false"/>
