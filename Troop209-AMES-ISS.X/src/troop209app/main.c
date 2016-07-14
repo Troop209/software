@@ -1,4 +1,7 @@
-void ff_main(void)
+#include "camera_main.h"
+#include "servomotor2.h"
+
+int main(void)
 {
     // initialize all modules
     //kernel01();
@@ -10,7 +13,7 @@ void ff_main(void)
     //kernel07();  
     //kernel08();  
     //kernel12();  
-    // camtest();
+    camera_main();
     //servomotor2();
-    servomotor2();
+    return 0;
 }

@@ -44,16 +44,16 @@ static void toggleLED2(Boolean desiredOutputState) {
     __builtin_write_OSCCONL(OSCCON & 0xBF); // unlock Peripheral Pin Select Registers
     RPOR4 = 0x0000; /* clear RP8 and RP9 so Port drives pins */
     __builtin_write_OSCCONL(OSCCON | 0x40); // lock Peripheral Pin Select Registers
-    _TRISB9 = 0; /* configure port as output */
-    _RB9 = desiredOutputState; /* set the output */
+    _TRISB8 = 0; /* configure port as output */
+    _RB8 = desiredOutputState; /* set the output */
 }
 
 static void setOnLED2(void) {
-    setOutputLED2(TRUE); /* set the output to be open */
+    toggleLED2(TRUE); /* set the output to be open */
 }
 
 static void setOffLED2(void) {
-    setOutputLED2(FALSE); /* set the output to be closed */
+    toggleLED2(FALSE); /* set the output to be closed */
 }
 
 /**

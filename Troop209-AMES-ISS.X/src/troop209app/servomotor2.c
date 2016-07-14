@@ -1,8 +1,7 @@
 #include "../core/system.h"
-#include "tmr5.h"
 #include "../norm/PIC24_Peripherals.h"
 
-int main(int argc, char** argv) {
+void servomotor2() {
     // initialize all modules
 
     system.init();
@@ -29,7 +28,6 @@ int main(int argc, char** argv) {
         }
         --mot;
     }
-    return (TRUE);
 }
 
 void ServoInit() {
