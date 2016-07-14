@@ -228,6 +228,18 @@
         <C30Global>
         </C30Global>
       </item>
+      <item path="../../src/app/main-usb_debugPrint.c" ex="true" overriding="false">
+        <C30>
+        </C30>
+        <C30-AR>
+        </C30-AR>
+        <C30-AS>
+        </C30-AS>
+        <C30-LD>
+        </C30-LD>
+        <C30Global>
+        </C30Global>
+      </item>
       <item path="../../src/app/main-usb_echo.c" ex="true" overriding="false">
         <C30>
         </C30>
