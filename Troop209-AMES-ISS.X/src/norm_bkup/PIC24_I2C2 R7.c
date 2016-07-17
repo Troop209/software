@@ -501,12 +501,16 @@ int i2c2_TalkToDevice(char addr, char I2C2_slen, char *I2C2_sbuf, char I2C2_rlen
     {  i2c2_Diag_Report()      ;
        return (0);                  // we done with this request
     }
-if (addr == I2C_CLR_DIAG )
+    if (addr == I2C_CLR_DIAG )
     {   i2c2_Diag_Clear()      ;
         return (0);                  // we done with this request
     }
-    // could include an I2C2 Inbit call here if address = some variable value
     // if (I2C2_slen+I2C2_rlen == 0)
+    // {   stat = i2c2_ping(addr) ;
+    //     if(stat > 0) 
+    //     { stat = stat << 4       ;
+    //       I2C2_stat = stat+15    ;
+    //     }
     //     return (I2C2_stat);                  // we done with this request
     // }
     while (lcount > 0)
@@ -582,11 +586,6 @@ if (addr == I2C_CLR_DIAG )
        }
        --lcount     ;
     }
-    if (I2C2_stat != 0)
-       {   I2C2_Msg_Nak_cnt++ ;
-          i2c2_reset_bus ()   ;
-          I2C2_stat  =  0     ;
-       }
    i2c2_Diag_Report() ;
    return (I2C2_stat) ; 
 }

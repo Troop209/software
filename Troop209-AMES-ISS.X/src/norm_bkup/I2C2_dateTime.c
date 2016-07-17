@@ -1452,17 +1452,17 @@ int getI2C2_RTCTime(char *RTC_I2C_TimeStamp)
     stat = i2c2_TalkToDevice(0x68, 1, &RTM_I2C_RegAdr,  7, RTC_I2C_String) ;
     
     RTC_I2C_TimeStamp[0]  = (RTC_I2C_String[6] >>   4) + '0' ;
-    RTC_I2C_TimeStamp[1]  = (RTC_I2C_String[6] & 0x0F) + '0' ;
+    RTC_I2C_TimeStamp[1]  = (RTC_I2C_String[6] %   10) + '0' ;
     RTC_I2C_TimeStamp[3]  = (RTC_I2C_String[5] >>   4) + '0' ;
-    RTC_I2C_TimeStamp[4]  = (RTC_I2C_String[5] & 0x0F) + '0' ;
+    RTC_I2C_TimeStamp[4]  = (RTC_I2C_String[5] %   10) + '0' ;
     RTC_I2C_TimeStamp[6]  = (RTC_I2C_String[4] >>   4) + '0' ;
-    RTC_I2C_TimeStamp[7]  = (RTC_I2C_String[4] & 0x0F) + '0' ;
+    RTC_I2C_TimeStamp[7]  = (RTC_I2C_String[4] %   10) + '0' ;
     RTC_I2C_TimeStamp[9]  = (RTC_I2C_String[2] >>   4) + '0' ;
-    RTC_I2C_TimeStamp[10] = (RTC_I2C_String[2] & 0x0F) + '0' ;
+    RTC_I2C_TimeStamp[10] = (RTC_I2C_String[2] %   10) + '0' ;
     RTC_I2C_TimeStamp[12] = (RTC_I2C_String[1] >>   4) + '0' ;
-    RTC_I2C_TimeStamp[13] = (RTC_I2C_String[1] & 0x0F) + '0' ;
+    RTC_I2C_TimeStamp[13] = (RTC_I2C_String[1] %   10) + '0' ;
     RTC_I2C_TimeStamp[15] = (RTC_I2C_String[0] >>   4) + '0' ;
-    RTC_I2C_TimeStamp[16] = (RTC_I2C_String[0] & 0x0F) + '0' ;
+    RTC_I2C_TimeStamp[16] = (RTC_I2C_String[0] %   10) + '0' ;
     RTC_I2C_TimeStamp[17] = 0   ;   // set end of string
     return (stat)  ;
 }

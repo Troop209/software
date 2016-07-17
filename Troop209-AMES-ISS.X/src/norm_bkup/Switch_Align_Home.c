@@ -22,17 +22,12 @@ int Read_Switch_Align(void)
 // Read (with automatic initialize of all bit registers) for Home switch
 // Signal is Activ e lOw !!!  1== oFF; 0 == ON        
 int Read_Switch_Home(void)
-{   int Home   =0 ;
-    // AD1PCFGLbits.PCFG12 = 1     ;   // prevent use as A/D input #12
-    // AD1CSSLbits.CSSL12  = 0     ;   // A/D shall not scan this input
-    CNPU4bits.CN52PUE   = 1     ;   // Enable internal pullup for switch
-    CNPU4bits.CN50PUE   = 1     ;   // Enable internal pullup for switch
-    TRISDbits.TRISD3    = 1     ;   // Set Port B bit 12 to input
-    TRISDbits.TRISD1    = 1     ;   // Set Port D bit 6 to input
+{   CNPU1bits.CN15PUE   = 1     ;   // Enable internal pullup for switch
+    TRISDbits.TRISD6    = 1     ;   // Set Port D bit 6 to input
     nop()   ;
     nop()   ;
-    Home=PORTDbits.RD3 *2 + PORTDbits.RD1  ;
-    return (Home) ;
+  // Set Bit 6 in input
+    return (PORTDbits.RD6)  ;
 }
 
 void setOutputCam1(Boolean desiredOutputState)

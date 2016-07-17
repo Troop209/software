@@ -220,8 +220,8 @@ int RGB_ReadValues (void)
   else      
   { SNS_CLR_LIGHT   = (RGB_rbuf[2]*256) + RGB_rbuf[1] ;   // Low High x95 0x94    RGB_rbuf[2], RGB_rbuf[1]
     SNS_RED_LIGHT   = (RGB_rbuf[4]*256) + RGB_rbuf[3] ;   // Low High x97 0x96    RGB_rbuf[], RGB_rbuf[]
-    SNS_GRN_LIGHT   = (RGB_rbuf[6]*256) + RGB_rbuf[5] ;   // Low High x99 0x98    RGB_rbuf[], RGB_rbuf[]
-    SNS_BLU_LIGHT   = (RGB_rbuf[8]*256) + RGB_rbuf[7] ;   // Low High x9B 0x9A    RGB_rbuf[], RGB_rbuf[] 
+    SNS_BLU_LIGHT   = (RGB_rbuf[6]*256) + RGB_rbuf[5] ;   // Low High x99 0x98    RGB_rbuf[], RGB_rbuf[]
+    SNS_GRN_LIGHT   = (RGB_rbuf[8]*256) + RGB_rbuf[7] ;   // Low High x9B 0x9A    RGB_rbuf[], RGB_rbuf[] 
   }
  return (RGB_stat)     ;
  }

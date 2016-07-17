@@ -16,34 +16,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "nesi.h"
-
-/**
- * initialize() Information
- *
- * This function initializes the NESI board's modules.
- */
-static void initialize(void)
-{
-    system.init(); 
-    ledR.init();
-    ledB.init();
-    powerDriverA.init();
-    powerDriverB.init();
-    button.init();
-    co2.init();
-    resistiveSensors.init();
-    sdcard.init();
-    usb.init();
-    dataLog.init();
-    camera.init();
-    camera2.init();
-    dateTime.init();
-}
+#include "system.h"
+//#include "led.h"
+//#include "resistiveSensors.h"
+//#include "powerDriver.h"
+//#include "co2.h"
+//#include "button.h"
+//#include "usb.h"
+//#include "sdcard.h"
+//#include "dataLog.h"
+//#include "camera.h"
+//#include "dateTime.h"
 
 /**
  * nesi Information
  *
- * nesi is the software wrapper for the NESI board.
+ * nesi is the software wrapper for the NESI initialization module.
  */
-const Nesi nesi = {.init = initialize};
+typedef struct {
+    void (*init)(void);
+} Nesi;
+
+extern const Nesi nesi;

@@ -9,12 +9,11 @@
 #define	TEMPPRESHUMD_H
 
 
-#define THP_Addr     0X77
+#define THP_Addr     0X39 
 
 int     THP_Configure1 (void)       ;
 int     THP_Configure2 (void)       ;   
 int     THP_Configure3 (void)       ;
-int     THP_Init (void)             ;
 int     THP_Read_Values (void)      ;
 void    THP_LoadConfigs (void)      ;
 signed   long THP_compensate_T_int32(signed long adc_T) ;

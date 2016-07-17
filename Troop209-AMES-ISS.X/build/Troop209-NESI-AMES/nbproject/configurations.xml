@@ -80,15 +80,8 @@
         <itemPath>../../src/mdd/SD-SPI.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f5" displayName="norm" projectFiles="true">
-        <itemPath>Accelerometer.h</itemPath>
-        <itemPath>../../src/norm/Accelerometer.c</itemPath>
-        <itemPath>../../src/norm/GenericTypeDefs_1.h</itemPath>
-        <itemPath>../../src/norm/Gyroscope.c</itemPath>
-        <itemPath>../../src/norm/Gyroscope.h</itemPath>
         <itemPath>../../src/norm/I2C2_dateTime.c</itemPath>
         <itemPath>../../src/norm/I2C2_dateTime.h</itemPath>
-        <itemPath>../../src/norm/Magnetometer.c</itemPath>
-        <itemPath>../../src/norm/Magnetometer.h</itemPath>
         <itemPath>../../src/norm/PIC24_I2C2 R7.c</itemPath>
         <itemPath>../../src/norm/PIC24_I2C2_R7.h</itemPath>
         <itemPath>../../src/norm/PIC24_Peripherals.c</itemPath>
