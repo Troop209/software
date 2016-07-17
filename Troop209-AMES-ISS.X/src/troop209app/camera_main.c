@@ -23,7 +23,7 @@ int camera_main(void)
     // MA_TODO:  Update to demo date (hint:  July 7, hint2:  make sure you have right year)
     // -------------------------------------------------------------------------------
     timeTemp.month = JULY;
-    timeTemp.day =14;
+    timeTemp.day =17;
     timeTemp.year = 16;
 
     dateTime.set(timeTemp);
