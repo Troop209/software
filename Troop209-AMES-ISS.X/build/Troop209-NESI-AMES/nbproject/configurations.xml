@@ -79,27 +79,49 @@
         <itemPath>../../src/mdd/SD-SPI.c</itemPath>
         <itemPath>../../src/mdd/SD-SPI.h</itemPath>
       </logicalFolder>
-      <logicalFolder name="f5" displayName="norm" projectFiles="true">
-        <itemPath>../../src/norm/I2C2_dateTime.c</itemPath>
-        <itemPath>../../src/norm/I2C2_dateTime.h</itemPath>
-        <itemPath>../../src/norm/PIC24_I2C2 R7.c</itemPath>
-        <itemPath>../../src/norm/PIC24_I2C2_R7.h</itemPath>
-        <itemPath>../../src/norm/PIC24_Peripherals.c</itemPath>
-        <itemPath>../../src/norm/PIC24_Peripherals.h</itemPath>
-        <itemPath>../../src/norm/RealTimeClock.h</itemPath>
-        <itemPath>../../src/norm/RedGreenBlue.c</itemPath>
-        <itemPath>../../src/norm/RedGreenBlue.h</itemPath>
-        <itemPath>../../src/norm/Switch_Align_Home.c</itemPath>
-        <itemPath>../../src/norm/Switch_Align_Home.h</itemPath>
-        <itemPath>../../src/norm/TempPresHumd.c</itemPath>
-        <itemPath>../../src/norm/TempPresHumd.h</itemPath>
-        <itemPath>../../src/norm/resistiveSensors.h</itemPath>
-      </logicalFolder>
       <logicalFolder name="f6" displayName="troop209app" projectFiles="true">
-        <itemPath>../../src/troop209app/servomotor2.c</itemPath>
+        <itemPath>../../src/troop209app/SD_support.c</itemPath>
+        <itemPath>../../src/troop209app/SD_support.h</itemPath>
         <itemPath>../../src/troop209app/main.c</itemPath>
-        <itemPath>../../src/troop209app/kernel12.c</itemPath>
-        <itemPath>../../src/troop209app/camera_main.c</itemPath>
+        <itemPath>../../src/troop209app/non_pwm_led.c</itemPath>
+        <itemPath>../../src/troop209app/non_pwm_led.h</itemPath>
+        <itemPath>../../src/troop209app/experiment_init.c</itemPath>
+        <itemPath>../../src/troop209app/experiment_init.h</itemPath>
+        <itemPath>../../src/troop209app/experiment_main.c</itemPath>
+        <itemPath>../../src/troop209app/experiment_main.h</itemPath>
+        <itemPath>../../src/troop209app/experiment_shutdown.c</itemPath>
+        <itemPath>../../src/troop209app/experiment_shutdown.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f5" displayName="troop209hwdriver" projectFiles="true">
+        <itemPath>../../src/troop209hwdriver/Analog2Digital.h</itemPath>
+        <itemPath>../../src/troop209hwdriver/Analog2digital.c</itemPath>
+        <itemPath>../../src/troop209hwdriver/Encoder.c</itemPath>
+        <itemPath>../../src/troop209hwdriver/Encoder.h</itemPath>
+        <itemPath>../../src/troop209hwdriver/GenericTypeDefs.h</itemPath>
+        <itemPath>../../src/troop209hwdriver/HdwrTest.c</itemPath>
+        <itemPath>../../src/troop209hwdriver/HdwrTest.h</itemPath>
+        <itemPath>../../src/troop209hwdriver/I2CDriverErrorCodes.h</itemPath>
+        <itemPath>../../src/troop209hwdriver/I2CDrivers.c</itemPath>
+        <itemPath>../../src/troop209hwdriver/I2CDrivers.h</itemPath>
+        <itemPath>../../src/troop209hwdriver/NVMDrivers.c</itemPath>
+        <itemPath>../../src/troop209hwdriver/NVMDrivers.h</itemPath>
+        <itemPath>../../src/troop209hwdriver/OptoDrivers.c</itemPath>
+        <itemPath>../../src/troop209hwdriver/PortBitDrivers.c</itemPath>
+        <itemPath>../../src/troop209hwdriver/PortBitDrivers.h</itemPath>
+        <itemPath>../../src/troop209hwdriver/RadiationSensorDriver.c</itemPath>
+        <itemPath>../../src/troop209hwdriver/RadiationSensorDriver.h</itemPath>
+        <itemPath>../../src/troop209hwdriver/RealTimeClock.h</itemPath>
+        <itemPath>../../src/troop209hwdriver/RedGreenBlueDrivers.c</itemPath>
+        <itemPath>../../src/troop209hwdriver/RedGreenBlueDrivers.h</itemPath>
+        <itemPath>../../src/troop209hwdriver/SensorDirviers.c</itemPath>
+        <itemPath>../../src/troop209hwdriver/SensorDrivers.h</itemPath>
+        <itemPath>../../src/troop209hwdriver/SensorErrorCodes.h</itemPath>
+        <itemPath>../../src/troop209hwdriver/TempHumidPresDrivers.c</itemPath>
+        <itemPath>../../src/troop209hwdriver/TempHumidPresDrivers.h</itemPath>
+        <itemPath>../../src/troop209hwdriver/dateTime_RTC.c</itemPath>
+        <itemPath>../../src/troop209hwdriver/dateTime_RTC.h</itemPath>
+        <itemPath>../../src/troop209hwdriver/multiMotorDrivers.c</itemPath>
+        <itemPath>../../src/troop209hwdriver/multiMotorDrivers.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="usb" projectFiles="true">
         <itemPath>../../src/usb/HardwareProfile.h</itemPath>

@@ -24,7 +24,7 @@
  *
  * Standard LED that is not tied with PWM, basis using LED code
  */
-static void toggleLED1(Boolean desiredOutputState) {
+static void setLED1(Boolean desiredOutputState) {
     __builtin_write_OSCCONL(OSCCON & 0xBF); // unlock Peripheral Pin Select Registers
     RPOR4 = 0x0000; /* clear RP8 and RP9 so Port drives pins */
     __builtin_write_OSCCONL(OSCCON | 0x40); // lock Peripheral Pin Select Registers
@@ -33,14 +33,14 @@ static void toggleLED1(Boolean desiredOutputState) {
 }
 
 static void setOnLED1(void) {
-    toggleLED1(TRUE); /* set the output to be open */
+    setLED1(TRUE); /* set the output to be open */
 }
 
 static void setOffLED1(void) {
-    toggleLED1(FALSE); /* set the output to be closed */
+    setLED1(FALSE); /* set the output to be closed */
 }
 
-static void toggleLED2(Boolean desiredOutputState) {
+static void setLED2(Boolean desiredOutputState) {
     __builtin_write_OSCCONL(OSCCON & 0xBF); // unlock Peripheral Pin Select Registers
     RPOR4 = 0x0000; /* clear RP8 and RP9 so Port drives pins */
     __builtin_write_OSCCONL(OSCCON | 0x40); // lock Peripheral Pin Select Registers
@@ -49,11 +49,11 @@ static void toggleLED2(Boolean desiredOutputState) {
 }
 
 static void setOnLED2(void) {
-    toggleLED2(TRUE); /* set the output to be open */
+    setLED2(TRUE); /* set the output to be open */
 }
 
 static void setOffLED2(void) {
-    toggleLED2(FALSE); /* set the output to be closed */
+    setLED2(FALSE); /* set the output to be closed */
 }
 
 /**
@@ -63,5 +63,6 @@ static void setOffLED2(void) {
  * modulated signal to control the LED banks. ledR controls the R bank
  * and ledB controls the B bank.
  */
-const NonPWMLed led1 = {on : setOnLED1, off : setOffLED1},
-led2 = {on : setOnLED2, off : setOffLED2};
+const NonPWMLed
+    led1 = {on : setOnLED1, off : setOffLED1},
+    led2 = {on : setOnLED2, off : setOffLED2};
