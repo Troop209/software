@@ -24,8 +24,8 @@
  *
  * BUFFER_SIZE defines the size of buffers used throughout the serial module.
  */
-#define RX_BUFFER_SIZE    0x0800
-#define TX_BUFFER_SIZE    0x0040
+// ** JDP1 ** #define RX_BUFFER_SIZE    0x0800
+// ** JDP1 ** #define TX_BUFFER_SIZE    0x0040
 
 /**
  * TX_buffer Information
@@ -34,7 +34,7 @@
  * This global circular buffer is serviced in the background via interrupts.
  * The buffer is indexed via TX_head and TX_next.
  */
-static Byte TX_buffer[TX_BUFFER_SIZE] = {0};
+// ** JDP1 ** static Byte TXbuffer[TX_BUFFER_SIZE] = {0};
 static volatile Uint16 TX_head = 0;
 static volatile Uint16 TX_next = 0;
 
@@ -45,7 +45,7 @@ static volatile Uint16 TX_next = 0;
  * global circular buffer is serviced in the background via interrupts. The
  * buffer is indexed via RX_head and RX_next.
  */
-static Byte RX_buffer[RX_BUFFER_SIZE] = {0};
+// ** JDP1 ** static Byte RX_buffer[RX_BUFFER_SIZE] = {0};
 static volatile Uint16 RX_head = 0;
 static volatile Uint16 RX_next = 0;
 

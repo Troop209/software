@@ -134,10 +134,9 @@ static CameraPacket getPacket(void)
     return inPacket;
 }
 
-#define RX_BUFFER_SIZE 0x0800
 //static FileStream imageFile;
 FSFILE* imageFile = NullPtr;
-static Byte tempBuffer[RX_BUFFER_SIZE];
+
 static int tempSize = 0;
 static Int32 bytesToGet = 0;
 static Int32 picsize = 0;
@@ -234,20 +233,23 @@ static CameraError getPicture(void)
     /* read data size */
     picsize = bytesToGet = fromCam.parameter2 + fromCam.parameter3 * 0x100LL + fromCam.parameter4 * 0x10000LL;
 
-    int cnt = 0;
+    int errorCounter = 0;
 
     /* store the image */
     while(bytesToGet > 0) // until all bytes retrieved
     {
-        tempSize = cameraComPort.receive(tempBuffer, RX_BUFFER_SIZE); // receive the bytes
+        tempSize = cameraComPort.receive(sysBuffer, SYS_BUFFER_SIZE); // receive the bytes
         //imageFile.write(tempBuffer,tempSize); // store the bytes
-        FSfwrite(tempBuffer, sizeof(char), tempSize, imageFile);
+        FSfwrite(sysBuffer, sizeof(char), tempSize, imageFile);
         bytesToGet -= tempSize; // update bytes remaining
 
         // watch dog counter - bytes are sometimes lost...so loop will hang
-        cnt = tempSize ? 0: cnt + 1;
+        errorCounter = tempSize ? 0: errorCounter + 1;
 
-        if(cnt > 200)
+        if (tempSize > 0)
+            errorCounter = 0;
+
+        if(errorCounter > 200)
             break;
     }
 
@@ -271,7 +273,6 @@ static void setPowerOutput(Boolean desiredOutputState)
 {
     _TRISE1 = 0;    /* configure port as output */
     _RE1 = !!desiredOutputState; /* set the output (active high) */
-    //_RE0  is for camera1 
 }
 
 static void turnOff(void)

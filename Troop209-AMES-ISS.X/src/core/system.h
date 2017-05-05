@@ -182,4 +182,11 @@ typedef struct {
 
 extern const System system;
 
+#define SYS_BUFFER_SIZE 0x0800
+#define RX_BUFFER_SIZE    0x0800
+#define TX_BUFFER_SIZE    0x0040
+extern Byte sysBuffer[SYS_BUFFER_SIZE];
+extern Byte RX_buffer[RX_BUFFER_SIZE];
+extern Byte TX_buffer[TX_BUFFER_SIZE];
+
 #endif  /* SYSTEM_H */

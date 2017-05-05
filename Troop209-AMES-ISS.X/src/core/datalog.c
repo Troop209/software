@@ -71,7 +71,7 @@ static void logValue(String label, Uint16 value)
     dataFile.write((Byte*)label, size); // to suppress compiler warning
 
     // convert value
-    char dataString[8] = {"0x0000\n"};
+    char dataString[9] = {"0x0000\r\n"};
     static const char toHex[] = {"0123456789ABCDEF"};
 
     dataString[2] = toHex[(value & 0xF000) >> 12];
@@ -80,7 +80,7 @@ static void logValue(String label, Uint16 value)
     dataString[5] = toHex[(value & 0x000F)];
 
     // write value
-    dataFile.write((Byte*)dataString, 7); // to suppress compiler warning
+    dataFile.write((Byte*)dataString, 8); // to suppress compiler warning
 
     // close file
     dataFile.close();

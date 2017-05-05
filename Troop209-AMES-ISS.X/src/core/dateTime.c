@@ -190,7 +190,9 @@ static inline Clock newClock(void)
     return temp;
 }
 
-static inline CalendarAndClock newCalendarAndClock(void)
+// Made this global
+//static inline CalendarAndClock newCalendarAndClock(void)
+inline CalendarAndClock newCalendarAndClock(void)
 {
     static CalendarAndClock temp = {{{0}},{{.months = JANUARY, .weekday = SATURDAY, .days = 1}}};
     return temp;
@@ -900,7 +902,9 @@ static void setSystemCalendar(Calendar newCalendar)
 
 /* Sets the system time to that of the passed CalendarAndClock value */
 // only updates the time if it's valid, invalid times are ignored
-static void setSystemCalendarAndClock(CalendarAndClock newCalendarAndClock)
+// Make this global
+//static void setSystemCalendarAndClock(CalendarAndClock newCalendarAndClock)
+void setSystemCalendarAndClock(CalendarAndClock newCalendarAndClock)
 {
     newCalendarAndClock = simplifyCalendarAndClock(newCalendarAndClock);
     RTCCRegister temp;
@@ -955,7 +959,9 @@ static inline Calendar getSystemCalendar(void)
     return calendar;
 }
 
-static inline CalendarAndClock getSystemCalendarAndClock(void)
+// Made this global
+//static inline CalendarAndClock getSystemCalendarAndClock(void)
+inline CalendarAndClock getSystemCalendarAndClock(void)
 {
     RTCCRegister temp = getRTCCRegister();
 
@@ -1257,7 +1263,6 @@ static inline DateAndTime subtractDateAndTimes(DateAndTime first, DateAndTime se
                                first.minute - second.minute,
                                first.second - second.second);
 }
-
 
 static String getTimeStamp(void)
 {

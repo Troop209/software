@@ -206,3 +206,9 @@ static void enable6volt(void)
  * system is the wrapper for the core NESI utilities.
  */
 const System system = {init:initialize, on6volt:enable6volt, off6volt:disable6volt};
+
+Byte sysBuffer[SYS_BUFFER_SIZE];  
+Byte RX_buffer[RX_BUFFER_SIZE];
+Byte TX_buffer[TX_BUFFER_SIZE];
+
+

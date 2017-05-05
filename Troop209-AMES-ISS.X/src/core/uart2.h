@@ -30,6 +30,9 @@
 #include "system.h"
 #include "uart.h"
 
+// ** JDP1 ** #define RX_BUFFER_SIZE    0x0800
+// ** JDP1 ** #define TX_BUFFER_SIZE    0x0040
+
 /**
  * uart2 Information
  *

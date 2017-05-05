@@ -70,14 +70,13 @@ typedef union {
     Uint8 :8;
     Uint8 :8;
     Uint8 :8;
-    Uint8 Cmd2Token;
+    Uint8 cmd2Token;
     Uint8 parameter1;
     Uint8 parameter2;
     Uint8 parameter3;
     Uint8 parameter4;
   };
-} camera2Packet;
-
+} Camera2Packet;
 /**
  * Cmd2Token Information
  *
@@ -99,19 +98,18 @@ typedef enum Cmd2Token {
 } Cmd2Token;
 
 
-static camera2Packet newcamera2Packet(void)
+static Camera2Packet newCamera2Packet(void)
 {
-    static const camera2Packet emptyPacket = {{0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00}};
+    static const Camera2Packet emptyPacket = {{0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00}};
     return emptyPacket;
 }
 
-static void sendPacket(camera2Packet packetToSend)
+static void sendPacket(Camera2Packet packetToSend)
 {
     camera2ComPort.send(packetToSend.raw,8);
 }
 
-
-static camera2Packet getPacket(void)
+static Camera2Packet getPacket(void)
 {
     T2CON = 0x0020;                 // disabled, prescaled, internal oscillator
     TMR2 = 0;                       // clear the timer
@@ -121,34 +119,33 @@ static camera2Packet getPacket(void)
     _T2IP = 4;                      // set priority to real-time
     T2CONbits.TON = 1;
 
-    camera2Packet inPacket = newcamera2Packet();
+    Camera2Packet inPacket = newCamera2Packet();
     while(camera2ComPort.size() < 8) if(!T2CONbits.TON) break;
     camera2ComPort.receive(inPacket.raw,8);
     return inPacket;
 }
 
-#define RX_BUFFER_SIZE 0x0800
-//static FileStream imageFile2;
+//static FileStream imageFile;
 FSFILE* imageFile2 = NullPtr;
-static Byte tempBuffer[RX_BUFFER_SIZE];
+
 static int tempSize = 0;
 static Int32 bytesToGet = 0;
 static Int32 picsize = 0;
-static camera2Packet toCam, fromCam;
+static Camera2Packet toCam, fromCam;
 
 static CameraError getPicture2(void)
 {
-    toCam = newcamera2Packet(),
-    fromCam = newcamera2Packet();
-    toCam.Cmd2Token = SYNC;
+    toCam = newCamera2Packet(),
+    fromCam = newCamera2Packet();
+    toCam.cmd2Token = SYNC;
     int syncTries = 0;
 
-    //if(!imageFile2.open)
+    //if(!imageFile.open)
     if(!imageFile2)
         return NO_FILE;
 
-    /* try and get sync with camera2 */
-    while(!(fromCam.Cmd2Token == ACK && fromCam.parameter1 == SYNC)) // until ACK received
+    /* try and get sync with camera */
+    while(!(fromCam.cmd2Token == ACK && fromCam.parameter1 == SYNC)) // until ACK received
     {
         if(syncTries == 3)
             camera2ComPort.baudrate(115200);
@@ -163,12 +160,13 @@ static CameraError getPicture2(void)
             return NO_HANDSHAKE;
     }
 
-    /* acknowledge camera2's sync request */
-    toCam = newcamera2Packet(); // initialize2 packet
-    toCam.Cmd2Token = ACK;      // acknowledge
+    /* acknowledge camera's sync request */
+    toCam = newCamera2Packet(); // initialize packet
+    toCam.cmd2Token = ACK;      // acknowledge
     toCam.parameter1 = SYNC;   // the sync
 
-    while(!(fromCam.Cmd2Token == SYNC)) // wait for camera2 SYNC request
+    syncTries = 0;
+    while(!(fromCam.cmd2Token == SYNC)) // wait for camera SYNC request
     {
         fromCam = getPacket();
 
@@ -180,75 +178,78 @@ static CameraError getPicture2(void)
 
     sendPacket(toCam);
 
-    /* configure camera2 */
-    toCam = newcamera2Packet(); // initialize2 packet
-    toCam.Cmd2Token = INITIAL;  // initial configuration
+    /* configure camera */
+    toCam = newCamera2Packet(); // initialize packet
+    toCam.cmd2Token = INITIAL;  // initial configuration
     toCam.parameter1 = 0x04;   // 115,200 baud rate
     toCam.parameter2 = 0x87;   // compress color
     toCam.parameter3 = 0x01;   // 80x60 preview resolution
     toCam.parameter4 = 0x07;   // 640x480 compression resolution
     sendPacket(toCam);
 
-    /* if camera2 acknowledges changes, change the UART baud rate */
+    /* if camera acknowledges changes, change the UART baud rate */
     fromCam = getPacket();
-    if(!(fromCam.Cmd2Token == ACK && fromCam.parameter1 == INITIAL))
+    if(!(fromCam.cmd2Token == ACK && fromCam.parameter1 == INITIAL))
         return NO_INITIAL;// if reconfiguration was not successful
 
     camera2ComPort.baudrate(115200); // change UART baud rate
 
     /* specify image quality */
-    toCam = newcamera2Packet(); // initialize2 packet
-    toCam.Cmd2Token = QUALITY;  // configure picture quality
+    toCam = newCamera2Packet(); // initialize packet
+    toCam.cmd2Token = QUALITY;  // configure picture quality
     toCam.parameter1 = 0x00;   // to be the best
     sendPacket(toCam);
 
-    /* if camera2 acknowledges change, then get an image */
+    /* if camera acknowledges change, then get an image */
     fromCam = getPacket();
-    if(!(fromCam.Cmd2Token == ACK && fromCam.parameter1 == QUALITY))
+    if(!(fromCam.cmd2Token == ACK && fromCam.parameter1 == QUALITY))
         return NO_QUALITY;// if reconfiguration was not successful
 
-
     /* get an image */
-    toCam = newcamera2Packet(); // initialize2 packet
-    toCam.Cmd2Token = GET_PIC;  // configure picture quality
+    toCam = newCamera2Packet(); // initialize packet
+    toCam.cmd2Token = GET_PIC;  // configure picture quality
     toCam.parameter1 = 0x05;   // get full size image
     sendPacket(toCam);
 
-    /* if camera2 acknowledges request, then retrieve image data */
+    /* if camera acknowledges request, then retrieve image data */
     fromCam = getPacket();
-    if(!(fromCam.Cmd2Token == ACK && fromCam.parameter1 == GET_PIC))
+    if(!(fromCam.cmd2Token == ACK && fromCam.parameter1 == GET_PIC))
         return NO_GET_PIC; // if request was not successful
 
     /* get image size */
     fromCam = getPacket();
-    if(!(fromCam.Cmd2Token == DATA))
+    if(!(fromCam.cmd2Token == DATA))
         return NO_DATA; // if request was not successful
 
     /* read data size */
     picsize = bytesToGet = fromCam.parameter2 + fromCam.parameter3 * 0x100LL + fromCam.parameter4 * 0x10000LL;
-
-    int cnt = 0;
+    int errorCounter = 0;
 
     /* store the image */
     while(bytesToGet > 0) // until all bytes retrieved
     {
-        tempSize = camera2ComPort.receive(tempBuffer, RX_BUFFER_SIZE); // receive the bytes
-        //imageFile2.write(tempBuffer,tempSize); // store the bytes
-        FSfwrite(tempBuffer, sizeof(char), tempSize, imageFile2);
+        tempSize = camera2ComPort.receive(sysBuffer, SYS_BUFFER_SIZE); // receive the bytes
+        //imageFile.write(tempBuffer,tempSize); // store the bytes
+        FSfwrite(sysBuffer, sizeof(char), tempSize, imageFile2);
         bytesToGet -= tempSize; // update bytes remaining
 
-        cnt = tempSize ? 0: cnt + 1;
+        // watch dog counter - bytes are sometimes lost...so loop will hang
+        errorCounter = tempSize ? 0: errorCounter + 1;
+        
+        // if anytime the receive buffer is larger than 0, then reset the error counter
+        if (tempSize > 0)
+            errorCounter = 0;
 
-        if(cnt > 200)
+        if(errorCounter > 200)
             break;
     }
-
-
     pause(30);
+    
     if(bytesToGet)
         return LOST_DATA; // not all camera data was gathered
     else
         return NO_ERROR; // successful
+
 }
 
 static void setPowerOutput2(Boolean desiredOutputState)
@@ -273,37 +274,36 @@ static void initialize2(void)
     camera2ComPort = uart2;
     imageFile2 = NullPtr;
 }
-
 static CameraError retrievePic2(String imgName)
 {
     setPowerOutput2(ON);
     /**
      * Increasing Power On Period
      *
-     * Although the data sheet says that the camera2 needs ~1.5 sec to start-up,
+     * Although the data sheet says that the camera needs ~1.5 sec to start-up,
      * in practice 2 sec makes for a much more reliable situation.
      */
     wait(2000);//1500);
 
-    // initialize2 camera2 and image storage
+    // initialize camera and image storage
     camera2ComPort.init();
     camera2ComPort.baudrate(14400);
-    //imageFile2 = getFileStream();
+    //imageFile = getFileStream();
     imageFile2 = FSfopen(imgName, "w");
     CameraError error = NO_FILE;
 
-    //if(imageFile2.open)
+    //if(imageFile.open)
     if(imageFile2)
     {
         //FSfclose(FSfopen(imgName, "w")); // erase file
-        //imageFile2.open(imgName); // open file
+        //imageFile.open(imgName); // open file
         error = getPicture2();
         FSfclose(imageFile2);
         imageFile2 = NullPtr;
-        //imageFile2.close();
+        //imageFile.close();
     }
 
-    //imageFile2.free();
+    //imageFile.free();
 
     setPowerOutput2(OFF);
     wait(1000);
