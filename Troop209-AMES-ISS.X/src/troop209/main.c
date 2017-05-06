@@ -16,7 +16,6 @@
 #include <nesi.h>
 #include "SD_support.h"
 #include "dateTime.h"
-#include "../troop209hw/HdwrTest.h"
 
 SDConfig config;
 
@@ -25,32 +24,4 @@ static char buf[50];
 
 int main(void)
 {
-    nesi.init();
-    system.init();
-
-    // usb.connect();
-    
-    HdwrTest()  ;
-    
-   // NRM // while (!button.isPressed());
-    // NRM // while (button.isPressed());
-    // usb.eject();
-     
-    //loadConfig();
-    SDConfigFile.get(&config);
-    if (config.kernelID == 0) config.kernelID = 16;
-
-//    sprintf(buf, "Kernel ID = %i\n\r", config.kernelID);
-//    SDEventFile.writeln(buf);
-/*   
-    switch (config.kernelID) {
-        case 12: kernel12(); break;
-        case 13: kernel13(); break;
-        case 14: kernel14(); break;
-        case 15: kernel15(); break;
-        case 16: kernel16(); break;
-        case 17: kernel17(); break;
-        case 18: kernel18(); break;
-    }
- */    
 }

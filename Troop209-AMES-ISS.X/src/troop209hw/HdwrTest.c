@@ -30,6 +30,11 @@
 #include "../core/file.h"
 #include "multiMotorDrivers.h"
 
+SDConfig config;
+
+static char logLabel[200];
+static char buf[50];
+
 /** Attempt to re-use Camera buffer rather than waste more memory
  *
  * BUFFER_SIZE Information
@@ -49,6 +54,35 @@
 // NRM // static volatile Uint16 RX_next = 0;
 
     int moveStatus      =  1 ;
+// stores timestamped picture
+Boolean takePicture(void)
+{
+    char filename[40] = {0};
+    
+    // the ':' character is an invalid character, so it needs to be changed
+    sprintf(filename, "%s-%s-cam1.jpg", config.label, dateTime.getStamp());
+    fixcolons(filename);
+    camera.getPix(filename);
+
+    delay(1000);
+
+    sprintf(filename, "%s-%s-cam2.jpg", config.label, dateTime.getStamp());
+    fixcolons(filename);
+    camera2.getPix(filename);
+
+    return 0;
+}
+
+void fixcolons(char *temp)
+{
+    while(*temp)
+    {
+        if(*temp == ':')
+            *temp = '.';
+        
+        ++temp;
+    }
+}
 
 void HdwrTest(void)
 {   // $$$ Conbditional operation s variables

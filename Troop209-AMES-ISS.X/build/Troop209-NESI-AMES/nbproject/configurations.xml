@@ -225,53 +225,13 @@
         <C30Global>
         </C30Global>
       </item>
-      <item path="../../src/troop209/kernel18.c" ex="false" overriding="false">
-        <C30>
-        </C30>
-        <C30-AR>
-        </C30-AR>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
+      <item path="../../src/troop209hw/multiMotorDrivers.c"
+            ex="true"
+            overriding="false">
       </item>
-      <item path="../../src/troop209/kernel19.c" ex="true" overriding="false">
-        <C30>
-        </C30>
-        <C30-AR>
-        </C30-AR>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
-      <item path="../../src/troop209/pwm_motor.c" ex="true" overriding="false">
-        <C30>
-        </C30>
-        <C30-AR>
-        </C30-AR>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
-      <item path="../../src/troop209/pwm_motor.h" ex="true" overriding="false">
-        <C30>
-        </C30>
-        <C30-AR>
-        </C30-AR>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
+      <item path="../../src/troop209hw/multiMotorDrivers.h"
+            ex="true"
+            overriding="false">
       </item>
       <item path="../../src/usb/usb_function_msd_multi_sector.c"
             ex="true"
