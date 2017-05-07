@@ -14,14 +14,10 @@
       <logicalFolder name="f4" displayName="core" projectFiles="true">
         <itemPath>../../src/core/camera.c</itemPath>
         <itemPath>../../src/core/camera.h</itemPath>
-        <itemPath>../../src/core/co2.c</itemPath>
-        <itemPath>../../src/core/co2.h</itemPath>
         <itemPath>../../src/core/datalog.c</itemPath>
         <itemPath>../../src/core/datalog.h</itemPath>
         <itemPath>../../src/core/file.c</itemPath>
         <itemPath>../../src/core/file.h</itemPath>
-        <itemPath>../../src/core/led.c</itemPath>
-        <itemPath>../../src/core/led.h</itemPath>
         <itemPath>../../src/core/sdcard.c</itemPath>
         <itemPath>../../src/core/sdcard.h</itemPath>
         <itemPath>../../src/core/system.c</itemPath>
