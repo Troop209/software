@@ -325,10 +325,6 @@ void  THP_LoadRawValues (void)
       return    ;
 }
 
-long getTemperature() {
-    return Raw_Temperature;
-}
-
 char recBuf[512] ;
 void diagRecord(void)
 {   int i = 0;

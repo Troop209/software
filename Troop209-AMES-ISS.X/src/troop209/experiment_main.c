@@ -40,12 +40,11 @@ void run_experiment(void) {
  * Read sensor, format sensor and write the sensor to SDDataFile
  */
 static void handleSensor() {
-    // read sensor
+    extern signed long SNS_Buffer[128];
+    
     initSensors();
     readSensors();
-    char dataLine[1024] = {0};
-    formatSensorsAsChar(dataLine);
-    SDDataFile.writeln(dataLine);
+    SDDataFile.writeln(SNS_Buffer);
 }
 
 static void replaceColonWithPeriod(char *temp)

@@ -16,6 +16,8 @@ static void setInternalRTC(char *xRTC);
 static void initializeHardware();
 
 void initialize_experiment(void) {
+    extern signed long SNS_Temperature;
+    
     initializeHardware();
 
     // read configuration file
@@ -30,11 +32,8 @@ void initialize_experiment(void) {
     stat = getI2C2_RTCTime(xRTC);
     setInternalRTC(xRTC);
 
-    long temperature = 25;
-    while (temperature < 50) {
+    while (SNS_Temperature < 50) {
         readTHP();
-        // TODO:  Ask Norm: getTemperature function needed in TempHumidPresDriver.c
-        temperature = getTemperature();
         delay(defrostWaitDuration);
     }
 }
