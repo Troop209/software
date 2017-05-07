@@ -43,6 +43,8 @@
 #define CALIBRATE   5
 #define END2END     6
 
+int moveStatus      =  1 ;
+    
 const int FSFullStep = 2048 ;
 const int FSHalfStep = 4096 ; 
 const int FSEncoder  = 4096 ;

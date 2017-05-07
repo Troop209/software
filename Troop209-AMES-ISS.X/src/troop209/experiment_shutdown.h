@@ -6,6 +6,7 @@
  * Shutdown experiment
  */
 
-#include "system.h"
+void shutdown_experiment(void) ;
+
 
 #endif /* EXPERIMENT_SHUTDOWN_H */

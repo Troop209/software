@@ -13,15 +13,13 @@
 // The program will attempt to read the SD Card to find
 //   a config.ini file to drive the rest of the system
 
-#include <nesi.h>
-#include "SD_support.h"
-#include "dateTime.h"
-
-SDConfig config;
-
-static char logLabel[200];
-static char buf[50];
+#include "experiment_shutdown.h"
+#include "experiment_initialize.h"
 
 int main(void)
 {
+
+    initialize_experiment();
+    shutdown_experiment();
+    return 0;
 }
