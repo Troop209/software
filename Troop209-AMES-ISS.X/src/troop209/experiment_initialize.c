@@ -2,6 +2,11 @@
 #include "SD_support.h"
 #include "dateTime.h"
 #include "system.h"
+#include "usb.h"
+#include "sdcard.h"
+#include "dataLog.h"
+#include "camera.h"
+#include "dateTime.h"
 #include "../troop209hw/I2CDrivers.h"
 #include "../troop209hw/Analog2Digital.h"
 

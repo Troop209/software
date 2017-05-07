@@ -69,19 +69,15 @@
         <itemPath>../../src/troop209/non_pwm_led.c</itemPath>
         <itemPath>../../src/troop209/non_pwm_led.h</itemPath>
         <itemPath>../../src/troop209/main.c</itemPath>
-        <itemPath>../../src/troop209/kernel13.c</itemPath>
-        <itemPath>../../src/troop209/kernel14.c</itemPath>
+        <itemPath>../../src/troop209/experiment_initialize.c</itemPath>
+        <itemPath>../../src/troop209/experiment_initialize.h</itemPath>
+        <itemPath>../../src/troop209/experiment_main.c</itemPath>
+        <itemPath>../../src/troop209/experiment_main.h</itemPath>
+        <itemPath>../../src/troop209/experiment_shutdown.c</itemPath>
+        <itemPath>../../src/troop209/experiment_shutdown.h</itemPath>
+        <itemPath>../../src/troop209/main.c</itemPath>
         <itemPath>../../src/troop209/SD_support.c</itemPath>
-        <itemPath>../../src/troop209/kernel15.c</itemPath>
-        <itemPath>../../src/troop209/kernel16.c</itemPath>
-        <itemPath>../../src/troop209/kernel17.c</itemPath>
-        <itemPath>../../src/troop209/kernel18.c</itemPath>
-        <itemPath>../../src/troop209/kernel12.c</itemPath>
-        <itemPath>../../src/troop209/kernel19.c</itemPath>
-        <itemPath>../../src/troop209/pwm_motor.c</itemPath>
-        <itemPath>../../src/troop209/pwm_motor.h</itemPath>
         <itemPath>../../src/troop209/SD_support.h</itemPath>
-        <itemPath>kernel.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f7" displayName="troop209hw" projectFiles="true">
         <itemPath>../../src/troop209hw/Analog2Digital.h</itemPath>
