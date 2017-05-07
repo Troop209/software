@@ -20,12 +20,9 @@ void initialize_experiment(void) {
 
     // read configuration file
     SDConfigFile.get(&config);
-    if (config.defrost_wait_duration_min == 0) {
-        config.defrost_wait_duration_min = 60;
-    }
-    if (config.exp_wait_duration_min == 0) {
-        config.exp_wait_duration_min = 60;
-    }
+
+    // Delay is in ms and so need to convert time in config 
+    int defrostWaitDuration = config.defrost_wait_duration_min * 60 * 1000;
 
     // read external rtc
     int stat = 0; // capture status response from calls
@@ -33,9 +30,13 @@ void initialize_experiment(void) {
     stat = getI2C2_RTCTime(xRTC);
     setInternalRTC(xRTC);
 
-    // TODO:  check temperature
-    // if temp > 50
-    // wait (x)
+    long temperature = 25;
+    while (temperature < 50) {
+        readTHP();
+        // TODO:  Ask Norm: getTemperature function needed in TempHumidPresDriver.c
+        temperature = getTemperature();
+        delay(defrostWaitDuration);
+    }
 }
 
 /**

@@ -12,8 +12,6 @@
                    displayName="Source Files"
                    projectFiles="true">
       <logicalFolder name="f4" displayName="core" projectFiles="true">
-        <itemPath>../../src/core/button.c</itemPath>
-        <itemPath>../../src/core/button.h</itemPath>
         <itemPath>../../src/core/camera.c</itemPath>
         <itemPath>../../src/core/camera.h</itemPath>
         <itemPath>../../src/core/co2.c</itemPath>
@@ -24,12 +22,6 @@
         <itemPath>../../src/core/file.h</itemPath>
         <itemPath>../../src/core/led.c</itemPath>
         <itemPath>../../src/core/led.h</itemPath>
-        <itemPath>../../src/core/nesi.c</itemPath>
-        <itemPath>../../src/core/nesi.h</itemPath>
-        <itemPath>../../src/core/powerDriver.c</itemPath>
-        <itemPath>../../src/core/powerDriver.h</itemPath>
-        <itemPath>../../src/core/resistiveSensors.c</itemPath>
-        <itemPath>../../src/core/resistiveSensors.h</itemPath>
         <itemPath>../../src/core/sdcard.c</itemPath>
         <itemPath>../../src/core/sdcard.h</itemPath>
         <itemPath>../../src/core/system.c</itemPath>

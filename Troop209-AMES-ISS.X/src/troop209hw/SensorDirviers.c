@@ -195,6 +195,26 @@ int readSensors (void)
     return (errCnt)   ;
 }
 
+/**
+ * TODO: Ask Norm/Andrew why Byte* rather than Char* (see 1.1.1 comment) and why date time 2X
+ * @param dataLine
+ * @return 
+ */
+int formatSensorsAsChar(char* dataLine) 
+{   int BufLen   = 0 ; 
+    int BufErr   = BufLenOverflow ;
+    BufLen = sprintf(dataLine, "SNS_Stg: %18s,%18s,|,%li,%li,%li,|,%i,%i,%i,%i,|,%i,%i,|,%i,%i,%i\n",
+                    xRTCTime, xRTCTime,
+                    SNS_Temperature, SNS_Pressure, SNS_Humidity,
+                    SNS_CLR_LIGHT, SNS_RED_LIGHT, SNS_BLU_LIGHT, SNS_GRN_LIGHT, 
+                    SNS_EncPeriod, SNS_EncodPos,
+                    SNS_VpotCur, SNS_MotorPos, SNS_MotorDur ) ;
+    if(BufLen <= 128)
+    { BufErr = 0    ;  }    // We Okay, clear built up error code
+    
+    // SHould we write SAD card from here ???
+    return(BufErr)   ;
+}
 int formatSensors(Byte* Ptr)
 {   int BufLen   = 0 ; 
     int BufErr   = BufLenOverflow ;

@@ -27,7 +27,6 @@
 #ifndef SD_SUPPORT_H
 #define SD_SUPPORT_H
 
-
 /**
  * Configuration file and structure
  * We define the file name and one routine, get

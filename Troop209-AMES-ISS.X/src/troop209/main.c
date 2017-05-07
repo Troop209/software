@@ -21,14 +21,48 @@
 
 int main(void)
 {
-
     initialize_experiment();
 
-    // TODO:  compare time with end time
-    while ( TRUE ) {
+    // Delay is in ms and so need to convert time in config 
+    int betweenExperimentDuration = config.exp_wait_duration_min * 60 * 1000;
+
+    // MM/dd/YY hh:mm
+    DateAndTime expEndDateTime;
+    static const int month_pos = 1;
+    static const int day_pos = 4;
+    static const int year_pos = 7;
+    static const int hr_pos = 1;
+    static const int min_pos = 4;
+    
+    char value[2];
+    
+    value[0] = config.exp_end_date[month_pos];
+    value[1] = config.exp_end_date[month_pos + 1];
+    expEndDateTime.month = atoi(value);
+
+    value[0] = config.exp_end_date[day_pos];
+    value[1] = config.exp_end_date[day_pos + 1];
+    expEndDateTime.day = atoi(value);
+
+    value[0] = config.exp_end_date[year_pos];
+    value[1] = config.exp_end_date[year_pos + 1];
+    expEndDateTime.year = atoi(value);
+    
+    value[0] = config.exp_end_time[hr_pos];
+    value[1] = config.exp_end_time[hr_pos + 1];
+    expEndDateTime.hour = atoi(value);
+
+    value[0] = config.exp_end_time[min_pos];
+    value[1] = config.exp_end_time[min_pos + 1];
+    expEndDateTime.minute = atoi(value);
+
+   
+    while ( dateTime.cmp(dateTime.get(), expEndDateTime) >= 0) {
         run_experiment();
+        delay(betweenExperimentDuration);
     } 
 
     shutdown_experiment();
     return 0;
 }
+

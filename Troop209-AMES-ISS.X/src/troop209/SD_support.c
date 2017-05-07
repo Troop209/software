@@ -142,6 +142,11 @@ void process(char *line, SDConfig *pcfg) {
 	if (strcmp(key, "date") == 0) strncpy( pcfg->date, value, sizeof(pcfg->date));
 	if (strcmp(key, "time") == 0) strncpy( pcfg->time, value, sizeof(pcfg->time));
 	if (strcmp(key, "label") == 0) strncpy( pcfg->label, value, sizeof(pcfg->label));
+	if (strcmp(key, "exp_end.date") == 0) strncpy( pcfg->date, value, sizeof(pcfg->exp_end_date));
+	if (strcmp(key, "exp_end.time") == 0) strncpy( pcfg->time, value, sizeof(pcfg->exp_end_time));
+	if (strcmp(key, "exp_wait_duration_min") == 0) pcfg->exp_wait_duration_min = atoi(value);
+	if (strcmp(key, "defrost_wait_duration_min") == 0) pcfg->defrost_wait_duration_min = atoi(value);
+
 }
 
 char *trim(char *src) {

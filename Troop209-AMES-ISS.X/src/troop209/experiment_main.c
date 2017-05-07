@@ -2,6 +2,7 @@
 #include "experiment_main.h"
 #include "camera.h"
 #include "dateTime.h"
+#include "non_pwm_led.h"
 #include "SD_support.h"
 #include "../troop209hw/SensorDrivers.h"
 
@@ -17,30 +18,34 @@ void run_experiment(void) {
     for (motor_pos = 0; motor_pos < 8; motor_pos++) {
         // move motor
         
-        // LED1 on
-        // Camera1
+        // Camera1 sequence
+        led1.on();
         sprintf(filename, "%s-%s-cam1.jpg", config.label, dateTime.getStamp());
         replaceColonWithPeriod(filename);
         camera.getPix(filename);  
-        // LED1 off
+        led1.off();
         
-        // LED2 on
-        // Camera2
+        // Camera 2 sequence
+        led2.on();
         sprintf(filename, "%s-%s-cam2.jpg", config.label, dateTime.getStamp());
         replaceColonWithPeriod(filename);
         camera2.getPix(filename);  
-        // LED2 off
+        led2.off();
     }
     
     handleSensor();
 }
 
+/**
+ * Read sensor, format sensor and write the sensor to SDDataFile
+ */
 static void handleSensor() {
     // read sensor
     initSensors();
     readSensors();
-    formatSensors(RX_buffer);
-    SDDataFile.writeln(RX_buffer);
+    char dataLine[1024] = {0};
+    formatSensorsAsChar(dataLine);
+    SDDataFile.writeln(dataLine);
 }
 
 static void replaceColonWithPeriod(char *temp)
