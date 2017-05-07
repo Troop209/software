@@ -15,11 +15,20 @@
 
 #include "experiment_shutdown.h"
 #include "experiment_initialize.h"
+#include "experiment_main.h"
+#include "SD_support.h"
+#include "dateTime.h"
 
 int main(void)
 {
 
     initialize_experiment();
+
+    // TODO:  compare time with end time
+    while ( TRUE ) {
+        run_experiment();
+    } 
+
     shutdown_experiment();
     return 0;
 }

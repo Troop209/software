@@ -36,6 +36,8 @@ typedef struct {
     int kernelID;
     int exp_wait_duration_min;
     int defrost_wait_duration_min;
+    char exp_end_date[11];
+    char exp_end_time[9];
 	char motor;
 	char camera;
 	char sensors;

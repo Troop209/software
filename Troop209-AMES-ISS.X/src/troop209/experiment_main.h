@@ -1,9 +1,6 @@
 #ifndef EXPERIMENT_MAIN_H
 #define EXPERIMENT_MAIN_H
 
-/**
- * Initialize components
- */
-
+void run_experiment(void) ;
 
 #endif 

@@ -75,7 +75,6 @@
         <itemPath>../../src/troop209/experiment_main.h</itemPath>
         <itemPath>../../src/troop209/experiment_shutdown.c</itemPath>
         <itemPath>../../src/troop209/experiment_shutdown.h</itemPath>
-        <itemPath>../../src/troop209/main.c</itemPath>
         <itemPath>../../src/troop209/SD_support.c</itemPath>
         <itemPath>../../src/troop209/SD_support.h</itemPath>
       </logicalFolder>
@@ -85,8 +84,6 @@
         <itemPath>../../src/troop209hw/Encoder.c</itemPath>
         <itemPath>../../src/troop209hw/Encoder.h</itemPath>
         <itemPath>../../src/troop209hw/GenericTypeDefs.h</itemPath>
-        <itemPath>../../src/troop209hw/HdwrTest.c</itemPath>
-        <itemPath>../../src/troop209hw/HdwrTest.h</itemPath>
         <itemPath>../../src/troop209hw/I2CDriverErrorCodes.h</itemPath>
         <itemPath>../../src/troop209hw/I2CDrivers.c</itemPath>
         <itemPath>../../src/troop209hw/I2CDrivers.h</itemPath>
@@ -251,7 +248,7 @@
         <property key="enable-symbols" value="true"/>
         <property key="enable-unroll-loops" value="false"/>
         <property key="extra-include-directories"
-                  value="..\..\src\core;..\..\src\dev;..\..\src\mdd;..\..\src\usb"/>
+                  value="..\..\src\core;..\..\src\dev;..\..\src\mdd;..\..\src\usb;..\..src\troop209hw"/>
         <property key="isolate-each-function" value="false"/>
         <property key="keep-inline" value="false"/>
         <property key="oXC16gcc-align-arr" value="false"/>

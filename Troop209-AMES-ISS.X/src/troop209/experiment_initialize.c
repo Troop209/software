@@ -33,7 +33,7 @@ void initialize_experiment(void) {
     stat = getI2C2_RTCTime(xRTC);
     setInternalRTC(xRTC);
 
-    // check temperature
+    // TODO:  check temperature
     // if temp > 50
     // wait (x)
 }
