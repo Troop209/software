@@ -74,6 +74,8 @@ struct FileStream {
      * allow file to be used by others
      */
     void (*free)(void);
+    
+    void(*rename)(const String renameFileName);
 };
 
 /**

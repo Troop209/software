@@ -13,11 +13,21 @@ void run_experiment(void) {
 
     handleSensor();
     
-    int motor_pos;
+    int mot_inc;
     char filename[40] = {0};
-    for (motor_pos = 0; motor_pos < 8; motor_pos++) {
+    int stat;
+    static const int enableMotor = 3;
+    static const int speed = 7;
+    static const int motPosition[9]  = {0,512,1024,1536,2048,2560,3072,3584,4096};
+    
+    for (mot_inc = 0; mot_inc < 8; mot_inc++) {
         // move motor
-        
+        stat=checkCarousel(enableMotor, motPosition[mot_inc], speed);
+        if (stat == 0)  // functionSUCCESS
+        { 
+            stat=moveCarousel(enableMotor, motPosition[mot_inc], speed);
+        }
+
         // Camera1 sequence
         led1.on();
         sprintf(filename, "%s-%s-cam1.jpg", config.label, dateTime.getStamp());
