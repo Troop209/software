@@ -6,11 +6,10 @@
 #include "sdcard.h"
 #include "dataLog.h"
 #include "camera.h"
-#include "dateTime.h"
 #include "file.h"
 #include "../troop209hw/I2CDrivers.h"
 #include "../troop209hw/Analog2Digital.h"
-
+#include "../troop209hw/RealTimeClock.h"
 SDConfig config;
 
 static void setInternalRTC(char *xRTC);
@@ -47,7 +46,7 @@ void setExternalRTC() {
         file1.write((Byte *)launchDT, 8);
 // - Initialize I2C-RTC
 // (TODO-Figure out where RTC_SET_TIME)
-//        short stat=i2c2_TalkToDevice(0x68, 8,RTC_SET_TIME,  0, NullPtr)                    ; // set I2C RTC BCD string
+        short stat=i2c2_TalkToDevice(0x68, 8,RTC_SET_TIME,  0, NullPtr)                    ; // set I2C RTC BCD string
 
         //rename the file 
         file1.rename("LaunchDTTMDeleted");

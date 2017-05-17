@@ -206,6 +206,10 @@
         <C30Global>
         </C30Global>
       </item>
+      <item path="../../src/troop209hw/NVMDrivers.c" ex="true" overriding="false">
+      </item>
+      <item path="../../src/troop209hw/NVMDrivers.h" ex="true" overriding="false">
+      </item>
       <item path="../../src/usb/usb_function_msd_multi_sector.c"
             ex="true"
             overriding="false">

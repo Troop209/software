@@ -36,7 +36,7 @@
     int     RTC_GET_LENGTH  =   1   ;   // send 1 byte of address only
     int     RTC_RSP_LENGTH  =   8   ;   // Time Setting String
                               //ad Ss Mm  Hh DW Dd Mm Yy Ctl X X X X X X X 
-    //char    RTC_SET_TIME[20] = {00,0x19,0x11,0x13,02,07,05,02,11,00,00,00,00,00,00,00,00,00,00,00} ;
+    char    RTC_SET_TIME[20] = {00,0x19,0x11,0x13,02,07,05,02,11,00,00,00,00,00,00,00,00,00,00,00} ;
     char    RTC_GET_TIME[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0} ;
 
     char    I2C2_RESPONSE_BUFFER[64] = {0} ;
@@ -45,7 +45,7 @@
 
     // Real Time Clock Variables
  //
-//    char *PTR_SET_TIME              = RTC_SET_TIME   ;              // Pointer to RTC set time string
+    char *PTR_SET_TIME              = RTC_SET_TIME   ;              // Pointer to RTC set time string
 //    char *PTR_I2C2_RESPONSE_BUFFER  = RTC_I2C2_RESPONSE_BUFFER ;    // Pointer to RTC return Time String
 //
     // End RTC setup variables
