@@ -151,12 +151,12 @@ void initStepper(void)
 }
 void setOnStepDisable(void)
 {
-    setOutputRG9(1); /* set the output to be open */
+    setOutputDiag(1); /* set the output to be open */
 }
 
 void setOffStepDisable(void)
 {
-    setOutputRG9(0); /* set the output to be closed */
+    setOutputDiag(0); /* set the output to be closed */
 }
 void setOnStepDirection(void)
 {
