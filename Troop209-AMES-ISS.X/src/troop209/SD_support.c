@@ -1,15 +1,3 @@
-/* 
- * File:   SD_support.c
- * Author: Joe Pluta (?)
- *
- * Created BEFORE Noiv 12, 2016, 7:0 PM
- * 
- * Revision Notes
- * Jan 17, 2017
- * 1. 
- * Added #include ctype.h to eliminate a compiuler warning
- * Jan 29 2017 merged by Harmon Bhasin
- *//**
 /**
  * SD Card Support
  * Copyright (C) 2016 Pathway Council - Troop 209
@@ -31,7 +19,6 @@
 #include "system.h"
 #include "SD_support.h"
 #include <fsio.h>
-#include <ctype.h>
 
 static void process(char *, SDConfig *);
 static char *trim(char *);
@@ -39,10 +26,26 @@ static char *trim(char *);
 
 /**
  * This module defines all the support objects for the SD Card.
- * We have so far defined three things:
+ * 
  *   1. An event log (this is the general error and info log)
+ *        SDEventFile - EventFile.txt
  *   2. A data log (this is our CSV output file)
- *   3. A configuration file (this is an input INI file)
+ *        SDDataFile - DataFile.txt
+ *   3. An extra output file (you can change the file name on this)
+ *        SDExtraFile - defaults to ExtraFIle.txt
+ *   4. A configuration file (this is an input INI file)
+ *        SDConfig - config.ini
+ * 
+ * Output files have two functions: write and writeln.  writeln is just like
+ * write except is also writes an additional CR/LF sequence.
+ * 
+ * Files are opened, written to and closed.  If the file does not exist it is
+ * created.  To write to an ad hoc file, use SDExtraFile and change the 
+ * filename value prior to using it.
+ * 
+ * SDConfigFile has one function, get, which reads and parses the config.ini
+ * file and stores those values in the SDConfig structure.  To add new values,
+ * change the structure here and the get structure in SD_support.c.
  */
 
 // Definitions for output file support
@@ -59,8 +62,9 @@ static void writeln(OutputFile file, char *outLine) {
     FILE* outFile = FSfopen(file.filename, "a");
     if (outFile) {
         FSfwrite(outLine, 1, strlen(outLine), outFile);
-        FSfwrite("\n\r", 1, 2, outFile);
-        fclose(outFile);
+        FSputc('\r', outFile);
+        FSputc('\n', outFile);
+        FSfclose(outFile);
     }
 }
 
@@ -99,11 +103,6 @@ static void getConfig(ConfigFile file, SDConfig *pcfg) {
     char *lines[MAX_LINES];
     int i;
 
-	// Initialize structure
-	pcfg->camera = '*';
-	pcfg->sensors = '*';
-	pcfg->motor = '*';
-
 	FILE *inifile = FSfopen(file.filename, "r");
 	int length = FSfread(sysBuffer, 1, SYS_BUFFER_SIZE, inifile);
     FSfclose(inifile);
@@ -135,18 +134,12 @@ void process(char *line, SDConfig *pcfg) {
 	char *value = trim(strtok(NULL, "\n"));
 	if (!key || !value) return;
 	printf("[%s]=[%s]\n", key, value);
-	if (strcmp(key, "kernelID") == 0) pcfg->kernelID = atoi(value);
-	if (strcmp(key, "enable.motor") == 0) pcfg->motor = value[0];
-	if (strcmp(key, "enable.camera") == 0) pcfg->camera = value[0];
-	if (strcmp(key, "enable.sensors") == 0) pcfg->sensors = value[0];
-	if (strcmp(key, "date") == 0) strncpy( pcfg->date, value, sizeof(pcfg->date));
-	if (strcmp(key, "time") == 0) strncpy( pcfg->time, value, sizeof(pcfg->time));
+	if (strcmp(key, "kernelId") == 0) pcfg->kernelID = atoi(value);
 	if (strcmp(key, "label") == 0) strncpy( pcfg->label, value, sizeof(pcfg->label));
-	if (strcmp(key, "exp_end.date") == 0) strncpy( pcfg->date, value, sizeof(pcfg->exp_end_date));
-	if (strcmp(key, "exp_end.time") == 0) strncpy( pcfg->time, value, sizeof(pcfg->exp_end_time));
-	if (strcmp(key, "exp_wait_duration_min") == 0) pcfg->exp_wait_duration_min = atoi(value);
-	if (strcmp(key, "defrost_wait_duration_min") == 0) pcfg->defrost_wait_duration_min = atoi(value);
-
+	if (strcmp(key, "exp_wait_duration") == 0) pcfg->exp_wait_duration = atoi(value);
+	if (strcmp(key, "defrost_wait_duration") == 0) pcfg->defrost_wait_duration = atoi(value);
+	if (strcmp(key, "exp_end") == 0) strncpy( pcfg->exp_end, value, sizeof(pcfg->exp_end));
+	if (strcmp(key, "rtc_start") == 0) strncpy( pcfg->rtc_start, value, sizeof(pcfg->rtc_start));
 }
 
 char *trim(char *src) {
@@ -175,3 +168,12 @@ OutputFile
 const ConfigFile
 	SDConfigFile = { filename : "config.ini", get : get1 };
 
+// Utility functions
+Boolean CheckFile(char *filename) {
+    FSFILE *file = FSfopen( filename, FS_READ);
+    if (file != NULL) {
+        FSfclose( file);
+        return ON;
+    }
+    return OFF;
+}

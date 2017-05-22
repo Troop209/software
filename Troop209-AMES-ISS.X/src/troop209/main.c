@@ -13,56 +13,54 @@
 // The program will attempt to read the SD Card to find
 //   a config.ini file to drive the rest of the system
 
-#include "experiment_shutdown.h"
-#include "experiment_initialize.h"
-#include "experiment_main.h"
+#include <nesi.h>
 #include "SD_support.h"
 #include "dateTime.h"
+#include "../NormI2C/HdwrTest.h"
+
+SDConfig config;
 
 int main(void)
 {
-    initialize_experiment();
 
-    // Delay is in ms and so need to convert time in config 
-    int betweenExperimentDuration = config.exp_wait_duration_min * 60 * 1000;
+    nesi.init();
+ //* comment out unless camera testing
+//    usb.connect();
 
-    // MM/dd/YY hh:mm
-    DateAndTime expEndDateTime;
-    static const int month_pos = 1;
-    static const int day_pos = 4;
-    static const int year_pos = 7;
-    static const int hr_pos = 1;
-    static const int min_pos = 4;
-    
-    char value[2];
-    
-    value[0] = config.exp_end_date[month_pos];
-    value[1] = config.exp_end_date[month_pos + 1];
-    expEndDateTime.month = atoi(value);
-
-    value[0] = config.exp_end_date[day_pos];
-    value[1] = config.exp_end_date[day_pos + 1];
-    expEndDateTime.day = atoi(value);
-
-    value[0] = config.exp_end_date[year_pos];
-    value[1] = config.exp_end_date[year_pos + 1];
-    expEndDateTime.year = atoi(value);
-    
-    value[0] = config.exp_end_time[hr_pos];
-    value[1] = config.exp_end_time[hr_pos + 1];
-    expEndDateTime.hour = atoi(value);
-
-    value[0] = config.exp_end_time[min_pos];
-    value[1] = config.exp_end_time[min_pos + 1];
-    expEndDateTime.minute = atoi(value);
-
+//   while (!button.isPressed());
+//   while (button.isPressed());
+//   usb.eject();
    
-    while ( dateTime.cmp(dateTime.get(), expEndDateTime) >= 0) {
-        run_experiment();
-        delay(betweenExperimentDuration);
-    } 
+    
+    SDConfigFile.get(&config);
+//    if (config.kernelID == 0) config.kernelID = 16;
 
-    shutdown_experiment();
-    return 0;
+// Fix the kernelID to what is currently needed.     
+// Not4: kernelID 19 is HdwrTest with diag file sizing, 18 is without file saving
+//    config.kernelID = 16;  // Put a breakpoint here, and change kernelID to what's needed. 
+    
+    
+//    sprintf(buf, "Kernel ID = %i\n\r", config.kernelID);
+//    SDEventFile.writeln(buf);
+   
+    
+    DateAndTime rtcStart = dateTime.parseStamp(config.rtc_start);
+    DateAndTime expEnd = dateTime.parseStamp(config.exp_end);
+    
+    int rtcB4End = dateTime.cmp(rtcStart, expEnd);
+    rtcB4End = dateTime.cmp(expEnd, expEnd);
+    
+    switch (config.kernelID) 
+    {
+        case 12: kernel12(); break;  // 0C - get/set external RTC
+        case 13: kernel13(); break;  // 0D - USB connect to update config
+        case 14: kernel14(); break;  // 0E - Write config
+        case 15: kernel15(); break;  // 0F - Read config
+        case 16: kernel16(); break;  // 10 - Camera test
+        case 17: kernel17(); break;
+        case 18: kernel18(); break;  // 12 - Happy Path
+        case 19: kernel19(); break;  // 13 - Hardware Test
+        default: kernel16(); break;
+    }
+     
 }
-

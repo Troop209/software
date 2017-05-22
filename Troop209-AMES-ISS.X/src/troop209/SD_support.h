@@ -18,14 +18,31 @@
 
 /**
  * This module defines all the support objects for the SD Card.
- * We have so far defined three things:
+ *
  *   1. An event log (this is the general error and info log)
+ *        SDEventFile - EventFile.txt
  *   2. A data log (this is our CSV output file)
- *   3. A configuration file (this is an input INI file)
+ *        SDDataFile - DataFile.txt
+ *   3. An extra output file (you can change the file name on this)
+ *        SDExtraFile - defaults to ExtraFIle.txt
+ *   4. A configuration file (this is an input INI file)
+ *        SDConfig - config.ini
+ * 
+ * Output files have two functions: write and writeln.  writeln is just like
+ * write except is also writes an additional CR/LF sequence.
+ * 
+ * Files are opened, written to and closed.  If the file does not exist it is
+ * created.  To write to an ad hoc file, use SDExtraFile and change the 
+ * filename value prior to using it.
+ * 
+ * SDConfigFile has one function, get, which reads and parses the config.ini
+ * file and stores those values in the SDConfig structure.  To add new values,
+ * change the structure here and the get structure in SD_support.c.
  */
 
 #ifndef SD_SUPPORT_H
 #define SD_SUPPORT_H
+
 
 /**
  * Configuration file and structure
@@ -33,16 +50,11 @@
  */
 typedef struct {
     int kernelID;
-    int exp_wait_duration_min;
-    int defrost_wait_duration_min;
-    char exp_end_date[11];
-    char exp_end_time[9];
-	char motor;
-	char camera;
-	char sensors;
-	char date[11];
-	char time[9];
     char label[20];
+    int exp_wait_duration;
+    int defrost_wait_duration;
+	char exp_end[18];
+	char rtc_start[18];
 } SDConfig;
 
 typedef struct {
