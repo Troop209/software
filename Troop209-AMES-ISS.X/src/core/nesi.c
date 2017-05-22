@@ -30,12 +30,12 @@ static void initialize(void)
     ledB.init();
     powerDriverA.init();
     powerDriverB.init();
- //   button.init();
+    button.init();
     co2.init();
     resistiveSensors.init();
-     sdcard.init();
-     usb.init();
-     dataLog.init();
+    sdcard.init();
+    usb.init();
+    dataLog.init();
     camera.init();
     camera2.init();
     dateTime.init();

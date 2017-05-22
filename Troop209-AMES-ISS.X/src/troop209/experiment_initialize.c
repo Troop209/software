@@ -10,7 +10,9 @@
 #include "../troop209hw/I2CDrivers.h"
 #include "../troop209hw/Analog2Digital.h"
 #include "../troop209hw/RealTimeClock.h"
+
 SDConfig config;
+
 
 static void setInternalRTC(char *xRTC);
 static void initializeHardware();
@@ -100,7 +102,7 @@ static void setInternalRTC(char *xRTC) { // Returns point if stat == 0 else retu
 static void initializeHardware() {
     system.init();
     
-    sdcard.init();
+//    sdcard.init();
     usb.init();
     dataLog.init();
     camera.init();
