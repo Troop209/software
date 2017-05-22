@@ -94,15 +94,7 @@ static int read1(Byte* storageBuffer, int bytesToRead)
     /* return the number of bytes read from the file */
     return FSfread(storageBuffer, sizeof(Byte), bytesToRead, fileptr1);
 }
-/**
- * rename1() Information
- *
- * This function removes file1 and reports if it was unsuccessful.
- */
-static void rename1(char * renameFileName)
-{
-   FSrename(renameFileName,fileptr1);
-}
+
 /**
  * used1 Information
  *
@@ -147,7 +139,7 @@ static Boolean isUsed1(void)
  * file1 is the software wrapper for the 3rd file interfaces available on the NESI
  * board.
  */
-const FileStream file1 = {open:open1, close:close1, read:read1, write:write1, free:free1, rename:rename1};
+const FileStream file1 = {open:open1, close:close1, read:read1, write:write1, free:free1};
 
 /*------------------------------------ 2 ------------------------------------*/
 /**
