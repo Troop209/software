@@ -10,9 +10,9 @@ CND_CONF=default
 CND_DISTDIR=dist
 TMPDIR=build/${CND_CONF}/${IMAGE_TYPE}/tmp-packaging
 TMPDIRNAME=tmp-packaging
-OUTPUT_PATH=dist/${CND_CONF}/${IMAGE_TYPE}/AmesForSpaceDrivers.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
-OUTPUT_BASENAME=AmesForSpaceDrivers.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
-PACKAGE_TOP_DIR=amesforspacedrivers.x/
+OUTPUT_PATH=dist/${CND_CONF}/${IMAGE_TYPE}/Troop209-AMES-ISS.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
+OUTPUT_BASENAME=Troop209-AMES-ISS.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
+PACKAGE_TOP_DIR=troop209-ames-iss.x/
 
 # Functions
 function checkReturnCode
@@ -57,15 +57,15 @@ mkdir -p ${TMPDIR}
 
 # Copy files and create directories and links
 cd "${TOP}"
-makeDirectory ${TMPDIR}/amesforspacedrivers.x/bin
+makeDirectory ${TMPDIR}/troop209-ames-iss.x/bin
 copyFileToTmpDir "${OUTPUT_PATH}" "${TMPDIR}/${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}" 0755
 
 
 # Generate tar file
 cd "${TOP}"
-rm -f ${CND_DISTDIR}/${CND_CONF}/package/amesforspacedrivers.x.tar
+rm -f ${CND_DISTDIR}/${CND_CONF}/package/troop209-ames-iss.x.tar
 cd ${TMPDIR}
-tar -vcf ../../../../${CND_DISTDIR}/${CND_CONF}/package/amesforspacedrivers.x.tar *
+tar -vcf ../../../../${CND_DISTDIR}/${CND_CONF}/package/troop209-ames-iss.x.tar *
 checkReturnCode
 
 # Cleanup
