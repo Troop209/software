@@ -59,7 +59,7 @@ int main(void)
         case 16: kernel16(); break;  // 10 - Camera test
         case 17: kernel17(); break;
         case 18: kernel18(); break;  // 12 - Happy Path
-        case 19: kernel19(); break;  //    - Hardware Test
+        case 19: kernel19(); break;  // 13 - Hardware Test
         default: kernel16(); break;
     }
      
