@@ -1,6 +1,5 @@
 /* 
- * File:   SensorDriv
- * ers.c
+ * File:   SensorDrivers.c
  * Author: Norman McFarland
  *
  * Created on November 20, 2016, 1:34 PM
@@ -41,7 +40,14 @@
     int SNS_BLU_LIGHT   = 0 ;
     int SNS_GRN_LIGHT   = 0 ;
 
+    int SNS_AltLight    = 0 ;
+    int SNS_AltTemp     = 0 ;
+    
     // Encoder externals
+
+    int SNS_virtEncoderBgn= 0   ;  
+    int SNS_virtEncoderEnd= 0   ;
+    int SNS_virtEncoderNow= 0   ;
     
     unsigned int SNS_EncPeriod    =  0 ;   // encoder PWM period
     unsigned int SNS_EncodPos     =  0 ;   // Current encoder position
@@ -59,7 +65,7 @@
     int SNS_MotorDur    =   -100    ;   // Estimated time to finsh move mS.
     int SNS_MotorDir    =      0    ;   // Motor Direction
     int SNS_CarouselPos =      0    ;   // Encoder Carousel PositionMoving test
-    char RTC_I2C_TimeStamp[18] = {"16.05.03 17:03:25"}      ;
+    char RTC_I2C_TimeStamp[18] = {"17.05.10 19:03:25"}      ;
     
     int SNS_LastRtn[8]  =   {0,0,0,0,0,0,0,0}   ;   // Last retrurned Value
     int SNS_LastErr[8]  =   {0,0,0,0,0,0,0,0}   ;   // Last retrurned Error
@@ -95,7 +101,7 @@ int initSensors (void)
             errCnt++ ;
         }
     }
-//     if (stat == 0)
+    //     if (stat == 0)
     {   stat=initRGB()    ;
         if(stat != 0)
         {   stat =  DrvrRedGrnBlu + Stage3 + stat ;
@@ -123,7 +129,7 @@ int initSensors (void)
         }
     }
 //    if (stat == 0)
-    {   //stat=initRadiation()  ;
+    {   stat=initRadiation()  ;
         if(stat != 0)
         {   stat =  DrvrRadiation + Stage6 + stat ;
             SNS_LastErr[6]=stat ;

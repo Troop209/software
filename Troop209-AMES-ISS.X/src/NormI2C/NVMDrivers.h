@@ -14,7 +14,7 @@ extern "C" {
 
 int readNVM(char *Dptr, Byte BgnAddr, Byte Rlen)    ;
 int writeNVM(char *Sptr, Byte BgnAddr, Byte Wlen)  ;
-int TestNVM(void)                           ;
+int testNVM(void)                           ;
 
 
 #ifdef	__cplusplus

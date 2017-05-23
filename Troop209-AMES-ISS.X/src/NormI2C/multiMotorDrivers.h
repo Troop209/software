@@ -2,7 +2,7 @@
  * File:   multiMotorDrivers.h
  * Author: Norman McFarland
  *
- * Created on March 20, 2017, 11:34 AM
+ * Created on May 19, 2017, 4:55 PM
  */
 
 #ifndef MULTIMOTORDRIVERS_H
@@ -12,7 +12,11 @@
 extern "C" {
 #endif
 
-    int multiMotorMove(position, speed, motor)  ;
+void    initStepper(void)  ;
+int     checkMotor(void)    ;
+int     multiMotorMove(int AppPattern, int AppAngle, int AppSpeed)  ;
+int     moveCarousel(int pattern, int angle, int speed)             ;
+int     checkCarousel(int pattern, int angle, int speed)            ;
 
 
 #ifdef	__cplusplus

@@ -25,9 +25,40 @@
 
     int EncTimer    = 0    ; // Number counts for while loop
 
+    int EncFlag    = 0 ;     
+    int EncTdif    = 0 ;       // time difference between IC5TMR and IC6TMR. typically 0
+    unsigned long   EncRising          = 0 ;       // static variables !!!
+    unsigned long   prevEncRising      = 0 ;
+    unsigned long   EncFalling         = 0 ;
+    unsigned long   prevEncFalling     = 0 ;
+    unsigned long   EncPeriod          = 0 ;       // internal time value in counts
+    unsigned long   fallEncPeriod      = 0 ;       // internal time value in counts
+    unsigned long   EncodPosition        = 0 ;       // internal time value in counts
+    unsigned long   EncPosition     = 0 ;
+    unsigned long   EncPosition2    = 0 ;
+        
+    unsigned long   RECountEntry    = 0 ;   
+    unsigned long   RECountIC5      = 0 ;   
+    unsigned long   RECountIC6      = 0 ;   
+    unsigned long   RECountFlag     = 0 ;
+        
+    long   scaledPosition = 0 ;
+    long   scaledPeriod   = 0 ;
+    long   scaledResult   = 0 ;
+       
+    int    ENC_OvflCnt     = 0 ; 
+       
+    unsigned long   prevEncRisingArray[ArraySizeMax]  = {0,0,0,0,0,0,0,0} ;
+    unsigned long   prevEncFallingArray[ArraySizeMax] = {0,0,0,0,0,0,0,0} ;
+    unsigned long divisor = 0 ;
+    unsigned int  quotient = 0 ;
+    unsigned int  multiplier =16384 ;
+    unsigned int  loopvar = 0 ;
+       
 
-        // EDT unsigned long   prevRisingArray[ArraySizeMax] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0} ;
-        // EDT unsigned long   prevFallingArray[ArraySizeMax] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0} ;
+
+        // EDT unsigned long   prevEncRisingArray[ArraySizeMax] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0} ;
+        // EDT unsigned long   prevEncFallingArray[ArraySizeMax] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0} ;
 
 void initEncoder(void)
 {   
@@ -65,71 +96,42 @@ void initEncoder(void)
 }
          
    
-    int flag    = 0 ;     
-    int tdif    = 0 ;       // time difference between IC5TMR and IC6TMR. typically 0
-    int i       = 0 ;       // local loop counter
-    int j       = 0 ;       // local loop counter
-
+ /* comment out divide routine       
+int nmDivide(unsigned long numerator, unsigned int denominator)
+{
+    divisor = (long)denominator ;
+    divisor = divisor < 14 ;
+    for (loopvar = 0; loopvar <15; loopvar ++)
+    {   
+        if (divisor < numerator)
+        {   quotient += multiplier ;
+            numerator -= divisor  ;
+        }
+        divisor     = divisor > 1       ;
+        multiplier  = multiplier > 1    ;       
+    }
+    return (quotient)  ;
+}
+ */
+ 
     //            .............|'''''''''''''''''|...............|'''''''''''''|................
     // Rising to Rising time   |                                 |
-    // Falling to Falling time                   |                             |
+    // EncFalling to Falling time                   |                             |
     // On Times                |-----------------|               |-------------|
     // rise times              r                                 r
     // fall times                                f                             f
     
-        unsigned long   Rising          = 0 ;       // static variables !!!
-        unsigned long   prevRising      = 0 ;
-        unsigned long   Falling         = 0 ;
-        unsigned long   prevFalling     = 0 ;
-        unsigned long   period          = 0 ;       // internal time value in counts
-        unsigned long   fallperiod      = 0 ;       // internal time value in counts
-        unsigned long   position        = 0 ;       // internal time value in counts
-        unsigned long   EncPosition     = 0 ;
-        unsigned long   EncPosition2    = 0 ;
-        
-        unsigned long   RECountEntry    = 0 ;   
-        unsigned long   RECountIC5      = 0 ;   
-        unsigned long   RECountIC6      = 0 ;   
-        unsigned long   RECountFlag     = 0 ;
-        
-        long   scaledPosition = 0 ;
-        long   scaledPeriod   = 0 ;
-        long   scaledResult   = 0 ;
-        
-
-        int    ENC_OvflCnt     = 0 ; 
-        
-        unsigned long   prevRisingArray[ArraySizeMax]  = {0,0,0,0,0,0,0,0} ;
-        unsigned long   prevFallingArray[ArraySizeMax] = {0,0,0,0,0,0,0,0} ;
-
-        unsigned long divisor = 0 ;
-    unsigned int  quotient = 0 ;
-    unsigned int  multiplier =16384 ;
-    unsigned int  loopvar = 0 ;
-       
-int readEncoder(void)
-{   // Return Carousel position as 0.0 to 359.9 degrees as 0-4095 counts
-    // OrReturn -1 if not detecting any signal
-    extern unsigned int SNS_EncPeriod     ; // defined in SensorDrivers.c
-    extern unsigned int SNS_EncodPos      ; // defined in SensorDrivers.c
-    extern unsigned int SNS_EncodPosPrev  ; // defined in SensorDrivers.c
-    extern unsigned int SNS_MovFlg        ; // defined in SensorDrivers.c
-    extern unsigned int SNS_EncodOffset   ; // defined in SensorDrivers.c
-    extern unsigned int SNS_EncDirFlag    ; // defined in SensorDrivers.c 
+int readEncoderIrq(void)
+{   extern unsigned int SNS_EncPeriod     ; // defined in SensorDrivers.c
+    
+    int i       = 0 ;       // local loop counter
+    int j       = 0 ;       // local loop counter
  
     // new value from rising edges?
     // PIC24 will queue up to 4, returned oldest to9 newest
     // get most recent set
     // (if only one, use the last one from last read)
-    RECountEntry++  ;
-    
-    // check for incoming signal; return -1 if not present
-    if ( (RECountEntry > 500) && (RECountIC5 == 0) )
-        {   // Lots of entering function, but no rising edge detection
-            // NO SIGNAL from peripherals
-            SNS_EncodPos = -1  ;
-            return (SNS_EncodPos)    ;        // Flag No Signal on incoming port
-        }
+
     // new value from rising edges?
     // PIC24 will queue up to 4, returned oldest to newest
     // get most recent set
@@ -142,25 +144,25 @@ int readEncoder(void)
         while ( (IC5CON1bits.ICBNE == 1) || (IC5CON1bits.ICOV == 1) ) 
         {   for (i=ArraySizeMax-2; i>=0; i--)
             {   j=i+1   ;
-                prevRisingArray[j]   =prevRisingArray[i]  ; // 
+                prevEncRisingArray[j]   =prevEncRisingArray[i]  ; // 
             }
-            prevRisingArray[0]   =IC5BUF  ;
-            prevRising  =   prevRisingArray[1]  ;   // get last two values for delta calc
-            Rising      =   prevRisingArray[0]  ;   // value could be previous entry or multi this entry
+            prevEncRisingArray[0]   =IC5BUF  ;
+            prevEncRising  =   prevEncRisingArray[1]  ;   // get last two values for delta calc
+            EncRising      =   prevEncRisingArray[0]  ;   // value could be previous entry or multi this entry
             ENC_OvflCnt = 0 ;           // got signal, clear count
-            flag        = 0 ;           // will calc with falling to rising time
+            EncFlag        = 0 ;           // will calc with falling to rising time
             
-            if(prevRisingArray[7] != 0)
+            if(prevEncRisingArray[7] != 0)
             {   // don't calc if buffer not yet filled
-                // period is count of 16M clock cycles
-                if(prevRising > Rising)
-                { period = ( (Rising - prevRising)+ 65536 ) ; // % 65536 ;  // include counter rollover
+                // EncPeriod is count of 16M clock cycles
+                if(prevEncRising > EncRising)
+                { EncPeriod = ( (EncRising - prevEncRising)+ 65536 ) ; // % 65536 ;  // include counter rollover
                 } 
                 else 
-                { period = (Rising - prevRising) %65536  ;  // no counter rollover
+                { EncPeriod = (EncRising - prevEncRising) %65536  ;  // no counter rollover
                 }
             }
-            SNS_EncPeriod=period ;
+            SNS_EncPeriod=EncPeriod ;
         }
     }
 
@@ -173,47 +175,72 @@ int readEncoder(void)
         while ( (IC6CON1bits.ICBNE == 1) || (IC6CON1bits.ICOV == 1) )
         {   for (i=ArraySizeMax-2; i>=0; i--)
             {   j=i+1   ;
-                prevFallingArray[j]   =prevFallingArray[i]  ; // 
+                prevEncFallingArray[j]   =prevEncFallingArray[i]  ; // 
             }
-            prevFallingArray[0]   =IC6BUF  ;
-            prevFalling =   prevFallingArray[1] ;
-            Falling     =   prevFallingArray[0]  ;
-            tdif        =   IC5TMR - IC6TMR    ;    // find error between IC5 and IC6
+            prevEncFallingArray[0]   =IC6BUF  ;
+            prevEncFalling =   prevEncFallingArray[1] ;
+            EncFalling     =   prevEncFallingArray[0]  ;
+            EncTdif        =   IC5TMR - IC6TMR    ;    // find error between IC5 and IC6
             EncTimer++     ;       // increment external time count value (~4mS per count)
             
-            if(prevFallingArray[7] != 0)
+            if(prevEncFallingArray[7] != 0)
             {   // don't calc if buffer not yet filled
                 // result is count of 16M clock cycles
-                if(prevFalling < Falling)
-                { fallperiod = (Falling - prevFalling) + 65536  ; // include counter rollover
+                if(prevEncFalling < EncFalling)
+                { fallEncPeriod = (EncFalling - prevEncFalling) + 65536  ; // include counter rollover
                 } 
                 else 
-                { fallperiod = Falling - prevFalling  ;   // no counter rollover
+                { fallEncPeriod = EncFalling - prevEncFalling  ;   // no counter rollover
                 }
-                flag        = 1 ;       // need to calc values
+                EncFlag        = 1 ;       // need to calc values
             }
         }
     }
-    if (flag == 1)
+    return (0)  ;
+}
+
+int readEncoder(void)
+{   // Return Carousel position as 0.0 to 359.9 degrees as 0-4095 counts
+    // OrReturn -1 if not detecting any signal
+    extern unsigned int SNS_EncPeriod     ; // defined in SensorDrivers.c
+    extern unsigned int SNS_EncodPos      ; // defined in SensorDrivers.c
+    extern unsigned int SNS_EncodPosPrev  ; // defined in SensorDrivers.c
+    extern unsigned int SNS_MovFlg        ; // defined in SensorDrivers.c
+    extern unsigned int SNS_EncodOffset   ; // defined in SensorDrivers.c
+    extern unsigned int SNS_EncDirFlag    ; // defined in SensorDrivers.c 
+
+    readEncoderIrq() ;  // check encoder real time stuff
+    
+    RECountEntry++  ;
+    
+    // check for incoming signal; return -1 if not present
+    if ( (RECountEntry > 500) && (RECountIC5 == 0) )
+        {   // Lots of entering function, but no rising edge detection
+            // NO SIGNAL from peripherals
+            SNS_EncodPos = -1  ;
+            return (SNS_EncodPos)    ;        // Flag No Signal on incoming port
+        }
+
+    if (EncFlag == 1)
     {   RECountFlag++   ;
         // Calc the On Time of the signal (previous rising edge to current falling edge)
         //  ic5       ic6
         // __/----------\_____
         //   R          F
-        if(Falling  > Rising)
-        { // default condition Rising < Falling
-            position = (Falling -Rising + tdif) % 65536  ;
+        if(EncFalling  > EncRising)
+        { // default condition EncRising < EncFalling
+            EncodPosition = (EncFalling -EncRising + EncTdif) % 65536  ;
         }   
         else 
         { // counter rolled over, add 65536 onto value
-            position = ( (Falling -Rising) + tdif + 65536 )  % 65536 ;
+            EncodPosition = ( (EncFalling -EncRising) + EncTdif + 65536 )  % 65536 ;
         }
         
         // Now calc the PerCent on time
-        if( (position < period) && (period > 0) )
-        {   EncPosition = position *4096  ;
-//            EncPosition2= nmDivide(EncPosition, period) ;
-              EncPosition2=EncPosition/period;
+        if( (EncodPosition < EncPeriod) && (EncPeriod > 0) )
+        {   EncPosition = EncodPosition *4096  ;
+//            EncPosition2= nmDivide(EncPosition, EncPeriod) ;
+              EncPosition2=EncPosition/EncPeriod;
             SNS_EncodPos= EncPosition2 % 4096    ;
 // UDT            SNS_EncodPos     = (EncPosition )  ;    // might need a mutiply factor here
         }
@@ -254,6 +281,7 @@ int readEncoder(void)
         { //  moving
             SNS_MovFlg  =   1 ;
         }
+        EncFlag = 0 ;
     }
     return  (SNS_EncodPos)    ;
 }
@@ -273,20 +301,7 @@ int monitorEncoder(int mSdelay)
     EncmSdelay  = mSdelay/4     ; // Convert passed mS to Period counts
     EncTimer    = 0             ; // zero the loop counter      
     while (EncTimer < EncmSdelay)
-    {
-        EncStat=readEncoder()   ;
-        nop();
-        nop();
-        nop();
-        delay(1000); //experiment on delays that could introduce a problem. delayed up to 1 second with no problem. 
-//debug file write        
-//    char datatest2[80] = {0};    extern int SNS_EncodPos;
-//    extern int SNS_MotorPos;
-//    extern int moveStatus;
-//    sprintf(datatest2,"Encoder read: Date-Time: ,%s,SNS_EncodPos,%i, SNS_MotorPos,%i,", dateTime.getStamp(), SNS_EncodPos, SNS_MotorPos);
-//    dataLog.add(datatest2, 0x1010);
-
-
+    {   EncStat=readEncoder()   ;
         if (EncStat == -1)
         {   // No SIgnal. Exit
             delay(mSdelay)  ;
@@ -311,7 +326,6 @@ int calibrateEncoder(void)
 // NRM    writeMotorPositionAbs(2048) ; // send motor to 180 degrees
 
     EncStat=monitorEncoder(15000)    ;  // monitor encoder
-    
     if (EncStat == -1)
     {   // No ENcoder Signal. Return error
         return (-1) ;

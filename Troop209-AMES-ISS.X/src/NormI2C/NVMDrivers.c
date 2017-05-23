@@ -57,7 +57,7 @@ int writeNVM(char *Sptr, Byte BgnAddr, Byte Wlen)
 char Buffer1[BufferSize]    ; 
 char Buffer2[BufferSize]    ; 
 
-void initBuffer(char *Ptr, char val)
+void initNVMBuffer(char *Ptr, char val)
 {   int i  = 0 ;
     for (i=0; i<BufferSize; i++)
     {   Ptr[i]=val    ;
@@ -65,7 +65,7 @@ void initBuffer(char *Ptr, char val)
     return  ;
 }
 
-void setBuffer(char *Ptr, char val)
+void setNVMBuffer(char *Ptr, char val)
 {   
     int i  = 0 ;
     for (i=0; i<BufferSize; i++)
@@ -74,7 +74,7 @@ void setBuffer(char *Ptr, char val)
     return  ;
 }
 
-int compareBuffer(char *Ptr1, char *Ptr2)
+int compareNVMBuffer(char *Ptr1, char *Ptr2)
 {   
     int i  = 0 ;
     for (i=0; i<BufferSize; i++)
@@ -88,12 +88,12 @@ int compareBuffer(char *Ptr1, char *Ptr2)
 // int readNVM(Byte* Dptr, Byte BgnAddr, Byte Rlen)
 // int writeNVM (Byte* Sptr, Byte BgnAddr, Byte Wlen)
 
-int TestNVM(void)
+int testNVM(void)
 {   int stat    = 0  ;  
-    initBuffer(Buffer1, 0)      ; // initialize bothe buffers
-    initBuffer(Buffer1, 0)      ;
+    initNVMBuffer(Buffer1, 0)      ; // initialize bothe buffers
+    initNVMBuffer(Buffer1, 0)      ;
     
-    setBuffer(Buffer2,0)        ;   // load buffer 2 with count values, 0,1,2,3,...
+    setNVMBuffer(Buffer2,0)        ;   // load buffer 2 with count values, 0,1,2,3,...
             
     readNVM(Buffer1, 8, 56)     ; // read all NVM bytes into Buffer
      
@@ -104,7 +104,7 @@ int TestNVM(void)
  
     readNVM(Buffer1, 8, 56)     ;   // read all NVM bytes into Buffer
 
-    stat = compareBuffer(Buffer1, Buffer2)  ;
+    stat = compareNVMBuffer(Buffer1, Buffer2)  ;
     
     return(stat)   ;   // returns 0 if match or first non matching character position        
 }

@@ -3,6 +3,10 @@
  * Author: Norman McFarland
  *
  * Created on August 31, 2016, 11:08 AM
+ * 
+ * Rev History 
+ * Rev 1 May 19, 2017
+ * 1.1 Add readRadiationIrq function
  */
 
 #ifndef RADIATIONSENSORDRIVER_H
@@ -54,10 +58,8 @@ extern "C" {
 
 // Read SIgnal Period (to determine signal frequency). results is in nano seconds
 int      initRadiation (void)   ;
+long int readRadiationIrq(void) ;
 long int readRadiation(void)    ;
-
-int      initRad (void)   ;
-long int readRad(void)    ;
 #ifdef	__cplusplus
 }
 #endif

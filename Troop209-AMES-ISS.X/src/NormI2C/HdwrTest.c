@@ -30,6 +30,8 @@
 #include "../core/file.h"
 #include "multiMotorDrivers.h"
 #include "RadiationSensorDriver.h"
+#include "AltTemp.h"
+#include "OptoDrivers.h"
 #include "stdio.h"
 
 
@@ -55,83 +57,64 @@
     int readTHPSensor     = 0 ;  //  0= No; 1=Yes
     int readRGBSensor     = 0 ;  //  0= No; 1=Yes
     int readRadSensor     = 0 ;  //  0= No; 1=Yes
-    int readTemp2         = 0 ;  //  0= No; 1=Yes
+    int readAltTempSensor = 0 ;  //  0= No; 1=Yes
+    int readAltLightSensor= 0 ;  //  0= No; 1=Yes
     int readXRTCValue     = 0 ;  //  0= No; 1=Yes
     int readIRTCValue     = 0 ;  //  0= No; 1=Yes
     int readVRTCValue     = 0 ;  //  0= No; 1=Yes
     int readOptoSensor    = 0 ;  //  0= No; 1=Yes
     int readNVMValue      = 0 ;  //  0= No; 1=Yes
     int pingXRTC          = 0 ;  //  0= No; 1=Yes
-    int writeXRTC   = 0 ;  //  0= No; 1=Yes
-    int writeIRTC   = 0 ;  //  0= No; 1=Yes
-    int toggleLED1  = 0 ;  //  0= No; 1=Yes
-    int toggleLED2  = 0 ;  //  0= No; 1=Yes
-    int toggleCAM1  = 0 ;  //  0= No; 1=Yes
-    int toggleCAM2  = 0 ;  //  0= No; 1=Yes
-    int readEncoderValue = 0 ;  //  0= No; 1=Yes
-    int writeSensors    = 0 ;  //  0= No; 1=Yes
-    int writeTempHumPres= 0 ;  //  0= No; 1=Yes
-    int enableMotor     = 3 ;  //  0= No; 1=Absolute; 2=Relative; 3=sequence of 8 4= seq of 17, 5=180 calibration point
-    int takePicture1    = 0 ;  //  0= No; 1=Yes
-    int takePicture2    = 0 ;  //  0= No; 1=Yes
-    int usbConnect      = 0 ;  //  0= No; 1=Yes
-    int delay05Sec      = 0 ;  //  0= No; 1=Yes, delay 5 secs
-    int delay15Sec      = 0 ;  //  0= No; 1=Yes, delay 15 secs
-    int delay30Sec      = 0 ;  //  0= No; 1=Yes, delay 30 secs
+    int pingRGB           = 0 ;  //  0= No; 1=Yes
+    int pingTHP           = 0 ;  //  0= No; 1=Yes
+    int writeXRTC         = 0 ;  //  0= No; 1=Yes
+    int writeIRTC         = 0 ;  //  0= No; 1=Yes
+    int toggleLED1        = 0 ;  //  0= No; 1=Yes
+    int toggleLED2        = 0 ;  //  0= No; 1=Yes
+    int toggleCAM1        = 0 ;  //  0= No; 1=Yes
+    int toggleCAM2        = 0 ;  //  0= No; 1=Yes
+    int readEncoderValue  = 1 ;  //  0= No; 1=Yes
+    int writeSensors      = 0 ;  //  0= No; 1=Yes
+    int writeTempHumPres  = 0 ;  //  0= No; 1=Yes
+    int enableMotor       = 3 ;  //  0= No; 1=Absolute; 2=Relative; 3=sequence of 8 4= seq of 17, 5=180 calibration point
+    int takePicture1      = 0 ;  //  0= No; 1=Yes
+    int takePicture2      = 0 ;  //  0= No; 1=Yes
+    int usbConnect        = 0 ;  //  0= No; 1=Yes
+    int delay05Sec        = 0 ;  //  0= No; 1=Yes, delay 5 secs
+    int delay15Sec        = 0 ;  //  0= No; 1=Yes, delay 15 secs
+    int delay30Sec        = 0 ;  //  0= No; 1=Yes, delay 30 secs
 
-    int stat            =  0 ;   // Return status of HW related functions
-    int SNS_AltTemperature = 0 ;
+    int stat              = 0 ;   // Return status of HW related functions
+    
 void HdwrTest(void)
 {   // $$$ Conditional operation s variables
     extern char RTC_I2C_TimeStamp[18]    ;
     extern char xRTCTime[18] ;   
     extern char iRTCTime[18] ;
-    
+    extern int  SNS_AltTemp  ;
+    extern int  SNS_AltLight ;
     int speed           =  7 ;
     int angle           =  0 ;
     
     char filename[40] = {0};
-    char FileNamePrefix[13]={"HdwrTest01: "}    ;
-    int  encPos          = 0 ;
     
-    extern unsigned int SNS_EncodPos ;
-    
-    // Initialization begins here
-//    system.init()   ;
-    
+  // Initialization begins here
+    // system.init()   ;
     i2c2_init(75)       ;       // Initialize I2C2 and set Baud Rate
-    i2c2_reset_bus()    ;       // Reset I2C Bus/Network
-           
+    i2c2_reset_bus()    ;       // Reset I2C Bus/Network      
     dateTime.init()     ;       // Init internal RTeal Time Clock   $$$ May need to mod this $$$
-    
-    setOn6Volt()        ;        // Turn on 6V Supply (for now)     
- 
     initA2D()           ;       // Configure Q1-Q4 Analog Inputs. Q3 Currently used for VMot check.
-    
     // stat = initSensors()       ;       // set up sensors // returns Error count of # sensors with errors. 0 Desired
-    initEncoder()   ;
     stat=i2c2_TalkToDevice(I2C_CLR_DIAG, 0, NullPtr, 0, NullPtr) ;      // clear I2C2 diagnostic counters   
-//
-    nop();
-    nop();
-    nop();
-    
-    initStepper();  
-    
-    // file3.open("TestData.csv");          // $$$ told 'file3' defined in file.h inclusions
+    initStepper()          ;  
     // stat = calibrateEncoder()      ;
+    // stat = monitorEncoder(16)    ;
+  // Initialization done here
     
-    // stat = monitorEncoder(16)    ;       // NRM //
-    
-    delay(1);    // 'before' breakpoint line
- // $$$ Start Main Loop
-    int hdwrtestloop = 0;
-    while(1)  // see how far motor runs
-//  while (hdwrtestloop <= 10000)
-  { 
-      hdwrtestloop++ ; //added for motor testing. 
-      delay(1);    // 'during' breakpoint line
-
+    delay(1)   ; // Breakpoint here to adjust conditional variables before running loop
+ 
+  while (1)
+  { delay(1)    // Breakpoint here to adjust conditional variables while running loop
     if ( readTHPSensor        == 1)   //  0= No; 1=Yes    
     {   stat = readTHP() ; //   
     }
@@ -139,13 +122,18 @@ void HdwrTest(void)
     {   stat = readRGB() ; //    
     }
     if ( readRadSensor        == 1)   //  0= No; 1=Yes    
-    {   stat = readRadiation() ; //    
+    {   stat = readRadiationIrq() ; //    
+        stat = readRadiation() ; //    
     }
-    if ( readTemp2      == 1)   //  0= No; 1=Yes    
-    {   SNS_AltTemperature=readQ1()  ; //    
+    if ( readAltTempSensor      == 1)   //  0= No; 1=Yes    
+    {   SNS_AltTemp=readAltTemp()  ; //    
     }
-    if ( readEncoderValue == 0 ) ;  //  0= No; 1=Yes JRM, was single =, changed to ==
+    if ( readAltLightSensor     == 1)   //  0= No; 1=Yes    
+    {   SNS_AltLight=readAltLight()  ; //    
+    }
+    if ( readEncoderValue   == 0 ) ;  //  0= No; 1=Yes
     {   //
+      // stat = readEncoderIrq()  ;
       stat = readEncoder()  ;       // returns Error count of # sensors with errors. 0 Desired
     }
     if ( readXRTCValue       == 1)   //  0= No; 1=Yes    
@@ -159,14 +147,20 @@ void HdwrTest(void)
     }
     if ( readOptoSensor       == 1)   //  0= No; 1=Yes    
     {   setOutputServo(1)   ;   // Enable Opto LED's
-        stat = readOptos(); //
+        stat =  readOptos() ; //
         setOutputServo(0)   ;   // Disable Opto LED's
     }
     if ( pingXRTC        == 1)   //  0= No; 1=Yes    
     {       stat=i2c2_TalkToDevice(0x68, 0, NullPtr, 0, NullPtr) ;      // ping RTC
     }
+    if ( pingRGB        == 1)   //  0= No; 1=Yes    
+    {       stat=i2c2_TalkToDevice(0X39, 0, NullPtr, 0, NullPtr) ;      // ping RTC
+    }
+    if ( pingTHP        == 1)   //  0= No; 1=Yes    
+    {       stat=i2c2_TalkToDevice(0X77, 0, NullPtr, 0, NullPtr) ;      // ping RTC
+    }
     if ( readNVMValue        == 1)   //  0= No; 1=Yes    
-    {   stat =  readNVMValue ; //    JRM changed readNVM to readNVMValue
+    {   stat =  testNVM() ; //    
     }
     if ( writeXRTC      == 1)   //  0= No; 1=Yes    
     {  // stat =  ; //    
@@ -232,12 +226,11 @@ void HdwrTest(void)
         diagRecord()    ; // $$$ Need to uncomment this code in TempHumPresDrives, uncomment '#include file.h'
     }
     if ( enableMotor     >= 1)        //  0= No; 1=Toggle; 2=Sequence; 3=180 calibration point
-    {   stat=checkCarousel(enableMotor, angle, speed);
-
+    {   stat=checkCarousel(enableMotor, angle, speed)   ;
+        // if (stat == functionSUCCESS)
         if (stat == 0)  // functionSUCCESS
-        { 
-            stat=moveCarousel(enableMotor, angle, speed)   ;
-            delay(1000); //Just to test motor JM
+        { stat=moveCarousel(enableMotor, angle, speed)   ;
+        delay(1000); //Just to test motor JM
         }
     }
    if ( takePicture1    == 1)        //  0= No; 1=Yes
@@ -254,7 +247,7 @@ void HdwrTest(void)
     }
     if ( usbConnect    == 1)          //  0= No; 1=Yes
     {   //
-       TestNVM()    ;
+       testNVM()    ;
        // $$$ Insert function call to execute USB Connect function  
     }
     if ( delay05Sec  == 1)
@@ -268,16 +261,6 @@ void HdwrTest(void)
     }
     delay(1)    // end breakpoint line
   }
-// read files after loop is complete.
-   nesi.init();
-   delay(10);
-   usb.connect();
-
-   while (!button.isPressed());
-   while (button.isPressed());
-   usb.eject();
-   
-   nesi.init();
   // file3.close()   ;          
 
 }

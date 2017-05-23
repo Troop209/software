@@ -2,6 +2,7 @@
 #include "nesi.h"
 #include "I2CDrivers.h"
 #include "RedGreenBlueDrivers.h"
+#include "AltTemp.h"
 
 const char RGB_MaxSend = 2        ;     // Max number of bytes you can send in one message
 const char RGB_MaxRead = 128      ;     // Max number of bytes you can continuous read (Register size)
@@ -136,7 +137,8 @@ const char  RGB_RdValL1     = 1               ;
 char        RGB_RdValS1[2]  = {0x93, 0x00}    ;    // Second Register Set    
 
 int readRGB (void)
-{   int RGB_stat  = 0 ;
+{   extern int SNS_AltLight ;
+    int RGB_stat  = 0 ;
     int x = 0 ;
 
     extern int SNS_CLR_LIGHT    ;
@@ -156,6 +158,11 @@ int readRGB (void)
     SNS_RED_LIGHT   = (RGB_rbuf[4]*256) + RGB_rbuf[3] ;   // Low High x97 0x96    RGB_rbuf[], RGB_rbuf[]
     SNS_GRN_LIGHT   = (RGB_rbuf[6]*256) + RGB_rbuf[5] ;   // Low High x99 0x98    RGB_rbuf[], RGB_rbuf[]
     SNS_BLU_LIGHT   = (RGB_rbuf[8]*256) + RGB_rbuf[7] ;   // Low High x9B 0x9A    RGB_rbuf[], RGB_rbuf[] 
+  }
+  SNS_AltLight=readAltLight() ;
+  if (RGB_stat != 0)
+  {   // RGB Failed- substitute the alternate light value
+      SNS_CLR_LIGHT = SNS_AltLight ;
   }
  return (RGB_stat)     ;
  }

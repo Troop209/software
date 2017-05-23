@@ -14,20 +14,23 @@
 #define    FALL     2
 #define    LOW      3
 
-#define    fPATTERN    -1
-#define    fANGLE      -2
-#define    fSPEED      -3
-#define    INITIALIZE   0          
-#define    IDLE         1
-#define    CALC         2
-#define    COMMAND      3
-#define    SEND         4
-#define    CHECK        5
-#define    STOP         6
-#define    VERIFY       7
-#define    COMPLETE     8
-#define    STALL        9
-#define    FAULT       10
+#define    FAULT       -4       // general Fault within multiMotorMove
+#define    fPATTERN    -1       // invaliud argumanet for pattern value in user call
+#define    fANGLE      -2       // invalid argumanet for Angle value in user call
+#define    fSPEED      -3       // invalid argumanet for speed valuein user call
+#define    INITIALIZE   0       // call the initStepper function      
+#define    IDLE         1       // Ready for next motor operation
+#define    HOME         10      // Send motor to Mechanical HOME using Opto Sensor feedback
+#define    CALC         2       // Opoeration recieved, calcualte destination
+#define    COMMAND      3       // calcuation complete, determine spreed and direction      
+#define    SEND         4       // send operation to PIC24 Hardware
+#define    CHECK        5       // Check if motor reached destimation yet
+#define    STALL        9       // (FROM chECK) motor commanded but not moving- mustr be stalled- take action
+#define    STOP         6       // stop motor operations- shut down PIC24 move functions
+#define    VERIFY       7       // Verify that motor reached assigned destination based on encoder and or opto responses
+#define    JOG         11       // Position Error, move this short distance to get there
+#define    COMPLETE     8       // Made it- do any end-of-operatioon cleranup
+#define    FAULT       -4       //
 // Half steps or Full Steps for motor move
 
 #define   HALFSTEP      0
@@ -52,16 +55,9 @@ const int FSEncoder  = 4096 ;
     int carouselAngle       = 0   ;   // destination Position of Carousel
     int motorStepsPerSec    = HALFSTEP  ;
     int duration            = 0 ;   // default to 0 value (calculated below)
-    int motLookUp           = 1 ;   // loop variable for motor position
-    
+    int motLookUp           = 1 ;   // loop variable for motor position  
     int moveStatus      =  1 ;
-
-
     int motorStepsPerSec     ;
-
-    int SNS_virtEncoderBgn   ;  
-    int SNS_virtEncoderEnd   ;
-    int SNS_virtEncoderNow   ;
     
      // State Machine Diagnostic Counters
     unsigned int oc8high  = 0    ;
@@ -82,10 +78,38 @@ const int FSEncoder  = 4096 ;
 
     char oc8Buffer[48]    = {0}  ;   
     char oc9Buffer[48]    = {0}  ; 
-    
+
+void setOnStepDisable(void)
+{
+    setOutputDiag(1); /* set the output to be open */
+}
+
+void setOffStepDisable(void)
+{
+    setOutputDiag(0); /* set the output to be closed */
+}
+ 
+void setOnStepDirection(void)
+{
+    setOutputMotorEn(1); /* set the output to be open */
+}
+
+void setOffStepDirection(void)
+{
+    setOutputMotorEn(0); /* set the output to be closed */
+}
+void setOnHalfStep(void)
+{
+    setOutputDiag(1); /* set the output to be open */
+}
+
+void setOffHalfStep(void)
+{
+    setOutputDiag(0); /* set the output to be closed */
+}
+
 void initStepper(void)
-{   
-    setOnStepDisable();
+{   setOnStepDisable()  ;
     /* disable module before configuring */
     __builtin_write_OSCCONL(OSCCON & 0xBF); // unlock Peripheral Pin Select Registers
     RPOR8=35  ;   //Select oc 9  as RP16
@@ -150,33 +174,7 @@ void initStepper(void)
     /* turn module on */
     OC8CON1 |= 0x2 ;
 }
-void setOnStepDisable(void)
-{
-    setOutputRG9(1); /* set the output to be open */
-}
 
-void setOffStepDisable(void)
-{
-    setOutputRG9(0); /* set the output to be closed */
-}
-void setOnStepDirection(void)
-{
-    setOutputMotorEn(1); /* set the output to be open */
-}
-
-void setOffStepDirection(void)
-{
-    setOutputMotorEn(0); /* set the output to be closed */
-}
-void setOnHalfStep(void)
-{
-    setOutputDiag(1); /* set the output to be open */
-}
-
-void setOffHalfStep(void)
-{
-    setOutputDiag(0); /* set the output to be closed */
-}
 
 int ErrorCheck(int ErrorVal)
 {   // function to determine the magnitude of an error value
@@ -271,15 +269,6 @@ int positionPattern(int pattern, int angle)
         SNS_MotorPos  =  carouselPosition[index+8] ;
         carouselAngle = (carouselPosition[index+8] - SNS_virtEncoderBgn) % FSHalfStep  ;   // use index to get position
         motLookUp++       ;     // count up from -8 to +8
-        delay(10);
-        /*datatest debug file write
-        char datatest3[80] = {0};    
-        extern int SNS_EncodPos;
-        extern int SNS_MotorPos;
-        sprintf(datatest3,"Position pattern: Date-Time: ,%s,SNS_EncodPos,%i, SNS_MotorPos,%i, moveStatus,%i,", dateTime.getStamp(), SNS_EncodPos, SNS_MotorPos, moveStatus);
-
-        dataLog.add(datatest3, 0x1010);        
-*/        
         delay(1000); // delay for debugging 
         if (motLookUp >= +8)
         {   motLookUp = 0 ;
@@ -330,7 +319,7 @@ int MotorStepper(int motSpeed)
 
         long    CountsPerRevolutionStepper    = FSHalfStep  ; //
         
-        int STEPsEQUENCE = FULLSTEP ;
+        int STEPsEQUENCE = HALFSTEP ;
 
               // Speed index:                 0    1   2   3   4   5   6   7   8
               // Steps per Second            25,  50, 66, 75, 87,100,125,166,250
@@ -378,14 +367,11 @@ int checkMotor(void)
 {   extern int SNS_MotorDir ;   // Motor Direction -1 CCW; +1 CW; 0 not set
     extern int moveStatus   ;
     // Virtual Encoder Vars    
-    int SNS_virtEncoderBgn= 0   ;  
-    int SNS_virtEncoderEnd= 0   ; // JRM Unused variable, need to find it's place??
-    int SNS_virtEncoderNow= 0   ;
+    extern int SNS_virtEncoderBgn   ;  
+    extern int SNS_virtEncoderNow   ;
 
     int stat   = 0 ;
-    int sLen =- 0 ;
-    
- 
+
     // lets check running/stopped status info
         if(OC8CON2bits.TRIGSTAT == 1)
         {   if(oc8stat==0)
@@ -459,8 +445,8 @@ int checkMotor(void)
         else if (SNS_MotorDir == -1)
         {    SNS_virtEncoderNow = (4096+SNS_virtEncoderBgn - TMR2) % FSHalfStep  ; // Using FSHalfStep since tied to stepoper count
         }
-        sLen = sprintf (oc8Buffer,"%i,%i,%i,%i,%i,%i,%i\n",oc8rise,oc8high,oc8fall,oc8low,oc8cnt,oc8stat,OC9State) ;
-        sLen = sprintf (oc9Buffer,"%i,%i,%i,%i,%i,%i,%i\n",oc9rise,oc9high,oc9fall,oc9low,oc9cnt,oc9stat,OC9State) ;
+        // sLen = sprintf (oc8Buffer,"%i,%i,%i,%i,%i,%i,%i\n",oc8rise,oc8high,oc8fall,oc8low,oc8cnt,oc8stat,OC9State) ;
+        // sLen = sprintf (oc9Buffer,"%i,%i,%i,%i,%i,%i,%i\n",oc9rise,oc9high,oc9fall,oc9low,oc9cnt,oc9stat,OC9State) ;
         
         if (oc8cnt > 32000)
         { // reset counts so don't overflow
@@ -482,9 +468,7 @@ int checkMotor(void)
         stat = readEncoder()    ;
         // Read Opto Sensor
         //readOptoSensor()  ;
-        nop();
-        nop();
-        nop();
+        
         return (moveStatus)    ;  
 }
 
@@ -492,7 +476,10 @@ int checkMotor(void)
 int multiMotorMove(int AppPattern, int AppAngle, int AppSpeed)
 {   extern int SNS_MotorDir         ;   // Motor Direction -1 CCW; +1 CW; 0 not set
     extern int moveStatus           ;
-    extern int SNS_EncodPos       ;
+    extern int SNS_EncodPos         ;
+    extern int SNS_virtEncoderBgn   ;
+    extern int SNS_virtEncoderEnd   ;
+    extern int SNS_virtEncoderNow   ;
     int LoopCount   = 1 ;
     int mMMstat     = 0 ;
 
@@ -570,15 +557,6 @@ int multiMotorMove(int AppPattern, int AppAngle, int AppSpeed)
     if (moveStatus == STOP) 
     {   // Get Encoder data
         mMMstat = monitorEncoder(14)  ; // give it 3.5 x 4mS to sample final position
-
-        char datatest4[80] = {0}; 
-        extern int SNS_EncodPos;
-        extern int SNS_MotorPos;
-        sprintf(datatest4,"STOP: Date-Time: ,%s,SNS_EncodPos,%i, SNS_MotorPos,%i, moveStatus,%i,", dateTime.getStamp(), SNS_EncodPos, SNS_MotorPos, moveStatus);
- 
-        dataLog.add(datatest4, 0x1010);  //debug
-
-        
         // SNS_EncodPos = SNS_virtEncoderEnd   ; // NRM TEMP till encoder runs
         // Set up for next move
         SNS_virtEncoderBgn = SNS_virtEncoderEnd  ; // Get final vEncoder Position
@@ -607,23 +585,11 @@ int multiMotorMove(int AppPattern, int AppAngle, int AppSpeed)
 
 // COMMAND a Move if Motor not busy, 
 // Returns SUCCESS, BUSY, or FAULT
-
-    
 int moveCarousel(int pattern, int angle, int speed)
-{
-    int stat = functionFAULT    ;
+{   int stat = functionFAULT    ;
     int fstat   = FAULT ;
     extern int moveStatus   ;
 
-//debug file write
-    /*
-    char datatest[80] = {0};    
-    extern int SNS_EncodPos;
-    extern int SNS_MotorPos;
-    sprintf(datatest,"MoveCarousel: Date-Time: ,%s,SNS_EncodPos,%i, SNS_MotorPos,%i, moveStatus,%i,", dateTime.getStamp(), SNS_EncodPos, SNS_MotorPos, moveStatus);
-    dataLog.add(datatest, 0x1010);
-*/
-    
     // determine if we can command or if motor busy
     if ( (moveStatus  == INITIALIZE) ||
          (moveStatus  == IDLE)       )
@@ -661,7 +627,7 @@ int moveCarousel(int pattern, int angle, int speed)
 int checkCarousel(int pattern, int angle, int speed)
 {   extern int moveStatus   ;
     int stat    = CHECK ;
-    int fstat   = functionFAULT ;
+    int fstat   = FAULT ;
     
 
     // DO we need to check new status?

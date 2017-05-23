@@ -90,6 +90,8 @@
         <itemPath>../../src/NormI2C/OptoDrivers.c</itemPath>
         <itemPath>../../src/NormI2C/multiMotorDrivers.h</itemPath>
         <itemPath>../../src/NormI2C/multiMotorDrivers.c</itemPath>
+        <itemPath>../../src/NormI2C/AltTemp.c</itemPath>
+        <itemPath>../../src/NormI2C/AltTemp.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f6" displayName="test" projectFiles="true">
         <itemPath>../../src/test/bitout.c</itemPath>
