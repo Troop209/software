@@ -734,7 +734,7 @@ static inline CalendarAndClock addCalendarAndClocks(CalendarAndClock first, Cale
                                     first.tensOfSeconds + second.tensOfSeconds,
                                     first.seconds       + second.seconds);
 }
-
+    
 static inline CalendarAndClock subtractCalendarAndClocks(CalendarAndClock first, CalendarAndClock second)
 {
    return numbersToCalendarAndClock(first.tensOfYears   - second.tensOfYears,
@@ -1401,6 +1401,10 @@ static void setDateAndTime(DateAndTime dt)
 Sint compareDateAndTime(DateAndTime a, DateAndTime b)
 {
     Sint diff = 0;
+    diff = a.year - b.year;
+    diff = a.month - b.month;
+    diff = a.day - b.day;
+    
     if(!(diff = (a.year - b.year)))
         if(!(diff = (a.month - b.month)))
             if(!(diff = (a.day - b.day)))

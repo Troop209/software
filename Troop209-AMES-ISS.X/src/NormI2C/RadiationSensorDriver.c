@@ -18,16 +18,17 @@
  *       Pulse Width Modulation (PWM)
  *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-*/
-    int             RadFlag         = 0 ;     
-    unsigned long   RadPeriod       = 0 ;       // internal time value in counts
-    unsigned long   RadRising       = 0 ;       // static variables !!!
-    unsigned long   prevRadRising   = 0 ;
-    unsigned int    IC7temp         = 0 ;
-    unsigned int    IC8temp         = 0 ;
+ */
+int RadFlag = 0;
+unsigned long RadPeriod = 0; // internal time value in counts
+unsigned long RadRising = 0; // static variables !!!
+unsigned long prevRadRising = 0;
+unsigned int IC7temp = 0;
+unsigned int IC8temp = 0;
 
 // const ReadServoAmps readServoAmps  = { read_C10 : read_C10, getC10  : sample_C10, init: A2D_C10_init } ;
- int initRadiation(void) { // Flush everything from before
+
+int initRadiation(void) { // Flush everything from before
     IC7CON1 = 0;
     IC7CON2 = 0;
     IC8CON1 = 0;
@@ -52,40 +53,83 @@
     IC7CON1bits.ICM = 3; // 3- 3  every rising edge; 4 every 4; 5 every 16
     return (0);
 }
- 
- 
-int readRadiationIrq(void)
-{    // new value from rising edges?
-    if( (IC7CON1bits.ICBNE == 1)  || (IC7CON1bits.ICOV == 1) ) 
-    { // Data pending- go get. Only keep latest (last in FIFO)
-        while ( (IC7CON1bits.ICBNE == 1) || (IC7CON1bits.ICOV == 1) )  
-        {   prevRadRising   =   RadRising  ;   // get last two values for delta calc
-            IC7temp         =   IC7BUF  ;
-            IC8temp         =   IC8BUF  ;
-            RadRising       =   (IC8temp * 65536) + IC7temp  ;   // value could be previous entry or multi this entry
-            RadFlag         = 1;        // no need to calc falling to rising time
+
+int readRadiationIrq(void) { // new value from rising edges?
+    if ((IC7CON1bits.ICBNE == 1) || (IC7CON1bits.ICOV == 1)) { // Data pending- go get. Only keep latest (last in FIFO)
+        while ((IC7CON1bits.ICBNE == 1) || (IC7CON1bits.ICOV == 1)) {
+            prevRadRising = RadRising; // get last two values for delta calc
+            IC7temp = IC7BUF;
+            IC8temp = IC8BUF;
+            RadRising = (IC8temp * 65536) + IC7temp; // value could be previous entry or multi this entry
+            RadFlag = 1; // no need to calc falling to rising time
         }
     }
-    return (0) ;
+    return (0);
 }
-int readRadiation(void)
-{   extern unsigned int SNS_RadPeriod     ;
 
-    readRadiationIrq()  ;
-    
-    if (RadFlag == 1)
-    {   if(prevRadRising < RadRising)
-        { RadPeriod = RadRising - prevRadRising  ;
-        } 
-        else 
-        { RadPeriod = (RadRising+4294967296) - prevRadRising  ;  // add 32 bit count to lesser
+int readRadiation(void) {
+    extern unsigned long SNS_RadPeriod;
+
+    readRadiationIrq();
+
+    if (RadFlag == 1) {
+        if (prevRadRising < RadRising) {
+            RadPeriod = RadRising - prevRadRising;
         }
-        SNS_RadPeriod=(((long) RadPeriod*(long)625)/(long) 10000) ;  // result in microSeconds
-        RadFlag = 0 ;
+        else {
+            RadPeriod = (RadRising + 4294967296) - prevRadRising; // add 32 bit count to lesser
+        }
+        SNS_RadPeriod = RadPeriod * .0625; // result in microSeconds
+        RadFlag = 0;
         //  ic7,8               ic7,8
         // __/----------\_______/----------\_
         //   R          F
+
     }
-    return  (SNS_RadPeriod)    ;
+    return (SNS_RadPeriod);
+
+
 }
+
+void setOutputRp16(Boolean desiredOutputState) {
+    const int RP16portbitOn03 = 0x0008;
+    const int RP16portbitOf03 = 0xFFF7;
+
+    // _TRISF3 = 0;   /* configure port as output*/
+    // _RF3 = desiredOutputState;   */set the output */
+    __builtin_write_OSCCONL(OSCCON & 0xBF); // unlock Peripheral Pin Select Registers
+    RPOR8 = 0; //shut off motor driver usage
+    __builtin_write_OSCCONL(OSCCON | 0x40); // lock Peripheral Pin Select Registers
+
+
+    if (desiredOutputState == 0) {
+        TRISF &= RP16portbitOf03;
+        LATF &= RP16portbitOf03;
+    } else {
+        TRISF &= RP16portbitOf03;
+        LATF = LATF | RP16portbitOn03;
+    }
+}
+
+long RP16PeriodmS = 16; //default 16 milliseconds
+int RP16Iterations = 10000; //default loop runs 10000
+
+int writeRP16Period(void) {
+    while (RP16Iterations > 0) {
+        setOutputRp16(1);
+        delay(4);
+        setOutputRp16(0);
+        if (RP16PeriodmS > 4) {
+            delay(RP16PeriodmS - 4);
+        } else {
+            delay(RP16PeriodmS);
+        }
+        readRadiation();
+        RP16Iterations--;
+    }
+}
+
+
+
+
 

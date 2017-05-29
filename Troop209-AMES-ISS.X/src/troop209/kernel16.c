@@ -39,63 +39,29 @@ int kernel16(void)
 
     // Set military time and Date
     DateAndTime timeTemp;
-
-    // time = 12:52:50
-    timeTemp.hour   = 16;
+    // time = 13:00:00
+    timeTemp.hour   = 13;
     timeTemp.minute = 0;
     timeTemp.second = 0;
 
-    // date = 10/29/13
-    timeTemp.month = NOVEMBER;
-    timeTemp.day   = 25;
-    timeTemp.year  = 13;
+    // date = 05/28/17
+    timeTemp.month = 05;
+    timeTemp.day   = 28;
+    timeTemp.year  = 17;
 
     dateTime.set(timeTemp);
-    
-//    dataLog.add("Start", 0);
 
-//    usb.connect();
-//    wait(1000);
+    usb.eject();    
+    dataLog.add("Start Camera Test", 0);
 
-//    Keystroke key = KEYSTROKE_NONE;
-
-    while(1)
+    wait(1000);
+    int pictureloop=0;
+    while(pictureloop < 5)
     {
-        // get keystroke
-//        key = button.getStroke();
-
-    //    if(key == KEYSTROKE_SINGLE) // if button is tapped once
-    //    {
-            // disable button keystroke detection
-//            button.disableStroke();
-
-            // disconnect USB SD card (in case routine writes to SD memory)
-//            usb.eject();
-
-            // illuminate chamber
- //           ledB.dutycycle(100);
- //           ledR.dutycycle(100);
-
-            char temp[128] = {0};
-            takePicture(); // log if error occurred while attempting to take picture
-         //       sprintf(temp,"Error taking picture at time: %s ", dateTime.getStamp());
-           // else
-           //     sprintf(temp,"Successfully took picture at time: %s ", dateTime.getStamp());
-
-//            dataLog.add(temp, 0x1010);
-            delay(5000);
-            // lights off
-//            ledB.dutycycle(0);
-//            ledR.dutycycle(0);
-
-            // reconnect USB SD card (to read files)
-//            usb.connect();
-
-            // enable button keystroke detection
-//            button.enableStroke();
-//        }
-
-    }
-
-    return (0);
+            pictureloop++;
+            takePicture(); // 
+            delay(1000);
+     }
+    usb.connect();
+    while(1){} //infinite loop
 }

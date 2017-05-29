@@ -63,8 +63,8 @@
     int readIRTCValue     = 0 ;  //  0= No; 1=Yes
     int readVRTCValue     = 0 ;  //  0= No; 1=Yes
     int readOptoSensor    = 0 ;  //  0= No; 1=Yes
-    int readNVMValue      = 0 ;  //  0= No; 1=Yes
-    int pingXRTC          = 0 ;  //  0= No; 1=Yes
+    int readNVMValue      = 1 ;  //  0= No; 1=Yes
+    int pingXRTC          = 1 ;  //  0= No; 1=Yes
     int pingRGB           = 0 ;  //  0= No; 1=Yes
     int pingTHP           = 0 ;  //  0= No; 1=Yes
     int writeXRTC         = 0 ;  //  0= No; 1=Yes
@@ -73,17 +73,17 @@
     int toggleLED2        = 0 ;  //  0= No; 1=Yes
     int toggleCAM1        = 0 ;  //  0= No; 1=Yes
     int toggleCAM2        = 0 ;  //  0= No; 1=Yes
-    int readEncoderValue  = 1 ;  //  0= No; 1=Yes
+    int readEncoderValue  = 0 ;  //  0= No; 1=Yes
     int writeSensors      = 0 ;  //  0= No; 1=Yes
     int writeTempHumPres  = 0 ;  //  0= No; 1=Yes
-    int enableMotor       = 3 ;  //  0= No; 1=Absolute; 2=Relative; 3=sequence of 8 4= seq of 17, 5=180 calibration point
-    int takePicture1      = 0 ;  //  0= No; 1=Yes
-    int takePicture2      = 0 ;  //  0= No; 1=Yes
+    int enableMotor       = 0 ;  //  0= No; 1=Absolute; 2=Relative; 3=sequence of 8 4= seq of 17, 5=180 calibration point
+    int takePicture1      = 1 ;  //  0= No; 1=Yes
+    int takePicture2      = 1 ;  //  0= No; 1=Yes
     int usbConnect        = 0 ;  //  0= No; 1=Yes
     int delay05Sec        = 0 ;  //  0= No; 1=Yes, delay 5 secs
     int delay15Sec        = 0 ;  //  0= No; 1=Yes, delay 15 secs
     int delay30Sec        = 0 ;  //  0= No; 1=Yes, delay 30 secs
-
+    int HappypathInit     = 1 ;  //  0= No; 1=Yes(Decision is use happy path init)
     int stat              = 0 ;   // Return status of HW related functions
     
 void HdwrTest(void)
@@ -96,9 +96,11 @@ void HdwrTest(void)
     int speed           =  7 ;
     int angle           =  0 ;
     
-    char filename[40] = {0};
+    char filename[40] = "Default";
     
   // Initialization begins here
+    if(HappypathInit == 0)  //Decide to use happy path init or not
+    {
     // system.init()   ;
     i2c2_init(75)       ;       // Initialize I2C2 and set Baud Rate
     i2c2_reset_bus()    ;       // Reset I2C Bus/Network      
@@ -110,7 +112,11 @@ void HdwrTest(void)
     // stat = calibrateEncoder()      ;
     // stat = monitorEncoder(16)    ;
   // Initialization done here
-    
+    }
+    else
+    {
+        init_experiment();
+    }
     delay(1)   ; // Breakpoint here to adjust conditional variables before running loop
  
   while (1)
@@ -152,6 +158,7 @@ void HdwrTest(void)
     }
     if ( pingXRTC        == 1)   //  0= No; 1=Yes    
     {       stat=i2c2_TalkToDevice(0x68, 0, NullPtr, 0, NullPtr) ;      // ping RTC
+
     }
     if ( pingRGB        == 1)   //  0= No; 1=Yes    
     {       stat=i2c2_TalkToDevice(0X39, 0, NullPtr, 0, NullPtr) ;      // ping RTC
@@ -160,7 +167,8 @@ void HdwrTest(void)
     {       stat=i2c2_TalkToDevice(0X77, 0, NullPtr, 0, NullPtr) ;      // ping RTC
     }
     if ( readNVMValue        == 1)   //  0= No; 1=Yes    
-    {   stat =  testNVM() ; //    
+    {
+        stat =  testNVM() ; //    
     }
     if ( writeXRTC      == 1)   //  0= No; 1=Yes    
     {  // stat =  ; //    
@@ -237,12 +245,14 @@ void HdwrTest(void)
     {   //
         setOutputLED1(1)   ; 
         camera.getPix(filename);
+        delay(1000);
         setOutputLED1(0)   ;
     }
     if ( takePicture2    == 1)        //  0= No; 1=Yes
     {   //
         setOutputLED2(1)   ;
         camera2.getPix(filename);
+        delay(1000);
         setOutputLED2(0)   ;
     }
     if ( usbConnect    == 1)          //  0= No; 1=Yes

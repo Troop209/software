@@ -7,8 +7,7 @@ int kernel13(void)
 {
     nesi.init();
     usb.connect();
-    delay(100000);
+    while(1){} //infinite loop
     
-    return 0;
 }
 

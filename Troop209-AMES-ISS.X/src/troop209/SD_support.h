@@ -51,7 +51,7 @@
 typedef struct {
     int kernelID;
     char label[20];
-    int exp_wait_duration;
+    char exp_wait_duration[18];
     int defrost_wait_duration;
 	char exp_end[18];
 	char rtc_start[18];

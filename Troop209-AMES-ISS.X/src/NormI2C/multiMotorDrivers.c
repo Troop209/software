@@ -59,23 +59,6 @@ const int FSEncoder  = 4096 ;
     int moveStatus      =  1 ;
     int motorStepsPerSec     ;
     
-     // State Machine Diagnostic Counters
-    unsigned int oc8high  = 0    ;
-    unsigned int oc8low   = 0    ;
-    unsigned int oc8rise  = 0    ;
-    unsigned int oc8fall  = 0    ;
-    unsigned int oc8stat  = 0    ;
-    unsigned int oc8cnt   = 0    ;
-    int OC8State          = OFF  ;
-
-    unsigned int oc9high  = 0    ;
-    unsigned int oc9low   = 0    ;
-    unsigned int oc9rise  = 0    ;
-    unsigned int oc9fall  = 0    ;
-    unsigned int oc9stat  = 0    ;
-    unsigned int oc9cnt   = 0    ; 
-    int OC9State          = OFF  ;
-
     char oc8Buffer[48]    = {0}  ;   
     char oc9Buffer[48]    = {0}  ; 
 
@@ -137,33 +120,18 @@ void initStepper(void)
     _LATF3  = 0;  // drive output low
     _ODF3  = 1;    // Maker output and Open Drain output for 5.5v signals 3.3v will work
 
-    /* turn module on */
-    OC9CON1 |= 0x5 ;
-    // NRM // Leave T5 Off: T5CON    = 0x8030 ;  // TImer 5 enable, /256, internal 16M clock
+    // Leave T5 Off: T5CON    = 0x8030 ;  // TImer 5 enable, /256, internal 16M clock
+    OC9CON1 |= 0x5 ;    
 
    // NRM Previous Init route split
    __builtin_write_OSCCONL(OSCCON & 0xBF); // unlock Peripheral Pin Select Registers
-    RPINR3=16    ;   //Select RP16 to drive TMR2 input
+    RPINR3=0x1010    ;   //Select RP16 to drive TMR3 input
     __builtin_write_OSCCONL(OSCCON | 0x40); // lock Peripheral Pin Select Registers
 
-    T2CON       = 0 ;   // clear everything out
-    T2CON       = 0x8002 ;  // TImer 5 enable, /256, interrnal 16G clock
-    PR2         =   3125 ;  // 20 Hz POeriod  as 16000000/256/3124=20.00000 // /256 is prescaler  /3125 is compare value
+    T3CON       = 0 ;   // clear everything out
+    T3CON       = 0x8002 ;  // TImer 5 enable, /256, interrnal 16G clock
+    PR3         =   3125 ;  // 20 Hz POeriod  as 16000000/256/3124=20.00000 // /256 is prescaler  /3125 is compare value
 
-    /* disable module before configuring */
-    __builtin_write_OSCCONL(OSCCON & 0xBF); // unlock Peripheral Pin Select Registers
-    RPOR9=25    ;   //Select #25 (OC8) to drive RP18
-    __builtin_write_OSCCONL(OSCCON | 0x40); // lock Peripheral Pin Select Registers
-
-    OC8CON1 &= 0xfff8;      // STop OC8
-    /* OC config */
-    OC8CON1 = 0x000A;       // clock source T2, clear by HW or SW 0, single shot 
-
-    OC8CON2 = 0x009F;       // Trigger mode Sync trigStatus This Module
-
-    OC8RS   =   4  ;    // set to no output (duty cycle = 0)
-    OC8R    =   1  ;        // ALWAYS set to 1 (begin pulse when counter ==1) 
-    
     /* configure pins */
     _PCFG5  = 1;  // Pin is NOT an A/D pin
     _TRISB5 = 0;  // PWM 1 is an output
@@ -171,8 +139,6 @@ void initStepper(void)
     _RB5    = 0;  // Also set port  output
     _ODB5   = 1;    // Maker output and Open Drain output for 5v signals 3.3v will work
 
-    /* turn module on */
-    OC8CON1 |= 0x2 ;
 }
 
 
@@ -360,9 +326,12 @@ int MotorStepper(int motSpeed)
         moveStatus = SEND ;
         return (moveStatus) ;
 }    
-
   
+    int T3Stat  = 0 ;
+    int T3Now   = 0 ;
+    int T3Prev  = 0 ;
 
+    
 int checkMotor(void)    
 {   extern int SNS_MotorDir ;   // Motor Direction -1 CCW; +1 CW; 0 not set
     extern int moveStatus   ;
@@ -370,101 +339,34 @@ int checkMotor(void)
     extern int SNS_virtEncoderBgn   ;  
     extern int SNS_virtEncoderNow   ;
 
-    int stat   = 0 ;
+    int stat    = 0 ;
+    
 
-    // lets check running/stopped status info
-        if(OC8CON2bits.TRIGSTAT == 1)
-        {   if(oc8stat==0)
-            {   // TRIGSTAT just changed to 1 (or oc8stat would == 1)
-                OC8State    = RISE  ;
-                oc8stat     = 1 ;
-                oc8rise++    ;
-                oc8cnt++    ;
-            }
-            else
-            {   OC8State    = HIGH  ;
-                oc8stat     = 1 ;
-                oc8high++         ;
-                oc8cnt++    ;
-            }
-        }
-        else if(OC8CON2bits.TRIGSTAT == 0)
-        {   if(oc8stat==1)
-            {   // TRIGSTAT just changed to 1 (or oc8stat would == 1)
-                OC8State    = FALL  ;
-                oc8stat=0   ;
-                oc8fall++   ;
-                oc8cnt++    ;
-                // if (OC8TMR == 0) 
-                {// Done with move... set of Step clock
-                    T5CON &= 0x7FFF         ;
-                    // stat = monitorEncoder(16)    ;       // NRM //
-                    setOnStepDisable()    ;    // Power Down Stepper Motor
-                    moveStatus = STOP           ;
-                }
-            }
-            else
-            {   OC8State    = LOW  ;
-                oc8stat     = 0 ;
-                oc8low++     ;
-                oc8cnt++    ;
-            }
-        }
-    // lets check running/stopped status info
-        if(OC9CON2bits.TRIGSTAT == 1)
-        {   if(oc9stat==0)
-            {   // TRIGSTAT just changed to 1 (or oc9stat would == 1)
-                OC9State    = RISE  ;
-                oc9rise++           ;
-                oc9cnt++    ;
-            }
-            else
-            {   OC9State    = HIGH  ;
-                oc9high++           ;
-                oc9cnt++    ;
-            }
-        }
-        else if(OC9CON2bits.TRIGSTAT == 0)
-        {   if(oc9stat==1)
-            {   // TRIGSTAT just changed to 1 (or oc9stat would == 1)
-                OC9State    = FALL  ;
-                oc9fall++   ;
-                oc9stat=0   ;
-                oc9cnt++    ;
-            }
-            else
-            {   OC9State    = LOW  ;
-                oc9low++    ;
-                oc9cnt++    ;
-           }
-        }
-        // Virtual Encoder Update
-        if (SNS_MotorDir == +1)
-        {    SNS_virtEncoderNow = (4096+SNS_virtEncoderBgn + TMR2) % FSHalfStep  ; // Using FSHalfStep since tied to stepoper count
+    // T3 Add
+    T3Now   = TMR3 ;    // get T3 Value
+    if (T3Now > 0)
+    {   // Stepper movement has begun
+        T3Stat  = 1 ;        
+    }
+    if (T3Now < T3Prev)
+    {   // T3 has rolled over or been reset- meaning move is done
+        // Done with move... set of Step clock
+        // NRM MOT OC9CON1 |= 0x7FF8    ;             // NRM MOT SS     
+         T5CON &= 0x7FFF         ;
+        // stat = monitorEncoder(16)    ;       // NRM //
+        setOnStepDisable()    ;    // Power Down Stepper Motor
+        T3Stat  = 0 ;   // we done
+        moveStatus = STOP           ;
+    }
+    T3Prev = T3Now  ;    // prepare for next pass
+
+    if (SNS_MotorDir == +1)
+        {    SNS_virtEncoderNow = (4096+SNS_virtEncoderBgn + TMR3) % FSHalfStep  ; // Using FSHalfStep since tied to stepoper count
         }
         else if (SNS_MotorDir == -1)
-        {    SNS_virtEncoderNow = (4096+SNS_virtEncoderBgn - TMR2) % FSHalfStep  ; // Using FSHalfStep since tied to stepoper count
+        {    SNS_virtEncoderNow = (4096+SNS_virtEncoderBgn - TMR3) % FSHalfStep  ; // Using FSHalfStep since tied to stepoper count
         }
-        // sLen = sprintf (oc8Buffer,"%i,%i,%i,%i,%i,%i,%i\n",oc8rise,oc8high,oc8fall,oc8low,oc8cnt,oc8stat,OC9State) ;
-        // sLen = sprintf (oc9Buffer,"%i,%i,%i,%i,%i,%i,%i\n",oc9rise,oc9high,oc9fall,oc9low,oc9cnt,oc9stat,OC9State) ;
-        
-        if (oc8cnt > 32000)
-        { // reset counts so don't overflow
-          oc8rise= 0 ;
-          oc8high= 0 ;
-          oc8fall= 0 ;
-          oc8low = 0 ;
-          oc8cnt = 0 ;  
-        }
-        if (oc9cnt > 32000)
-        { // reset counts so don't overflow
-          oc9rise= 0 ;
-          oc9high= 0 ;
-          oc9fall= 0 ;
-          oc9low = 0 ;
-          oc9cnt = 0 ;  
-        }
-        
+
         stat = readEncoder()    ;
         // Read Opto Sensor
         //readOptoSensor()  ;
@@ -537,12 +439,9 @@ int multiMotorMove(int AppPattern, int AppAngle, int AppSpeed)
         if(duration != 0)
         {   PR5     = motorStepsPerSec  ;
             OC9RS   = 4000        ;   // set to a fixed on time of 0.250 mS (4000/16000000)
-            PR2     = duration  ;   // don't use right now
-            OC8RS   = duration  ;
-        
+            PR3     = duration  ;   // don't use right now       
             // start Step clock and trigger run
             T5CON   |= 0x8000 ;
-            OC8CON2  = OC8CON2 | 0x0040  ;     // set  OC8CON2bits.OCTRIG bit
             moveStatus = CHECK ;
        }
        else

@@ -56,7 +56,7 @@
              int SNS_EncodOffset  =  0 ;   // when motor commanded to 180 deg, where encoder, calc 0 offset
              int SNS_EncDirFlag   =  0 ;   // 0 not set; +1 Encoder moves CW; -1 Encoder moves CCW
 
-    unsigned int SNS_RadPeriod    =  0 ;   // Radiation Senasor PWM period
+    unsigned long SNS_RadPeriod    =  0 ;   // Radiation Senasor PWM period
 
     // MotorController externals
     int SNS_VpotCur     =   -3000   ;   // Current Vpot value +- 1 count. Guarenetee first time update
