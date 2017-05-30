@@ -6,13 +6,9 @@
 #include <nesi.h>
 #include <datalog.h>
 #include "../core/file.h"
-#include "../NormI2C/I2CDrivers.h"
+#include "../normi2c/I2CDrivers.h"
+#include "../normi2c/multiMotorDrivers.h"
 #include "SD_support.h"
-#include "../NormI2C/RadiationSensorDriver.h"
-#include "../NormI2C/multiMotorDrivers.h"
-#include "../NormI2C/Analog2Digital.h"
-#include "../NormI2C/Encoder.h"
-#include "../NormI2C/SensorDrivers.h"
 
 void replaceColonWithPeriod(char *temp) {
     while (*temp) {
@@ -28,32 +24,31 @@ void replaceColonWithPeriod(char *temp) {
  */
 void handleSensor() {
     extern signed long SNS_Buffer[128];
-
     readSensors();
-    formatSensors();
+//    formatSensors(SNS_Buffer);
+    
     SDDataFile.writeln(SNS_Buffer);
 }
-static const int enableMotor = 3;
+static const int enableMotor = 3;  //
 static const int speed = 7;
-static const int angle =  0 ;
-
+static const int motPosition[9] = {0, 512, 1024, 1536, 2048, 2560, 3072, 3584, 4096};
 
 void run_experiment(void) {
 
     handleSensor();
 
-    int mot_inc;
+//    int mot_inc;
     char filename[40] = {0};
-    int stat;
 
-
-    for (mot_inc = 0; mot_inc < 8; mot_inc++) {
+// Moved the Motor code  to the main loop to support background tasks(JRM)
+//    int stat;
+//    for (mot_inc = 0; mot_inc < 8; mot_inc++) {
         // move motor
-        stat = checkCarousel(enableMotor, angle, speed);
-        if (stat == 0) // functionSUCCESS
-        {
-            stat = moveCarousel(enableMotor, angle, speed);
-        }
+//        stat = checkCarousel(enableMotor, motPosition[mot_inc], speed);
+//        if (stat == 0) // functionSUCCESS
+//        {
+//            stat = moveCarousel(enableMotor, motPosition[mot_inc], speed);
+//        }
 
         // Camera1 sequence
         led1.on();
@@ -70,13 +65,13 @@ void run_experiment(void) {
         led2.off();
     }
 
-    handleSensor();
-}
+//    handleSensor();
+//}
 
 void init_experiment() {
     nesi.init();
     SDConfigFile.get(&config);
-    
+
     i2c2_init(75); // Initialize I2C2 and set Baud Rate
     i2c2_reset_bus(); // Reset I2C Bus/Network
 
@@ -89,117 +84,54 @@ void init_experiment() {
 
 void shutdown_experiment() {
     usb.connect();
-    while(TRUE) {}
-}
-
-/**
- * Only needed to get the dateTime without RTC
- * @return 
- */
-int fakeoutTime() {
-        DateAndTime timeTemp;
-
-    // time = 7:01:00
-    timeTemp.hour   = 6;
-    timeTemp.minute = 58;
-    timeTemp.second = 0;
-
-    // date = 10/29/13
-    timeTemp.month = MAY;
-    timeTemp.day   = 27;
-    timeTemp.year  = 17;
-
-    dateTime.set(timeTemp);
-    return 0;
+    delay(10000);
 }
 
 int kernel18(void) {
     init_experiment();
-    DateAndTime dft_xrtc = dateTime.parseStamp(config.default_xrtc);
-    extern char xRTCTime[18] ;   
-    getI2C2_RTCTime(xRTCTime);
-    if (dft_xrtc.year > 0) {
-        strncpy( xRTCTime, config.default_xrtc, sizeof(config.default_xrtc));
-        
-        setI2C2_RTCTime(xRTCTime);
-    }
-    getI2C2_RTCTime(xRTCTime);
-    DateAndTime xRTCdateTime = dateTime.parseStamp(xRTCTime);
-    dateTime.set(xRTCdateTime);
-    
     DateAndTime expEnd = dateTime.parseStamp(config.exp_end);
     DateAndTime expWait = dateTime.parseStamp(config.exp_wait_duration);
-    Sint dtComp = dateTime.cmp(expEnd,dateTime.get());
-        handleSensor();
-    
-    while (dtComp < 0) {
-        // -- begin run_experiment
-        handleSensor();
 
-        int mot_inc;
-        char filename[40] = {0};
-        int stat;
-
-        // Commented out to test the other portions of application
-        if (FALSE) {
-        for (mot_inc = 0; mot_inc < 8; mot_inc++) {
-            // move motor
-            stat = checkCarousel(enableMotor, angle, speed);
-            if (stat == 0) // functionSUCCESS
-            {
-                stat = moveCarousel(enableMotor, angle, speed);
-            }
-
-            // Camera1 sequence
-            led1.on();
-            sprintf(filename, "%s-%s-cam1.jpg", config.label, dateTime.getStamp());
-            replaceColonWithPeriod(filename);
-            camera.getPix(filename);
-            led1.off();
-
-            // Camera 2 sequence
-            led2.on();
-            sprintf(filename, "%s-%s-cam2.jpg", config.label, dateTime.getStamp());
-            replaceColonWithPeriod(filename);
-            camera2.getPix(filename);
-            led2.off();
-        }
-
-        handleSensor();
-        }
-        
-        // -- end run_experiment
-        // run_experiment();
-
-        // each loop wait duration
+//    
+// Run Happy path until we reach expEnd, the closing date of the experiment
+//
+    while (dateTime.cmp(dateTime.get(), expEnd) < 0) 
+    {
+//      Calculate time for next round of experiments
         DateAndTime expResult = dateTime.add(dateTime.get(), expWait);
-        Sint rotationComp = dateTime.cmp(expResult, dateTime.get());
-        while ( rotationComp < 0) {
-            int position = 0;
+        extern int motLookUp ;  //Start motor at position 0
+        motLookUp = 0 ;
+        extern int motComplete ; // reset motor rotation complete flag
+        motComplete = 0 ;
+        //
+//Stay in this loop until time to initiate next round of experiments
+        while (dateTime.cmp(dateTime.get(), expResult) > 0) 
+        {
             int stat;
-            
+//
+// Background tasks, keep running through these          
+// Run readRadiation, readEncoder, and Motor calls in background loop
+//
             readRadiation();
             readEncoder();
-            stat = checkCarousel(enableMotor, angle, speed);
+            stat = checkCarousel(enableMotor, motPosition[motLookUp], speed);
             if (stat == 0) // functionSUCCESS
             {
-                stat = moveCarousel(enableMotor, angle, speed);
+                stat = moveCarousel(enableMotor, motPosition[motLookUp], speed);
             }
-            if (position < 9) {
-                position++;
-            } else {
-                position = 0;
+//
+// JRM Check moveStatus == COMPLETE
+// When Motor is done moving, perform experiment aka read sensors, take pics
+// Then increment to next motor position
+// If position is 8 or greater experiments are done until next cycle.
+            if(motComplete == 1) //
+            {
+                run_experiment();
+                motComplete = 0;
             }
-            rotationComp = dateTime.cmp(expResult, dateTime.get());
         }
-        dtComp = dateTime.cmp(expEnd,dateTime.get());
     }
-    
-    // -- begin shutdown 
-    usb.connect();
-    while(TRUE) {delay(1000);}
-    // -- end shutdown
-    // shutdown_experiment();
+    shutdown_experiment();
 
     return 0;
 }
