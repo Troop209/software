@@ -202,11 +202,11 @@ int readSensors (void)
     return (errCnt)   ;
 }
 
-int formatSensors(Byte* Ptr)
+int formatSensors()
 {   int BufLen   = 0 ; 
     int BufErr   = BufLenOverflow ;
-    BufLen = sprintf(SNS_Buffer, "SNS_Stg: %18s,%18s,|,%li,%li,%li,|,%i,%i,%i,%i,|,%i,%i,|,%i,%i,%i\n",
-                    xRTCTime, xRTCTime,
+    BufLen = sprintf(SNS_Buffer, "SNS_Stg, %18s,%18s,|,%li,%li,%li,|,%i,%i,%i,%i,|,%i,%i,|,%i,%i,%i\n",
+                    xRTCTime, dateTime.getStamp(),
                     SNS_Temperature, SNS_Pressure, SNS_Humidity,
                     SNS_CLR_LIGHT, SNS_RED_LIGHT, SNS_BLU_LIGHT, SNS_GRN_LIGHT, 
                     SNS_EncPeriod, SNS_EncodPos,

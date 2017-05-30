@@ -92,11 +92,11 @@
         <itemPath>../../src/NormI2C/multiMotorDrivers.c</itemPath>
         <itemPath>../../src/NormI2C/AltTemp.c</itemPath>
         <itemPath>../../src/NormI2C/AltTemp.h</itemPath>
+        <itemPath>../../src/NormI2C/TempHumidPresDrivers.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f6" displayName="test" projectFiles="true">
         <itemPath>../../src/test/bitout.c</itemPath>
         <itemPath>../../src/test/fileappend.c</itemPath>
-        <itemPath>../../src/NormI2C/TempHumidPresDrivers.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f5" displayName="troop209" projectFiles="true">
         <itemPath>../../src/troop209/non_pwm_led.c</itemPath>
@@ -394,20 +394,6 @@
         </C30Global>
       </item>
       <item path="../../src/NormI2C/SensorErrorCodes.h" ex="false" overriding="false">
-        <C30>
-        </C30>
-        <C30-AR>
-        </C30-AR>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
-      <item path="../../src/NormI2C/TempHumidPresDrivers.c"
-            ex="false"
-            overriding="false">
         <C30>
         </C30>
         <C30-AR>

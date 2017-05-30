@@ -54,7 +54,7 @@
 // NRM // static volatile Uint16 RX_next = 0;
 
     int readAllSensors    = 0 ;  //  0= No; 1=Yes
-    int readTHPSensor     = 0 ;  //  0= No; 1=Yes
+    int readTHPSensor     = 1 ;  //  0= No; 1=Yes
     int readRGBSensor     = 0 ;  //  0= No; 1=Yes
     int readRadSensor     = 0 ;  //  0= No; 1=Yes
     int readAltTempSensor = 0 ;  //  0= No; 1=Yes
@@ -63,10 +63,10 @@
     int readIRTCValue     = 0 ;  //  0= No; 1=Yes
     int readVRTCValue     = 0 ;  //  0= No; 1=Yes
     int readOptoSensor    = 0 ;  //  0= No; 1=Yes
-    int readNVMValue      = 1 ;  //  0= No; 1=Yes
-    int pingXRTC          = 1 ;  //  0= No; 1=Yes
+    int readNVMValue      = 0 ;  //  0= No; 1=Yes
+    int pingXRTC          = 0 ;  //  0= No; 1=Yes
     int pingRGB           = 0 ;  //  0= No; 1=Yes
-    int pingTHP           = 0 ;  //  0= No; 1=Yes
+    int pingTHP           = 1 ;  //  0= No; 1=Yes
     int writeXRTC         = 0 ;  //  0= No; 1=Yes
     int writeIRTC         = 0 ;  //  0= No; 1=Yes
     int toggleLED1        = 0 ;  //  0= No; 1=Yes
@@ -76,14 +76,14 @@
     int readEncoderValue  = 0 ;  //  0= No; 1=Yes
     int writeSensors      = 0 ;  //  0= No; 1=Yes
     int writeTempHumPres  = 0 ;  //  0= No; 1=Yes
-    int enableMotor       = 0 ;  //  0= No; 1=Absolute; 2=Relative; 3=sequence of 8 4= seq of 17, 5=180 calibration point
-    int takePicture1      = 1 ;  //  0= No; 1=Yes
-    int takePicture2      = 1 ;  //  0= No; 1=Yes
+    int enableMotor       = 3 ;  //  0= No; 1=Absolute; 2=Relative; 3=sequence of 8 4= seq of 17, 5=180 calibration point
+    int takePicture1      = 0 ;  //  0= No; 1=Yes
+    int takePicture2      = 0 ;  //  0= No; 1=Yes
     int usbConnect        = 0 ;  //  0= No; 1=Yes
     int delay05Sec        = 0 ;  //  0= No; 1=Yes, delay 5 secs
     int delay15Sec        = 0 ;  //  0= No; 1=Yes, delay 15 secs
     int delay30Sec        = 0 ;  //  0= No; 1=Yes, delay 30 secs
-    int HappypathInit     = 1 ;  //  0= No; 1=Yes(Decision is use happy path init)
+    int HappypathInit     = 0 ;  //  0= No; 1=Yes(Decision is use happy path init)
     int stat              = 0 ;   // Return status of HW related functions
     
 void HdwrTest(void)
@@ -120,9 +120,13 @@ void HdwrTest(void)
     delay(1)   ; // Breakpoint here to adjust conditional variables before running loop
  
   while (1)
-  { delay(1)    // Breakpoint here to adjust conditional variables while running loop
+  { 
+    delay(1)    // Breakpoint here to adjust conditional variables while running loop
     if ( readTHPSensor        == 1)   //  0= No; 1=Yes    
     {   stat = readTHP() ; //   
+    nop();
+    nop();
+    nop();
     }
     if ( readRGBSensor        == 1)   //  0= No; 1=Yes    
     {   stat = readRGB() ; //    
@@ -230,9 +234,9 @@ void HdwrTest(void)
     // $$$    file3.write(Byte *RX_buffer, stat);
     }
     if ( writeTempHumPres== 1)        //  0= No; 1=Yes
-    {   //
-        diagRecord()    ; // $$$ Need to uncomment this code in TempHumPresDrives, uncomment '#include file.h'
-    }
+    {   
+        //
+            }
     if ( enableMotor     >= 1)        //  0= No; 1=Toggle; 2=Sequence; 3=180 calibration point
     {   stat=checkCarousel(enableMotor, angle, speed)   ;
         // if (stat == functionSUCCESS)
@@ -244,6 +248,8 @@ void HdwrTest(void)
    if ( takePicture1    == 1)        //  0= No; 1=Yes
     {   //
         setOutputLED1(1)   ; 
+        sprintf(filename, "%s-%s-cam1.jpg", "Default", dateTime.getStamp());
+        fixcolons(filename);
         camera.getPix(filename);
         delay(1000);
         setOutputLED1(0)   ;
@@ -251,13 +257,16 @@ void HdwrTest(void)
     if ( takePicture2    == 1)        //  0= No; 1=Yes
     {   //
         setOutputLED2(1)   ;
+        sprintf(filename, "%s-%s-cam2.jpg", "Default", dateTime.getStamp());
+        fixcolons(filename);
         camera2.getPix(filename);
         delay(1000);
         setOutputLED2(0)   ;
     }
     if ( usbConnect    == 1)          //  0= No; 1=Yes
     {   //
-       testNVM()    ;
+       usb.connect();
+       delay(100000);
        // $$$ Insert function call to execute USB Connect function  
     }
     if ( delay05Sec  == 1)

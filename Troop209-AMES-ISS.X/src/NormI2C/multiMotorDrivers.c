@@ -58,7 +58,7 @@ const int FSEncoder  = 4096 ;
     int motLookUp           = 1 ;   // loop variable for motor position  
     int moveStatus      =  1 ;
     int motorStepsPerSec     ;
-    
+    int motComplete = 0;    //move sequence completed =  1
     char oc8Buffer[48]    = {0}  ;   
     char oc9Buffer[48]    = {0}  ; 
 
@@ -237,7 +237,9 @@ int positionPattern(int pattern, int angle)
         motLookUp++       ;     // count up from -8 to +8
         delay(1000); // delay for debugging 
         if (motLookUp >= +8)
-        {   motLookUp = 0 ;
+        {   
+        motLookUp = 0 ;
+        motComplete = 1 ; //motor has completed a full revolution of positioning
         }
     }
     else if (pattern == 4)

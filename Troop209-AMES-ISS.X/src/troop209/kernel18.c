@@ -30,11 +30,13 @@ void handleSensor() {
     extern signed long SNS_Buffer[128];
 
     readSensors();
+    formatSensors();
     SDDataFile.writeln(SNS_Buffer);
 }
 static const int enableMotor = 3;
 static const int speed = 7;
-static const int motPosition[9] = {0, 512, 1024, 1536, 2048, 2560, 3072, 3584, 4096};
+static const int angle =  0 ;
+
 
 void run_experiment(void) {
 
@@ -47,10 +49,10 @@ void run_experiment(void) {
 
     for (mot_inc = 0; mot_inc < 8; mot_inc++) {
         // move motor
-        stat = checkCarousel(enableMotor, motPosition[mot_inc], speed);
+        stat = checkCarousel(enableMotor, angle, speed);
         if (stat == 0) // functionSUCCESS
         {
-            stat = moveCarousel(enableMotor, motPosition[mot_inc], speed);
+            stat = moveCarousel(enableMotor, angle, speed);
         }
 
         // Camera1 sequence
@@ -87,7 +89,7 @@ void init_experiment() {
 
 void shutdown_experiment() {
     usb.connect();
-    delay(10000);
+    while(TRUE) {}
 }
 
 /**
@@ -113,10 +115,23 @@ int fakeoutTime() {
 
 int kernel18(void) {
     init_experiment();
-    fakeoutTime();
+    DateAndTime dft_xrtc = dateTime.parseStamp(config.default_xrtc);
+    extern char xRTCTime[18] ;   
+    getI2C2_RTCTime(xRTCTime);
+    if (dft_xrtc.year > 0) {
+        strncpy( xRTCTime, config.default_xrtc, sizeof(config.default_xrtc));
+        
+        setI2C2_RTCTime(xRTCTime);
+    }
+    getI2C2_RTCTime(xRTCTime);
+    DateAndTime xRTCdateTime = dateTime.parseStamp(xRTCTime);
+    dateTime.set(xRTCdateTime);
+    
     DateAndTime expEnd = dateTime.parseStamp(config.exp_end);
     DateAndTime expWait = dateTime.parseStamp(config.exp_wait_duration);
     Sint dtComp = dateTime.cmp(expEnd,dateTime.get());
+        handleSensor();
+    
     while (dtComp < 0) {
         // -- begin run_experiment
         handleSensor();
@@ -125,13 +140,14 @@ int kernel18(void) {
         char filename[40] = {0};
         int stat;
 
-
+        // Commented out to test the other portions of application
+        if (FALSE) {
         for (mot_inc = 0; mot_inc < 8; mot_inc++) {
             // move motor
-            stat = checkCarousel(enableMotor, motPosition[mot_inc], speed);
+            stat = checkCarousel(enableMotor, angle, speed);
             if (stat == 0) // functionSUCCESS
             {
-                stat = moveCarousel(enableMotor, motPosition[mot_inc], speed);
+                stat = moveCarousel(enableMotor, angle, speed);
             }
 
             // Camera1 sequence
@@ -150,6 +166,7 @@ int kernel18(void) {
         }
 
         handleSensor();
+        }
         
         // -- end run_experiment
         // run_experiment();
@@ -163,10 +180,10 @@ int kernel18(void) {
             
             readRadiation();
             readEncoder();
-            stat = checkCarousel(enableMotor, motPosition[position], speed);
+            stat = checkCarousel(enableMotor, angle, speed);
             if (stat == 0) // functionSUCCESS
             {
-                stat = moveCarousel(enableMotor, motPosition[position], speed);
+                stat = moveCarousel(enableMotor, angle, speed);
             }
             if (position < 9) {
                 position++;
@@ -180,7 +197,7 @@ int kernel18(void) {
     
     // -- begin shutdown 
     usb.connect();
-    delay(10000);
+    while(TRUE) {delay(1000);}
     // -- end shutdown
     // shutdown_experiment();
 

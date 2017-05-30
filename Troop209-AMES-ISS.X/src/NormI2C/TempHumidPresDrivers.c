@@ -1,30 +1,22 @@
-/* 
- * File:   TempHumidPresDrivers.c
- * Author: Norman McFarland
- *
- * Created before Nov 19, 2016, 3:10 PM
- * 
- * Revision Notes
- * Jan 17, 2017
- * 1. (Andrew Frank) The THP temperature calculations have been altered to produce correct 
-values. I am going to check values for pressure and humidity soon.
- * 2. 
- */
-
-
 #include "system.h"
 #include "nesi.h"
 #include "I2CDrivers.h"
 #include "TempHumidPresDrivers.h"
 #include "stdio.h"      // for printf statement(s) and file I/O
-// #include "file.h"
+#include "file.h"
 
-int Combine2(char v1, char v2)    ;
-long Combine3(char v1, char v2, char v3) ;
+int uCombine2(char v1, char v2)    ;
+int sCombine2 (char v1, char v2) ;
+long uCombine3(char v1, char v2, char v3) ;
+long sCombine3(char v1, char v2, char v3) ;
 
-signed long Raw_Temperature   ;
-signed long Raw_Pressure     ;
-signed long Raw_Humidity     ;
+unsigned long Raw_Temperature   ;
+unsigned long Raw_Pressure     ;
+unsigned long Raw_Humidity     ;
+
+unsigned long INT_Temperature;
+unsigned long INT_Pressure;
+unsigned long INT_Humidity;
 
 float   FLT_Temperature   ;
 float   FLT_Pressure     ;
@@ -50,7 +42,8 @@ const char THP_MaxRegAdsr  = 0xFF ;   // Highest register address accessable fro
 //   T   T   T   P   P   P   P   P   P   P   P   P   H   H   H   H   H   H 
 //   1   2   3   1   2   3   4   5   6   7   8   9 x 1   2   3   4   5   6 
 //   T   T   T   P   P   P   P   P   P   P   P   P   H   H H   H H H       
-//   1   2   3   1   2   3   4   5   6   7   8   9 x 1   2 3   4 5 6       
+//   1   2   3   1   2   3   4   5   6   7   8   9   1   2 3   4 5 6   
+// L H L H L H L H L H L H L H L H L H L H L H L H L H L H L H L H L H L H 
 // 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7
 
 
@@ -73,7 +66,7 @@ struct ConfigParams {
     unsigned char   dig_H3   ;
     signed short    dig_H4   ;  // These fields calculated after fill
     signed short    dig_H5   ;
-    signed   char   dig_H6   ; 
+    signed char     dig_H6   ; 
  }  ConfigParams;  
     
 struct ConfigParams Config12  ;
@@ -125,8 +118,17 @@ void THP_SetBuffer(char* Lcl_ReadBuf, int SetLen, char Fill)
     return ;
 }
 
+// Function to combine two (unsigned) byte fields into 1 double byte int field
+int uCombine2(char v1, char v2)
+{int rslt=0 ;
+    rslt= v1;
+    rslt= (rslt << 8);
+    rslt= rslt + v2;
+return (rslt);        
+}
+
 // Function to combine two (signed) byte fields into 1 double byte int field
-int Combine2(char v1, char v2)
+int sCombine2(char v1, char v2)
 {int rslt=0 ;
     rslt= v1;
     if(v2 < 0)
@@ -139,23 +141,38 @@ int Combine2(char v1, char v2)
 return (rslt);        
 }
 
+
+
 // Function to combine three (signed) byte fields into long int field
 // note that lower 4 bits of v3 are not used and result is 20 bits, sign extended
-long Combine3(char v1, char v2, char v3)
+long uCombine3(char v1, char v2, char v3)
+{long rslt=0 ;
+    rslt= v1;
+    rslt= (rslt << 8);
+    rslt= rslt + v2;
+    rslt= (rslt << 8);
+    rslt= rslt + v3;
+  //  rslt= rslt & 0x000FFFFF;
+return (rslt);        
+}
+
+// Function to combine three (signed) byte fields into long int field
+// note that lower 4 bits of v3 are not used and result is 20 bits, sign extended
+long sCombine3(char v1, char v2, char v3)
 {long rslt=0 ;
     rslt= v1;
     if(v2 < 0)
         {   rslt= v1+1;
         } else 
-        {   rslt= v1;    
-        }
+      {   rslt= v1;    
+    }
     rslt= (rslt << 8);
     rslt= rslt + v2;
     if(v3 < 0)
         {   rslt= rslt+1;
-        } else 
-        {  // no action   
-        }
+      } else 
+       {  // no action   
+       }
     rslt= (rslt << 8);
     rslt= rslt + v3;
 return (rslt);        
@@ -165,24 +182,27 @@ return (rslt);
 void THP_LoadConfigs (void) 
 {   int h4LSB=((THP_rbuf[30] & 0x0F)<< 4) ;
     int h5LSB= (THP_rbuf[30] & 0xF0) ;
-    ConfigParams.dig_T1   = Combine2(THP_rbuf[1], THP_rbuf[0]);      // From THP Register 0x88 to 0xA1
-    ConfigParams.dig_T2   = Combine2(THP_rbuf[3], THP_rbuf[2]);
-    ConfigParams.dig_T3   = Combine2(THP_rbuf[5], THP_rbuf[4]);
-    ConfigParams.dig_P1   = Combine2(THP_rbuf[7], THP_rbuf[6]);
-    ConfigParams.dig_P2   = Combine2(THP_rbuf[9], THP_rbuf[8]);
-    ConfigParams.dig_P3   = Combine2(THP_rbuf[11], THP_rbuf[10]);
-    ConfigParams.dig_P4   = Combine2(THP_rbuf[13], THP_rbuf[12]);
-    ConfigParams.dig_P5   = Combine2(THP_rbuf[15], THP_rbuf[14]);
-    ConfigParams.dig_P6   = Combine2(THP_rbuf[17], THP_rbuf[16]);
-    ConfigParams.dig_P7   = Combine2(THP_rbuf[19], THP_rbuf[18]);
-    ConfigParams.dig_P8   = Combine2(THP_rbuf[21], THP_rbuf[20]);
-    ConfigParams.dig_P9   = Combine2(THP_rbuf[23], THP_rbuf[22]);
-    ConfigParams.dig_H1   = Combine2(           0, THP_rbuf[25]);   
-    ConfigParams.dig_H2   = Combine2(THP_rbuf[27], THP_rbuf[26]);   
-    ConfigParams.dig_H3   = Combine2(           0, THP_rbuf[28]);   
-    ConfigParams.dig_H4   = Combine2(THP_rbuf[29], h4LSB);   // 12 bit
-    ConfigParams.dig_H5   = Combine2(THP_rbuf[31], h5LSB);   // 12 bit
-    ConfigParams.dig_H6   = Combine2(THP_rbuf[33], THP_rbuf[32]);  
+    ConfigParams.dig_T1   = uCombine2(THP_rbuf[1], THP_rbuf[0]);      // From THP Register 0x88 to 0xA1
+    ConfigParams.dig_T2   = sCombine2(THP_rbuf[3], THP_rbuf[2]);
+    ConfigParams.dig_T3   = sCombine2(THP_rbuf[5], THP_rbuf[4]);
+    ConfigParams.dig_P1   = uCombine2(THP_rbuf[7], THP_rbuf[6]);
+    ConfigParams.dig_P2   = sCombine2(THP_rbuf[9], THP_rbuf[8]);
+    ConfigParams.dig_P3   = sCombine2(THP_rbuf[11], THP_rbuf[10]);
+    ConfigParams.dig_P4   = sCombine2(THP_rbuf[13], THP_rbuf[12]);
+    ConfigParams.dig_P5   = sCombine2(THP_rbuf[15], THP_rbuf[14]);
+    ConfigParams.dig_P6   = sCombine2(THP_rbuf[17], THP_rbuf[16]);
+    ConfigParams.dig_P7   = sCombine2(THP_rbuf[19], THP_rbuf[18]);
+    ConfigParams.dig_P8   = sCombine2(THP_rbuf[21], THP_rbuf[20]);
+    ConfigParams.dig_P9   = sCombine2(THP_rbuf[23], THP_rbuf[22]);
+    ConfigParams.dig_H1   = uCombine2(           0, THP_rbuf[25]);   
+    ConfigParams.dig_H2   = sCombine2(THP_rbuf[27], THP_rbuf[26]);   
+    ConfigParams.dig_H3   = uCombine2(           0, THP_rbuf[28]);   
+    ConfigParams.dig_H4   = sCombine2(THP_rbuf[29], h4LSB);   // 12 bit
+    ConfigParams.dig_H5   = sCombine2(THP_rbuf[31], h5LSB);   // 12 bit
+    ConfigParams.dig_H6   = sCombine2(THP_rbuf[33], THP_rbuf[32]);  
+    
+    ConfigParams.dig_H4   = ConfigParams.dig_H4 >> 4 ; // should divide these 2 fields by 16
+    ConfigParams.dig_H5   = ConfigParams.dig_H5 >> 4 ;
 }         
 
 // Returns temperature in DegC, resolution is 0.01 DegC. Output value of ?5123? equals 51.23 DegC.
@@ -225,25 +245,45 @@ unsigned long THP_compensate_P_int64(signed long adc_P)
 return (unsigned long)p  ;
 }  
 // Returns pressure in Pa as double. Output value of "96386.2" equals 96386.2 Pascals or 963.862 hPa
+
+double tar1, tar2, cT;
+double THP_compensate_T_double(unsigned long Raw_Temperature)
+{
+    tar1 = (((unsigned long)Raw_Temperature) / (double)16384.0 - 
+           ((unsigned short)ConfigParams.dig_T1) / (double)1024.0) *
+           ((signed short)ConfigParams.dig_T2);
+    tar2 = ((((unsigned long)Raw_Temperature) / (double)131072.0 - 
+           ((unsigned short)ConfigParams.dig_T1) / (double)8192.0) * 
+           (((unsigned long)Raw_Temperature) / (double)131072.0 - 
+           ((unsigned short)ConfigParams.dig_T1) / (double)8192.0)) * 
+           ((signed short)ConfigParams.dig_T3);
+    t_fine = tar1 + tar2;
+    cT = t_fine/(double)5120.0;
+    
+    
+    return cT;
+}
+
 double far1, far2, far3, far4, far5, far6, far7, far8, fp;
-double THP_compenstate_P_double(adc_P)
+double THP_compenstate_P_double(unsigned long Raw_Pressure)
 {// double far1, far2, far3, far4, far5, far6, far7, far8, fp;
     // far1, far2, far2, far2, far1, far1
-    far1= (((double)t_fine/(double)2.0)-(double)64000.0)  ;
-    far2 = far1 * far1 * ((double)ConfigParams.dig_P6) / 32768.0 ;
-    far3 = far2 + far1 * ((double)ConfigParams.dig_P5) * 2.0 ;
-    far4 = (far3/4.0)+(((double)ConfigParams.dig_P4) * 65536.0) ;
-    far5 = (((double)ConfigParams.dig_P3) * far1 * far1 / 524288.0 + 
-           ((double)ConfigParams.dig_P2) * far1) / 524288 ; 
-    far6 = (1.0 + far5 / 32768.0) * ((double)ConfigParams.dig_P1);
+    far1 = ((double)t_fine/(double)2.0)-(double)64000.0  ;
+    far2 = far1 * far1 * ((double)ConfigParams.dig_P6) / (double)32768.0 ;
+    far3 = far2 + far1 * ((double)ConfigParams.dig_P5) * (double)2.0 ;
+    far4 = (far3/4.0)+(((double)ConfigParams.dig_P4) * (double)65536.0) ;
+    far5 = (((double)ConfigParams.dig_P3) * far1 * far1 / (double)524288.0 + 
+           ((double)ConfigParams.dig_P2) * far1) / (double)524288.0 ; 
+    far6 = ((double)1.0 + far5 / (double)32768.0) * ((double)ConfigParams.dig_P1);
     if (far6 == 0.0)
     { return (0)    ;    // avoid divide-by-0 exception
     }
-    fp = 1048576.0 - (double)adc_P   ;
-    fp=(fp- (far2 / 4096.0)) *6250.0 / far6 ;
-    far7 = ((double)ConfigParams.dig_P9) * fp * fp /2147483648.0 ;
-    far8 = fp * ((double)ConfigParams.dig_P8) / 32768.0 ;
-    fp = fp + (far7 + far8 + ((double)ConfigParams.dig_P7)) / 16 ;
+    fp = (double)1048576.0 - (double)Raw_Pressure   ;
+    fp =(fp- (far4 / 4096.0)) * (double)6250.0 / far6 ;
+    far7 = ((double)ConfigParams.dig_P9) * fp * fp / (double)2147483648.0 ;
+    far8 = fp * ((double)ConfigParams.dig_P8) / (double)32768.0 ;
+    fp = fp + (far7 + far8 + ((double)ConfigParams.dig_P7)) / (double)16.0 ;
+    
     return (fp)  ;
 }
          
@@ -271,18 +311,32 @@ unsigned long THP_compensate_H_int32(signed long adc_H)
     return (unsigned long)(hum4>>12);
 } 
 
+
 // Returns humidity in %rH as a double. Output value of 46.332" represents 46.332 %rh
-double far_H1, far_H2, far_H3, far_H4   ;
-double compensate_H_double(long adc_H)
-{       // double far_H1, far_H2, far_H3, far_H4   ;
-    far_H1 = ((double)t_fine) -768000.0 ;
-    far_H2 = (adc_H - 
-            (((double)ConfigParams.dig_H4) * 64.0 + 
-            ((double)ConfigParams.dig_H5) / 16384.0 * far_H1)) *
-            (((double)ConfigParams.dig_H2) / 65536.0 * 
-            (1.0 +((double)ConfigParams.dig_H6) / 67108864.0 *far_H1 *
-            (1.0 + ((double)ConfigParams.dig_H3) / 67108864.0 * far_H1))) ;
-    far_H3 = far_H2 * (1.0 - ((double)ConfigParams.dig_H1) * far_H2 / 524288.0) ;
+//double far_H1, far_H2, far_H3, far_H4   ;
+double compensate_H_double(unsigned long Raw_Humidity)
+{   double far_H1, far_H2, far_H3, far_H4, Ha, Hd, Hc, Hb, H, Hz;
+
+/*unsigned char   dig_H1   ;   // 0xA1 H1 LSB in MSB position
+    signed short    dig_H2   ;   //0XE1
+    unsigned char   dig_H3   ;
+    signed short    dig_H4   ;  // These fields calculated after fill
+    signed short    dig_H5   ;
+    signed   char   dig_H6   ; */
+
+    far_H1 = t_fine - (double)76800.0 ;
+  
+    Hd = (double)1.0 + (unsigned char)ConfigParams.dig_H3 / (double)67108864.0 * (double)far_H1;      
+    Hc = (double)1.0 + (signed char)ConfigParams.dig_H6 / (double)67108864.0 * (double)far_H1 * (double)Hd;       
+    Hb = (signed short)ConfigParams.dig_H2 / (double)65536.0 * (double)Hc ;
+    Ha = (signed short)ConfigParams.dig_H4 * (double)64.0 +          
+            (signed short)ConfigParams.dig_H5 / (double)16384.0 * (double)far_H1;
+    H  = (unsigned long)Raw_Humidity - (double)Ha;    
+    
+    far_H2 = (double)H * (double)Hb;                         
+    
+    Hz = 1.0 - (unsigned char)ConfigParams.dig_H1 * far_H2 / (double)524288.0;   
+    far_H3 = far_H2 * Hz;
     far_H4 = far_H3 ; 
     if (far_H3 > 100.0)
         far_H4 = 100.0   ;
@@ -290,6 +344,7 @@ double compensate_H_double(long adc_H)
         far_H4 = 0.0   ;
     return (far_H4)  ;
 }
+ 
 
 // Raw Values and Diagnostics buffer
 //  fNL fORMAT: P P P P T T T T H H H H d d d d 
@@ -302,40 +357,50 @@ void  THP_LoadRawValues (void)
     extern signed long SNS_Temperature   ;
     extern signed long SNS_Pressure     ;
     extern signed long SNS_Humidity     ;
-
-
+   
+    
+ 
+    
    // $ $ $ CORRECT SIGN   
+    
+    // Temperature    = 0b00000000MMMMMMMMLLLLLLLLXXXX0000 ;
+      Raw_Temperature =  (uCombine3(THP_Data[3], THP_Data[4], THP_Data[5])) >> 4 ;
+      Raw_Temperature =  Raw_Temperature & 0x000FFFFF;
+      INT_Temperature =  THP_compensate_T_int32((unsigned long) Raw_Temperature) ; 
+      FLT_Temperature =  THP_compensate_T_double(Raw_Temperature) ;
+      SNS_Temperature =  FLT_Temperature;
+      
      // Pressure      = 0b00000000MMMMMMMMLLLLLLLLXXXX0000 ;
-      Raw_Pressure   = (Combine3(THP_Data[0], THP_Data[1], THP_Data[2])) >> 4 ;
-      SNS_Pressure   = THP_compensate_P_int64((signed long) Raw_Pressure) ;
+      Raw_Pressure   = (uCombine3(THP_Data[0], THP_Data[1], THP_Data[2])) >> 4 ;
+      INT_Pressure   = THP_compensate_P_int64((unsigned long) Raw_Pressure) ;
       FLT_Pressure   = THP_compenstate_P_double(Raw_Pressure)   ;
-
-      // Temperature    = 0b00000000MMMMMMMMLLLLLLLLXXXX0000 ;
-      Raw_Temperature =  (Combine3(THP_Data[3], THP_Data[4], THP_Data[5])) >> 4 ;
-      SNS_Temperature = THP_compensate_T_int32((signed long) Raw_Temperature) ;
-      FLT_Temperature =  THP_compenstate_P_double(Raw_Temperature) ;
-
+      SNS_Pressure   = FLT_Pressure;
+      // Typical pressure == 101422
+      
    // $ $ $ CORRECT SIGN
-   // Humidirty      = 0b00000000MMMMMMMMLLLLLLLLXXXX0000 ;
-      Raw_Humidity   =                     THP_Data[6]*256 + THP_Data[7];
-      SNS_Humidity   = THP_compensate_H_int32((signed long) Raw_Humidity) ;
+   // Humidity      = 0b00000000MMMMMMMMLLLLLLLLXXXX0000 ;
+      Raw_Humidity   = THP_Data[6]*256 + THP_Data[7];    //       THP_Data[6]*256 + THP_Data[7];
+      Raw_Humidity   = Raw_Humidity & 0x0000FFFF;
+      INT_Humidity   = THP_compensate_H_int32((unsigned long) Raw_Humidity) ;
       FLT_Humidity   = compensate_H_double(Raw_Humidity)   ;  
+      SNS_Humidity   = FLT_Humidity;
+     
       
       
       return    ;
 }
 
 
-char recBuf[512] ;
+/* char recBuf[512] ;
 void diagRecord(void)
 {   int i = 0;
-    int len=0 ;
+    int len = 0 ;
     for (i=0; i < 512; i++)
     {  recBuf[i]=0   ;    // set each char to end-of-string
     }
 
     len=sprintf(recBuf, "1,%ld,%ld,%ld,%ld,%ld,%ld,%ld,|T,%u,%d,%d,|P,%u,%d,%d,%d,%d,%d,%d,%d,%d,%u,|H,%u,%d,%u,%d,%d,%d|,|VF,%Ld,%f,%Ld,%f,%Ld,%f,%Ld,%f,%Ld,%f,|,%Ld,%f,%Ld,%f,%Ld,%f,%Ld,%f,|,%ld,%f,%ld,%f,%ld,%f,%ld,%f\n",
-        Raw_Temperature, Raw_Pressure, Raw_Humidity, varT1, varT2, T, t_fine,
+        Raw_Temperature, Raw_Pressure, Raw_Humidity, varT1, varT2, cT, t_fine,
         ConfigParams.dig_T1, ConfigParams.dig_T2, ConfigParams.dig_T3, ConfigParams.dig_P1, 
         ConfigParams.dig_P2, ConfigParams.dig_P3, ConfigParams.dig_P4, ConfigParams.dig_P5, 
         ConfigParams.dig_P6, ConfigParams.dig_P7, ConfigParams.dig_P8, ConfigParams.dig_P9, 
@@ -344,15 +409,14 @@ void diagRecord(void)
         var1, far1, var2, far2, var3, far3, var4, far4, var5, far5, 
         var6, far6, var7, far7, var8, far8, p, fp,
         hum1, far_H1, hum2, far_H2,  hum3, far_H3,  hum4, far_H4 ) ;
-
+ */
  /*   
     file1.open("THPdata.csv");
     file1.write((Byte *)RecBuf, len);
     file1.close()   ;             
-*/
     return  ;
 }    
-
+*/
 int initTHP (void)
 { int THP_stat  = 0 ;
       THP_SetBuffer(THP_rbuf, THP_RdBufLen, 0x55)                            ;
@@ -392,7 +456,7 @@ int readTHP (void)
     {   // Lets get data values
         THP_stat= i2c2_TalkToDevice(THP_Addr, THP_Cmp1L4, THP_Cmp1S4, 8, THP_Data)    ;  // Read Data
         THP_LoadRawValues () ;
-        // diagRecord () ;  // optional diag: write tons oif info to sd card record-
+        // diagRecord () ;  // optional diag: write tons of info to sd card record-
     } 
     if (THP_stat != 0)
     {   THP_stat = (THP_stat << 4) +   4  ;       //  Function #4 Failed

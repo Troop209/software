@@ -137,7 +137,8 @@ void process(char *line, SDConfig *pcfg) {
 	if (strcmp(key, "kernelId") == 0) pcfg->kernelID = atoi(value);
 	if (strcmp(key, "label") == 0) strncpy( pcfg->label, value, sizeof(pcfg->label));
 	if (strcmp(key, "exp_wait_duration") == 0) strncpy( pcfg->exp_wait_duration, value, sizeof(pcfg->exp_wait_duration));
-	if (strcmp(key, "defrost_wait_duration") == 0) pcfg->defrost_wait_duration = atoi(value);
+	if (strcmp(key, "defrost_wait_duration") == 0) strncpy( pcfg->defrost_wait_duration, value, sizeof(pcfg->defrost_wait_duration));
+	if (strcmp(key, "default_xrtc") == 0) strncpy( pcfg->default_xrtc, value, sizeof(pcfg->default_xrtc));
 	if (strcmp(key, "exp_end") == 0) strncpy( pcfg->exp_end, value, sizeof(pcfg->exp_end));
 	if (strcmp(key, "rtc_start") == 0) strncpy( pcfg->rtc_start, value, sizeof(pcfg->rtc_start));
 }
