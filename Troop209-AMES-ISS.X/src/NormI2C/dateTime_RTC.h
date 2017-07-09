@@ -69,11 +69,17 @@ extern "C" {
 #include "datetime.h"
 
 //extern const DateTime dateTime;    
-// ** JDP1 ** void getTimeStamp(char *RTC_I2C_TimeStamp)  ;
-void getRTCTimeStamp(char *RTC_I2C_TimeStamp)  ;
-int setI2C2_RTCTime(char *RTC_I2C_TimeStamp) ;
-int getI2C2_RTCTime(char *RTC_I2C_TimeStamp) ;
-void setPIC_RTCTime(char *RTC_I2C_TimeStamp)    ;
+int PackTimeStamp(char *DateTimeStamp, char *DateTimeString)    ;
+int unpackTimeStamp(char *DateTimeStamp, char *DateTimeString)  ;
+int BCD2BinTimeStamp(char *BCDString, char *BinString)          ;
+int validString(char *BinString)                                ;
+int reasonableString(char *BinString)                           ;
+int string2Bin(char *DateTimeStamp, char *BCDString, char *BinString)   ;
+
+void writePICTimeStamp(char *RTC_I2C_TimeStamp)   ;    // set PIC RTC 
+void readPICTimeStamp(char *RTC_I2C_TimeStamp)  ;    // get PIC RTC 
+int  writeI2CTimeStamp(char *RTC_I2C_TimeStamp)     ;
+int  readI2CTimeStamp(char *RTC_I2C_TimeStamp)  ;
 
 
 
