@@ -19,7 +19,7 @@ extern "C" {
 
 int initSensors (void)      ;
 int readSensors (void)      ;
-int formatSensors(void)  ;
+int formatSensors(Byte* Ptr)  ;
 
 
 #ifdef	__cplusplus

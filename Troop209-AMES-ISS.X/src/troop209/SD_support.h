@@ -52,8 +52,7 @@ typedef struct {
     int kernelID;
     char label[20];
     char exp_wait_duration[18];
-    char defrost_wait_duration[18];
-    char default_xrtc[18];
+    int defrost_wait_duration;
 	char exp_end[18];
 	char rtc_start[18];
 } SDConfig;

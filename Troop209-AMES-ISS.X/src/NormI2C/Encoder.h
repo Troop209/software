@@ -13,7 +13,8 @@
 #define	ENCODER2_H
 
 void initEncoder(void)              ;
-int  readEncoder(void)              ;   // return rotation in 10ths of de
+int  readEncoder(void)              ;   // return rotation in 1/4096 steps of full circle
+int  readEncoderIrq(void)           ;   // return rotation in 1/4096 steps of full circle
 int  monitorEncoder(int mSdelay)    ;
 int  calibrateEncoder(void)         ;
 

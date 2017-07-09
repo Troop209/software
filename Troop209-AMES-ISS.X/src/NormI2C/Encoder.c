@@ -18,367 +18,290 @@
 #include "nesi.h"
 #include "../NormI2C/PortBitDrivers.h"
 #include "../NormI2C/Encoder.h"
+#include "multiMotorDrivers.h"
+#include "stdio.h"
 // #include "math.h"
 
 
 #define ArraySizeMax  8
 
-    int EncTimer    = 0    ; // Number counts for while loop
+    int DiffLimit   = 4     ;
+    int EncSignal1  = 0     ; 
+    int EncFlag     = 0     ;   // set if need to process recent IRQ    
+    int EncodPos    = 0     ;   // Raw Encoder Position without Offset
+    int EncodPosRaw = 0     ;   // Raw Encoder Position without Offset
 
-    int EncFlag    = 0 ;     
-    int EncTdif    = 0 ;       // time difference between IC5TMR and IC6TMR. typically 0
-    unsigned long   EncRising          = 0 ;       // static variables !!!
-    unsigned long   prevEncRising      = 0 ;
-    unsigned long   EncFalling         = 0 ;
-    unsigned long   prevEncFalling     = 0 ;
-    unsigned long   EncPeriod          = 0 ;       // internal time value in counts
-    unsigned long   fallEncPeriod      = 0 ;       // internal time value in counts
-    unsigned long   EncodPosition        = 0 ;       // internal time value in counts
-    unsigned long   EncPosition     = 0 ;
-    unsigned long   EncPosition2    = 0 ;
-        
-    unsigned long   RECountEntry    = 0 ;   
-    unsigned long   RECountIC5      = 0 ;   
-    unsigned long   RECountIC6      = 0 ;   
-    unsigned long   RECountFlag     = 0 ;
-        
-    long   scaledPosition = 0 ;
-    long   scaledPeriod   = 0 ;
-    long   scaledResult   = 0 ;
-       
-    int    ENC_OvflCnt     = 0 ; 
-       
-    unsigned long   prevEncRisingArray[ArraySizeMax]  = {0,0,0,0,0,0,0,0} ;
-    unsigned long   prevEncFallingArray[ArraySizeMax] = {0,0,0,0,0,0,0,0} ;
-    unsigned long divisor = 0 ;
-    unsigned int  quotient = 0 ;
-    unsigned int  multiplier =16384 ;
-    unsigned int  loopvar = 0 ;
-       
+    long EncSumX1   = 0     ;
+    long EncSumX2   = 0     ;
+    long EncNum     = 0     ;
+    long DifferenceValue    = 0 ;
+    
+    unsigned long   IC5temp             = 0     ;
+    unsigned long   IC6temp             = 0     ;
+    unsigned long   IC5time             = 0     ;
+    unsigned long   IC6time             = 0     ;
+    unsigned long   IC5Timer            = 0     ;
+    unsigned long   EncOnTime           = 0     ;       // internal time value in counts
+    unsigned long   EncPeriod           = 0     ;       // internal time value in counts
+    unsigned long   EncPeriodPrev       = 0     ;       // internal time value in counts
+    unsigned long   EncoderQueue[8]     = {0}   ;
+    unsigned long   BellCurveBuffer[36] = {0}   ;
+    unsigned long   ExpectedValue       = 12037 ;       // 66670 for period
+
+    
+    int BellCurveBufferFill(unsigned long value)
+{   BellCurveBuffer[DiffLimit]  = value ;
+    DiffLimit++ ;
+    if(DiffLimit>36)
+    {   DiffLimit=0    ;      
+    }
+    return (DiffLimit)  ;
+}
 
 
-        // EDT unsigned long   prevEncRisingArray[ArraySizeMax] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0} ;
-        // EDT unsigned long   prevEncFallingArray[ArraySizeMax] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0} ;
+int ErrorCheckLong(long ErrorVal)
+{   // function to determine the magnitude of an error value
+    int eOfs    = 0 ;
+    if      ( ErrorVal < -131072) {eOfs=  0 ; } //  0
+    else if ( ErrorVal < -65536)  {eOfs=  1 ; } //  1
+    else if ( ErrorVal < -32768)  {eOfs=  2 ; } //  2
+    else if ( ErrorVal < -16384)  {eOfs=  3 ; } //  3
+    else if ( ErrorVal < -8192)   {eOfs=  4 ; } //  4
+    else if ( ErrorVal < -4096)   {eOfs=  5 ; } //  5
+    else if ( ErrorVal < -2048)   {eOfs=  6 ; } //  6
+    else if ( ErrorVal < -1024)   {eOfs=  7 ; } //  7
+    else if ( ErrorVal <  -512)   {eOfs=  8 ; } //  8
+    else if ( ErrorVal <  -256)   {eOfs=  9 ; } //  9
+    else if ( ErrorVal <  -128)   {eOfs= 10 ; } // 10
+    else if ( ErrorVal <   -64)   {eOfs= 11 ; } // 11
+    else if ( ErrorVal <   -32)   {eOfs= 12 ; } // 12
+    else if ( ErrorVal <   -16)   {eOfs= 13 ; } // 13
+    else if ( ErrorVal <    -8)   {eOfs= 14 ; } // 14
+    else if ( ErrorVal <    -4)   {eOfs= 15 ; } // 15
+    else if ( ErrorVal <    -2)   {eOfs= 16 ; } // 16
+    else if ( ErrorVal ==    0)   {eOfs= 17 ; } // 17
+    else if ( ErrorVal <     2)   {eOfs= 18 ; } // 18
+    else if ( ErrorVal <     4)   {eOfs= 19 ; } // 19
+    else if ( ErrorVal <     8)   {eOfs= 20 ; } // 20
+    else if ( ErrorVal <    16)   {eOfs= 21 ; } // 21
+    else if ( ErrorVal <    32)   {eOfs= 22 ; } // 22
+    else if ( ErrorVal <    64)   {eOfs= 23 ; } // 23
+    else if ( ErrorVal <   128)   {eOfs= 24 ; } // 24
+    else if ( ErrorVal <   256)   {eOfs= 25 ; } // 25
+    else if ( ErrorVal <   512)   {eOfs= 26 ; } // 26
+    else if ( ErrorVal <  1024)   {eOfs= 27 ; } // 27
+    else if ( ErrorVal <  2048)   {eOfs= 28 ; } // 28
+    else if ( ErrorVal <  4096)   {eOfs= 29 ; } // 29
+    else if ( ErrorVal <  8192)   {eOfs= 30 ; } // 30
+    else if ( ErrorVal <  16384)  {eOfs= 31 ; } // 31
+    else if ( ErrorVal <  32768)  {eOfs= 32 ; } // 32
+    else if ( ErrorVal <  65536)  {eOfs= 33 ; } // 33
+    else if ( ErrorVal <  131072) {eOfs= 34 ; } // 34
+    else                          {eOfs= 35 ; } // 35
+    return(eOfs)    ;
+}
+   
+    void initEncoder(void) { // Flush everything from before
+    IC5CON1 = 0;
+    IC5CON2 = 0;
+    IC6CON1 = 0;
+    IC6CON2 = 0;
+    //Set the input source as RP27
 
-void initEncoder(void)
-{   
-    // configure pin for Encoder input     
-    // _PCFG5  = 1;  // PWM 12 is digital and NOT Analog input           
-    _TRISD1 = 1;  // Encoder pin is an input
-    _LATD1  = 0;  // drive output low
-
-      // set the RPOR register so OC9 output goes to pin
     __builtin_write_OSCCONL(OSCCON & 0xBF); // unlock Peripheral Pin Select Registers
     RPINR9=0x1818    ;   //Select RP18 as input to both IC5 &IC6
     __builtin_write_OSCCONL(OSCCON | 0x40); // lock Peripheral Pin Select Registers
-   
-// set up encoder    
-    // Clear contents of IC5 & IC6
-    IC5CON1 = 0;        // disable for now. enable below
-    IC5CON2 = 0;    
-    
-    IC6CON1 = 0;        // disable for now. enable below
-    IC6CON2 = 0;   
-  
-    // Clear configure IC5 & IC6
-    IC5CON1 = 0x1C00 ;        // measure period of Encoder PWM input
-//   IC5CON2 = 0x0000 ;    
-//    IC5CON2 = 0x000F ;        // Sync with timer 5  
-    IC5CON2 = 0x0000 ;        // Sync (no trigger) with no other source  
-    
-    IC6CON1 = 0X1C00 ;        // measure duty cycle of Encoder PWM input
-    IC6CON2 = 0x0000 ;        // measures the "On" time
-   
-    // turn on modules
-    IC5CON1 |= 0x03 ;   // Enable Rising edge sensing
-    
-    IC6CON1 |= 0x02 ;   // Enable falling edge sensing
-}
-         
-   
- /* comment out divide routine       
-int nmDivide(unsigned long numerator, unsigned int denominator)
-{
-    divisor = (long)denominator ;
-    divisor = divisor < 14 ;
-    for (loopvar = 0; loopvar <15; loopvar ++)
-    {   
-        if (divisor < numerator)
-        {   quotient += multiplier ;
-            numerator -= divisor  ;
-        }
-        divisor     = divisor > 1       ;
-        multiplier  = multiplier > 1    ;       
-    }
-    return (quotient)  ;
-}
- */
- 
-    //            .............|'''''''''''''''''|...............|'''''''''''''|................
-    // Rising to Rising time   |                                 |
-    // EncFalling to Falling time                   |                             |
-    // On Times                |-----------------|               |-------------|
-    // rise times              r                                 r
-    // fall times                                f                             f
-    
-int readEncoderIrq(void)
-{   extern unsigned int SNS_EncPeriod     ; // defined in SensorDrivers.c
-    
-    int i       = 0 ;       // local loop counter
-    int j       = 0 ;       // local loop counter
- 
-    // new value from rising edges?
-    // PIC24 will queue up to 4, returned oldest to9 newest
-    // get most recent set
-    // (if only one, use the last one from last read)
 
-    // new value from rising edges?
-    // PIC24 will queue up to 4, returned oldest to newest
-    // get most recent set
-    // (if only one, use the last one from last read)
-    // Must check que at least every 4 entries * 4 mS or every 16 ms or will get $X or 5X readings
+    IC6CON2bits.IC32 = 1; // pull two units apart for now
+    IC5CON2bits.IC32 = 1;
+    IC6CON1bits.ICTSEL = 7;
+    IC5CON1bits.ICTSEL = 7; // clock src 5=timer 5; 7 = FCY (16MHz))
+    IC6CON2bits.SYNCSEL = 0;
+    IC5CON2bits.SYNCSEL = 0;
+    IC6CON2bits.ICTRIG = 0;
+    IC5CON2bits.ICTRIG = 0;
+    IC6CON1bits.ICI = 0; // create masked interrrupt every capture
+    IC5CON1bits.ICI = 0; // create masked interrrupt every capture
+    IC6CON1bits.ICM = 1; // capture on every edge;
+    IC5CON1bits.ICM = 1; // capture on every edge; 
+
+    IPC9bits.IC5IP = 5;     // set IRQ level. do not disrupt other settings
+    IFS2bits.IC5IF = 0;     // clear any pending interrupt
+    IEC2bits.IC5IE = 1;     // enable interrupt with a 1
     
-    if( (IC5CON1bits.ICBNE == 1) || (IC5CON1bits.ICOV == 1) )
-    { // Data pending- go get. Only keep latest (last in FIFO)
-        RECountIC5++ ;
-        while ( (IC5CON1bits.ICBNE == 1) || (IC5CON1bits.ICOV == 1) ) 
-        {   for (i=ArraySizeMax-2; i>=0; i--)
-            {   j=i+1   ;
-                prevEncRisingArray[j]   =prevEncRisingArray[i]  ; // 
-            }
-            prevEncRisingArray[0]   =IC5BUF  ;
-            prevEncRising  =   prevEncRisingArray[1]  ;   // get last two values for delta calc
-            EncRising      =   prevEncRisingArray[0]  ;   // value could be previous entry or multi this entry
-            ENC_OvflCnt = 0 ;           // got signal, clear count
-            EncFlag        = 0 ;           // will calc with falling to rising time
-            
-            if(prevEncRisingArray[7] != 0)
-            {   // don't calc if buffer not yet filled
-                // EncPeriod is count of 16M clock cycles
-                if(prevEncRising > EncRising)
-                { EncPeriod = ( (EncRising - prevEncRising)+ 65536 ) ; // % 65536 ;  // include counter rollover
-                } 
-                else 
-                { EncPeriod = (EncRising - prevEncRising) %65536  ;  // no counter rollover
+    return ;    
+}
+
+
+    unsigned long EncNewRead     = 0 ;
+    unsigned long EncTempVal     = 0 ;
+    unsigned long EncPrevRise    = 0 ; 
+    unsigned long EncPrevFall    = 0 ; 
+    
+    unsigned long EncCntRiseG    = 0 ;
+    unsigned long EncCntRiseB    = 0 ;
+    unsigned long EncCntFallG    = 0 ;
+    unsigned long EncCntFallB    = 0 ;
+    unsigned long EncCntTotal    = 0 ;
+
+    
+_ISR_   _IC5Interrupt(void)
+{   // new value from rising edges?
+    while ( (IC5CON1bits.ICBNE == 1)  || (IC5CON1bits.ICOV == 1) ) 
+    {   // Data pending- go get. Only keep latest (last in FIFO)
+        // Readings are at least 1 count, maybe 2 counts over range- subtract 1 not 2
+        // Get values, save into queue
+        // note oldest readings go into queue first. newest enal variable
+        EncSignal1 = _RD1  ;
+        IC5temp               =   IC5BUF  ;
+        IC6temp               =   IC6BUF  ;
+        EncNewRead  =  ( ( (IC6temp << 16) + IC5temp ) -1 ) ; // & 0xFFFFFFFE ;  // value could be previous entry or multi this entry
+        EncTempVal = EncNewRead - EncPrevRise   ;
+        EncCntTotal++   ;
+        
+        if  (EncSignal1 == 1) 
+        {   if (EncTempVal < 76000) // Unsigned. Filters FFFxxxx
+            {   if (EncTempVal > 56000) 
+                {   EncPeriod   = EncTempVal    ;
+                    EncCntRiseG++               ;   
                 }
             }
-            SNS_EncPeriod=EncPeriod ;
+            EncPrevRise = EncNewRead    ;
         }
+        if  (EncSignal1 == 0) 
+        {   {   EncOnTime   = EncTempVal    ;
+                EncCntFallG++   ;
+            }
+            EncPrevFall = EncNewRead    ;
+        }
+        EncFlag = 1         ;
     }
+    IFS2bits.IC5IF = 0  ;     // clear any pending interrupt
+} 
 
-    // new value for falling edges?
-    // PIC24 will queue up to 4, returned oldest to9 newest
-    // get most recent set
-    // (if only one, use the last one from last read)
-    if( (IC6CON1bits.ICBNE == 1) || (IC6CON1bits.ICOV == 1) )
-    {   RECountIC6++ ;
-        while ( (IC6CON1bits.ICBNE == 1) || (IC6CON1bits.ICOV == 1) )
-        {   for (i=ArraySizeMax-2; i>=0; i--)
-            {   j=i+1   ;
-                prevEncFallingArray[j]   =prevEncFallingArray[i]  ; // 
-            }
-            prevEncFallingArray[0]   =IC6BUF  ;
-            prevEncFalling =   prevEncFallingArray[1] ;
-            EncFalling     =   prevEncFallingArray[0]  ;
-            EncTdif        =   IC5TMR - IC6TMR    ;    // find error between IC5 and IC6
-            EncTimer++     ;       // increment external time count value (~4mS per count)
-            
-            if(prevEncFallingArray[7] != 0)
-            {   // don't calc if buffer not yet filled
-                // result is count of 16M clock cycles
-                if(prevEncFalling < EncFalling)
-                { fallEncPeriod = (EncFalling - prevEncFalling) + 65536  ; // include counter rollover
-                } 
-                else 
-                { fallEncPeriod = EncFalling - prevEncFalling  ;   // no counter rollover
-                }
-                EncFlag        = 1 ;       // need to calc values
+unsigned int EncoderFilter[16]  = {0} ; // 16 slot filter 
+unsigned int EncNewPos          = 0 ; //    Newest Encoder Position/percentage of 4096
+unsigned int EncLstPos          = 0 ; //    Last Encoder Position/percentage of 4096
+unsigned int EncAverage         = 0 ; //    Average of Filter values
+unsigned int EncAverageMin      = 0 ; //    Average minus range
+unsigned int EncAverageMax      = 0 ; //    Average plus range
+unsigned int EncSum             = 0 ; //    SUm of Filter values
+unsigned int Enc                = 0 ; //    Loop counter
+unsigned int EncPtr             = 0 ; //    Filter Table pointer- next space to use 
+         int EncQual            = -15 ; //  QUality level +1 for good reading; -1 for out;ier reading
+
+int filterEncoder(void)
+{   EncNewPos = (EncOnTime << 12) / EncPeriod ;
+if (EncNewPos > 0)
+    {   // Getting valid readings; go to work
+        if(EncQual < 8)
+        // Need to bulk update the filter table
+        {   EncoderFilter[EncPtr] = EncNewPos ;     // need to reload filter
+            EncPtr = (16+EncPtr+1) % 16  ;         ;   // 
+            if( EncQual <16) {EncQual++  ; }        // Increase QUality level to 15 max
+        }
+        else
+        {   // Have enough "good" readings; calculate if valisd reading
+            if ( (EncNewPos > EncAverageMin) && 
+                 (EncNewPos < EncAverageMax) )
+            {   EncoderFilter[EncPtr] = EncNewPos   ;   // save new position in filter
+                EncPtr = (16+EncPtr+1) % 16  ;         ;   // 
+                EncLstPos  = EncNewPos ;   // sav               
+                if( EncQual <16) {EncQual++  ; }        // Increase QUality level to 15 max
+
+            } else
+            {   EncNewPos =  EncLstPos      ;          // use average instead of Outlier
+                if (EncQual > -16) {EncQual-- ;  }      // 
             }
         }
+        // always recalc average and limits
+        EncSum = 0 ;
+        for (Enc=0; Enc<16; Enc++)
+        {   EncSum += EncoderFilter[Enc]    ;      
+        }
+        EncAverage      = EncSum/16 ;
+        EncAverageMin   = EncAverage - 128    ;
+        EncAverageMax   = EncAverage + 128    ;
     }
-    return (0)  ;
+    return (EncNewPos)       ;
 }
 
 int readEncoder(void)
-{   // Return Carousel position as 0.0 to 359.9 degrees as 0-4095 counts
-    // OrReturn -1 if not detecting any signal
-    extern unsigned int SNS_EncPeriod     ; // defined in SensorDrivers.c
-    extern unsigned int SNS_EncodPos      ; // defined in SensorDrivers.c
-    extern unsigned int SNS_EncodPosPrev  ; // defined in SensorDrivers.c
-    extern unsigned int SNS_MovFlg        ; // defined in SensorDrivers.c
-    extern unsigned int SNS_EncodOffset   ; // defined in SensorDrivers.c
-    extern unsigned int SNS_EncDirFlag    ; // defined in SensorDrivers.c 
-
-    readEncoderIrq() ;  // check encoder real time stuff
+{   extern unsigned int SNS_EncodPos      ;   // Current encoder position 
+    extern unsigned int SNS_EncodPosPrev  ;   // Previous Encoder position    extern unsigned int SNS_EncodOffset   ;   // when motor commanded to 180 deg, where encoder, calc 0 offset
+    extern          int SNS_EncodOffset   ;   // when motor commanded to 180 deg, where encoder, calc 0 offset
+    extern unsigned int SNS_EncDirFlag    ;   // 0 not set; +1 Encoder moves CW; -1 Encoder moves CCW
     
-    RECountEntry++  ;
-    
-    // check for incoming signal; return -1 if not present
-    if ( (RECountEntry > 500) && (RECountIC5 == 0) )
-        {   // Lots of entering function, but no rising edge detection
-            // NO SIGNAL from peripherals
-            SNS_EncodPos = -1  ;
-            return (SNS_EncodPos)    ;        // Flag No Signal on incoming port
-        }
-
-    if (EncFlag == 1)
-    {   RECountFlag++   ;
-        // Calc the On Time of the signal (previous rising edge to current falling edge)
-        //  ic5       ic6
-        // __/----------\_____
-        //   R          F
-        if(EncFalling  > EncRising)
-        { // default condition EncRising < EncFalling
-            EncodPosition = (EncFalling -EncRising + EncTdif) % 65536  ;
-        }   
-        else 
-        { // counter rolled over, add 65536 onto value
-            EncodPosition = ( (EncFalling -EncRising) + EncTdif + 65536 )  % 65536 ;
-        }
-        
-        // Now calc the PerCent on time
-        if( (EncodPosition < EncPeriod) && (EncPeriod > 0) )
-        {   EncPosition = EncodPosition *4096  ;
-//            EncPosition2= nmDivide(EncPosition, EncPeriod) ;
-              EncPosition2=EncPosition/EncPeriod;
-            SNS_EncodPos= EncPosition2 % 4096    ;
-// UDT            SNS_EncodPos     = (EncPosition )  ;    // might need a mutiply factor here
-        }
-
-        // reference position to the carousel offset
-
-        // There are 4096 "counts" in a full revoluytion of carousel
-        // result is POSITIVE number, so always add 4096 to result to eliminate negative values
-        // add or subtract the Encoder Offset depending on it's sign to EncodPos
-        // result is POSITIVE number, so always add 4096 to result to eliminate negative values (first 4096+)
-        // after all the additions limit result to range of 0-4095
-        //   this done by dividing result by 4096 and returning the remainder of the division ('%'  math function)
-
-        // SNS_EncDirFlag should be +1, or -1. ANything else means re-calibrate the encoder
-        if      ( (SNS_EncodOffset <  0) && (SNS_EncDirFlag = +1) )
-        {   SNS_EncodPos = (4096 + SNS_EncodPos + SNS_EncodOffset) % 4096 ;
-        }
-        else if ( (SNS_EncodOffset >= 0) && (SNS_EncDirFlag = +1) )
-        {   SNS_EncodPos = (4096 + SNS_EncodPos - SNS_EncodOffset) % 4096 ;
-        }
-        else if ( (SNS_EncodOffset <  0) && (SNS_EncDirFlag = -1) )
-        {   SNS_EncodPos = (4096 + SNS_EncodPos + SNS_EncodOffset) % 4096 ;
-        }
-        else if ( (SNS_EncodOffset <  0) && (SNS_EncDirFlag = -1) )
-        {   SNS_EncodPos = (4096 + SNS_EncodPos - SNS_EncodOffset) % 4096 ;
-            SNS_EncodPos = (4096 - SNS_EncodPos) % 4096 ;
-        }
-        else 
-        {   calibrateEncoder()  ;   // destroys current motor position
-        }
-            
-            // Is Carousel Moving???
-        if (SNS_EncodPosPrev ==  SNS_EncodPos )
-        { // not moving
-            SNS_MovFlg  =   0 ;
-        }
-        else
-        { //  moving
-            SNS_MovFlg  =   1 ;
-        }
-        EncFlag = 0 ;
+    if (EncPeriod > 56000)
+    {   // EncodPos = (EncOnTime << 12) / EncPeriod ;
+        EncodPosRaw = filterEncoder()  ;
     }
-    return  (SNS_EncodPos)    ;
+    if (SNS_EncDirFlag == -1)
+    {// calc reverse value of on time
+        EncodPos = ( (4096 +(4096 -EncodPosRaw) ) % 4096 ) ;
+    }
+    else
+    {   EncodPos = EncodPosRaw  ;        
+    }
+    SNS_EncodPosPrev =  SNS_EncodPos ;   // Previous Encoder position        
+    if      ( (SNS_EncodOffset <  0) && (SNS_EncDirFlag == -1) )
+    {   SNS_EncodPos = (4096 + EncodPos + SNS_EncodOffset) % 4096 ;
+    }
+    else if ( (SNS_EncodOffset >=  0) && (SNS_EncDirFlag == -1) )
+    {   SNS_EncodPos = (4096 + EncodPos - SNS_EncodOffset) % 4096 ;
+    }
+    else if ( (SNS_EncodOffset <  0) && (SNS_EncDirFlag == +1) )
+    {   SNS_EncodPos = (4096 + EncodPos + SNS_EncodOffset) % 4096 ;
+    }
+    else if ( (SNS_EncodOffset >= 0) && (SNS_EncDirFlag == +1) )
+    {   SNS_EncodPos = (4096 + EncodPos - SNS_EncodOffset) % 4096 ;
+    }
+    else if ( (SNS_EncodOffset <  0) && (SNS_EncDirFlag == 0) )
+    {   SNS_EncodPos =          EncodPos  ; // no compensation yet
+    }
+    else if ( (SNS_EncodOffset >= 0) && (SNS_EncDirFlag == 0) )
+    {   SNS_EncodPos =          EncodPos  ; // no compensation yet
+    }
+    if (EncFlag == 1)
+    {   EncFlag =  0  ;
+        // BellCurveBuffer[ (EncodPos/128) ]++ ;
+        // EncSumX1 = EncSumX1 + DifferenceValue ;
+        // EncSumX2 = EncSumX2 +(DifferenceValue*DifferenceValue)     ;
+        // EncNum++ ;
+        return (1)  ;
+    }
+    else
+    {   return (0)   ;
+    }
 }
 
     int EncmSdelay  = 0    ; // Convert passed mS to Period counts
-    int EncStat     = 0    ; // Encoder return code
+    unsigned long EncNextRead = 0 ;
+    int calibrationError      = 0 ;
     
+    int tempEncodval    = 0;
+    int tempEncodErr    = 0;
+    int calEncStat      = 0;
+    int EncCalState     = 0 ;
 
-int monitorEncoder(int mSdelay)
-{   // watch encoder for specified number of millSeconds during/after motor move
-    // uses frequency (period) of encoder signal to measure time    
-    // Encoder period is ~ 4.0 mS so incoming value divided by 4 (ms)
-    // Time value incremented in readEncoder IC6 section
-    // At 4 mS per pulse, 250 counts is ~1 Second
-    extern unsigned int SNS_EncodPos    ;
     
-    EncmSdelay  = mSdelay/4     ; // Convert passed mS to Period counts
-    EncTimer    = 0             ; // zero the loop counter      
-    while (EncTimer < EncmSdelay)
-    {   EncStat=readEncoder()   ;
-        if (EncStat == -1)
-        {   // No SIgnal. Exit
-            delay(mSdelay)  ;
-            return (-1) ;
+int monitorEncoder(int attempts)    
+{   // get 'attempts' new valid reads of encoder
+    int attemptCount  = attempts   ;
+    int EncStatus = 0 ;
+    int EncRtn  = 0 ;
+    
+    while (attemptCount > 0)
+    {   EncStatus = readEncoder() ;   // returns 0 no change; =1 change -1 no signal
+        if (EncStatus == 1)
+        {   attemptCount--  ;
+        }
+        else if (EncStatus <= -1)  
+        {   EncRtn = -1        ;
+            return (EncRtn)    ;
         }
     }
-    return (SNS_EncodPos)  ;
- }
-
-int calibrateEncoder(void)
-{   // send motor to Calibrate Position
-    // read encoder
-    extern unsigned int SNS_EncodPos      ; // defined in SensorDrivers.c 
-    extern unsigned int SNS_EncodOffset   ; // defined in SensorDrivers.c 
-    extern unsigned int SNS_EncDirFlag    ; // defined in SensorDrivers.c 
- 
-    int tempEncodval    =0  ;
-    int EncStat = 0      ;  // capture readEncoder Status
- 
-    SNS_EncodOffset= 0  ;   // clear out any previous value 
-    // Send Motor/carousel to servo motor 180 degree position  
-// NRM    writeMotorPositionAbs(2048) ; // send motor to 180 degrees
-
-    EncStat=monitorEncoder(15000)    ;  // monitor encoder
-    if (EncStat == -1)
-    {   // No ENcoder Signal. Return error
-        return (-1) ;
-    }
-    tempEncodval=SNS_EncodPos-2048       ; // keep signed offset value (ideally 0)
-
-    // Send Motor/carousel to servo motor 90 degree position  
-// NRM    writeMotorPositionAbs(1024) ; // send motor to 90 degrees
-
-    EncStat=monitorEncoder(15000)    ;  // monitor encoder
-    if (EncStat == -1)
-    {   // No ENcoder Signal. Return error
-        return (-1) ;
-    }
-    // Have signed encoder offset for 180 deg motor position in tempEncodval
-    // Have encoder value for 90 deg in SNS_EncodPos
-    // Calculate the value to put into SNS_EncodOffset
-    SNS_EncDirFlag = 0    ; // Clear previous value (if any)
-    
-    if( (SNS_EncodPos > 1000) && (SNS_EncodPos < 1048) ) // set wide tolerance around 1024 count
-    {   // Encoder increasing counts are same as motor counts
-        SNS_EncDirFlag = +1    ;
-    }
-    else if ( (SNS_EncodPos > 3048) && (SNS_EncodPos < 3096) ) // set wide tolerance around 3072 count
-    {   // Encoder increasing counts are opposite of motor counts
-        SNS_EncDirFlag = -1    ;
-    }
-    else    
-    { SNS_EncDirFlag = 0    ;
-    }
-    // Can now set the SNS_EncodOffset
-    SNS_EncodOffset = tempEncodval  ;
-    
-    // Let's test it all and see if it works:
-    //  NRM // DO MATH HERE!
-    
-    // NRM //SNS_EncodOffset=            ; // encoder value should be stable. capture
-    // NRM //SNS_EncodOffset=SNS_EncodOffset+2048 ;  // add 180 deg offset to value 
-    // NRM //SNS_EncodOffset %= 4096              ;
-
-// NRM    writeMotorPositionAbs(3072) ; // send motor to 270 degrees
-    // Wait for motor to stop, get valid encoder reading
-    EncStat=monitorEncoder(15000)    ;  // monitor encoder
-    if (EncStat == -1)
-    {   // No ENcoder Signal. Return error
-        return (-1) ;
-    }
-
-    // is motor and encoder in sync?
-    if ( (SNS_EncodPos < 3048) && (SNS_EncodPos > 3096) ) // set wide tolerance around 3072 count
-    {   // Calibration Failed
-        return (-2)    ;
-    }
-    return (SNS_EncodOffset)    ;
-}
+    EncRtn = +1      ;
+    return (EncRtn)  ; // +1 returned from read Encoder setting
+}    
 

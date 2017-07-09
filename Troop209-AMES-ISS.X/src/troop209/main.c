@@ -23,9 +23,9 @@ SDConfig config;
 int main(void)
 {
     nesi.init();
-
+    //HdwrTest();
     SDConfigFile.get(&config);
-    if (config.kernelID == 0) config.kernelID = 18;
+    if (config.kernelID == 0) config.kernelID = 16;
 
     switch (config.kernelID) 
     {

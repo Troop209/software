@@ -18,17 +18,19 @@
  *       Pulse Width Modulation (PWM)
  *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
- */
-int RadFlag = 0;
-unsigned long RadPeriod = 0; // internal time value in counts
-unsigned long RadRising = 0; // static variables !!!
-unsigned long prevRadRising = 0;
-unsigned int IC7temp = 0;
-unsigned int IC8temp = 0;
+*/
+    int             RadFlag         = 0 ;     
+    unsigned long   RadPeriod       = 0 ;       // internal time value in counts
+    unsigned long   RadRising       = 0 ;       // static variables !!!
+    unsigned int    IC7temp         = 0 ;
+    unsigned int    IC8temp         = 0 ;
+    int             RadPtr          = 0 ;
+    int             RadCurr         = 0 ; 
+    int             RadPrev         = 0 ; 
+    unsigned long   RadBuffer[16]   = {0} ;     // keep last 16 readings, only need last two
 
 // const ReadServoAmps readServoAmps  = { read_C10 : read_C10, getC10  : sample_C10, init: A2D_C10_init } ;
-
-int initRadiation(void) { // Flush everything from before
+ int initRadiation(void) { // Flush everything from before
     IC7CON1 = 0;
     IC7CON2 = 0;
     IC8CON1 = 0;
@@ -47,89 +49,113 @@ int initRadiation(void) { // Flush everything from before
     IC7CON2bits.SYNCSEL = 0;
     IC8CON2bits.ICTRIG = 0;
     IC7CON2bits.ICTRIG = 0;
-    IC8CON1bits.ICI = 0; // create masked interrrupt every capture
-    IC7CON1bits.ICI = 0; // create masked interrrupt every capture
+    IC8CON1bits.ICI = 0; // create masked interrupt every capture
+    IC7CON1bits.ICI = 0; // create masked interrupt every capture
     IC8CON1bits.ICM = 3; // 3 - 3 every rising edge; 4 every 4; 5 every 16
     IC7CON1bits.ICM = 3; // 3- 3  every rising edge; 4 every 4; 5 every 16
+    
+    IPC5bits.IC7IP = 3;      // Set irq priority level
+    IFS1bits.IC7IF = 0;      // clear any pending interrupt
+    IEC1bits.IC7IE = 1;      // enable interrupt with a 1
+
     return (0);
 }
 
-int readRadiationIrq(void) { // new value from rising edges?
-    if ((IC7CON1bits.ICBNE == 1) || (IC7CON1bits.ICOV == 1)) { // Data pending- go get. Only keep latest (last in FIFO)
-        while ((IC7CON1bits.ICBNE == 1) || (IC7CON1bits.ICOV == 1)) {
-            prevRadRising = RadRising; // get last two values for delta calc
-            IC7temp = IC7BUF;
-            IC8temp = IC8BUF;
-            RadRising = (IC8temp * 65536) + IC7temp; // value could be previous entry or multi this entry
-            RadFlag = 1; // no need to calc falling to rising time
+    unsigned long   RadSignal       = 0 ;
+    unsigned long   RadSignalprev   = 0 ;
+    int             RadNoSigCnt     = 0 ; 
+    int             RadStatus       = 0 ;
+ 
+// void readRadiationIrq(void)
+_ISR_   _IC7Interrupt(void)
+{    // place newest time stamp into RadBuffer, set proce3ssing flag, clear interrupt
+    if( (IC7CON1bits.ICBNE == 1)  || (IC7CON1bits.ICOV == 1) ) 
+    { // Data pending- go get. Only keep latest (last in FIFO)
+        while ( (IC7CON1bits.ICBNE == 1) || (IC7CON1bits.ICOV == 1) )  
+        {   IC7temp         =   IC7BUF  ;
+            IC8temp         =   IC8BUF  ;
+            RadRising       =   ( (IC8temp * 65536) + IC7temp) -1  ;   // value could be previous entry or multi this entry
+            RadBuffer[RadPtr]=  RadRising   ;
+            RadPtr = (RadPtr +1) % 16       ;
+            RadNoSigCnt     = 0 ;       // LEAR no detected signal counter
+            IFS1bits.IC7IF  = 0 ;       // clear any pending interrupt
+            RadFlag         = 1 ;       // calc rising to to rising time
         }
     }
-    return (0);
 }
 
-int readRadiation(void) {
-    extern unsigned long SNS_RadPeriod;
 
-    readRadiationIrq();
+int readRadiation(void)
+{   extern unsigned long SNS_RadPeriod     ;
 
-    if (RadFlag == 1) {
-        if (prevRadRising < RadRising) {
-            RadPeriod = RadRising - prevRadRising;
-        }
-        else {
-            RadPeriod = (RadRising + 4294967296) - prevRadRising; // add 32 bit count to lesser
-        }
-        SNS_RadPeriod = RadPeriod * .0625; // result in microSeconds
-        RadFlag = 0;
         //  ic7,8               ic7,8
-        // __/----------\_______/----------\_
-        //   R          F
+        // __/--------------\___________/--------------\_
+        //   R              F           R              F
+        //  count[N1]                    count[N]
+        //   <-- count[n]-count[n-1] --->  ( must allow for counter rollover)
 
-    }
-    return (SNS_RadPeriod);
-
-
-}
-
-void setOutputRp16(Boolean desiredOutputState) {
-    const int RP16portbitOn03 = 0x0008;
-    const int RP16portbitOf03 = 0xFFF7;
-
-    // _TRISF3 = 0;   /* configure port as output*/
-    // _RF3 = desiredOutputState;   */set the output */
-    __builtin_write_OSCCONL(OSCCON & 0xBF); // unlock Peripheral Pin Select Registers
-    RPOR8 = 0; //shut off motor driver usage
-    __builtin_write_OSCCONL(OSCCON | 0x40); // lock Peripheral Pin Select Registers
-
-
-    if (desiredOutputState == 0) {
-        TRISF &= RP16portbitOf03;
-        LATF &= RP16portbitOf03;
-    } else {
-        TRISF &= RP16portbitOf03;
-        LATF = LATF | RP16portbitOn03;
-    }
-}
-
-long RP16PeriodmS = 16; //default 16 milliseconds
-int RP16Iterations = 10000; //default loop runs 10000
-
-int writeRP16Period(void) {
-    while (RP16Iterations > 0) {
-        setOutputRp16(1);
-        delay(4);
-        setOutputRp16(0);
-        if (RP16PeriodmS > 4) {
-            delay(RP16PeriodmS - 4);
-        } else {
-            delay(RP16PeriodmS);
+    // readRadiationIrq()  ;
+    RadStatus = 0 ; // Clear Status Flag
+    if (RadFlag == 1)
+    {   RadCurr= (16+RadPtr -1) % 16   ;
+        RadPrev= (16+RadPtr -2) % 16   ;
+        if(RadBuffer[RadPrev] < RadBuffer[RadCurr])
+        { RadPeriod = RadBuffer[RadCurr] - RadBuffer[RadPrev]  ;    // No Rollover
+        } 
+        else 
+        { RadPeriod = (RadBuffer[RadCurr]+4294967296) - RadBuffer[RadPrev]  ;  // Rollover; + 32 bit count to lesser
         }
-        readRadiation();
-        RP16Iterations--;
+        SNS_RadPeriod=(((long) RadPeriod*(long)625)/(long) 10000) ;  // result in microSeconds
+        RadFlag = 0 ;
     }
+    // RadNoSigCnt=0 ;     // clear No Signal Count
+    // Let's also flag 'No signal' if no rising edge in two complete counter intervals
+    IC7temp         =   IC7TMR  ;
+    IC8temp         =   IC8TMR  ;
+    RadSignal       =   (IC8temp * 65536) + IC7temp  ;
+    if( RadSignal   < RadSignalprev)
+    {   RadNoSigCnt ++ ;
+        if (RadNoSigCnt > 2)
+        {   RadStatus    = -1 ;
+        }
+    }
+    RadSignalprev     = RadSignal ;
+    return  (RadStatus)    ;
+ }
+
+void setOutputRp16(Boolean desiredOutputState)
+{   const int RP16portbitOn03 = 0x0008;
+    const int RP16portbitOf03=0xFFF7 ;
+    
+    // _TRISF3 = 0                 ;    /* configure port as output */
+    // _RF3 = desiredOutputState   ;    /* set the output */
+    RPOR8 = 0 ; // shut off motor driver usage
+    if(desiredOutputState == 0)
+    {   TRISF &= RP16portbitOf03    ;
+        LATF  &= RP16portbitOf03    ;
+    } else
+    {   TRISF &= RP16portbitOf03    ;
+        LATF  |= RP16portbitOn03    ;
+    } 
 }
 
+int RP16PeriodmS   = 16    ; // default period is 16 mS
+int RP16Iterations = 10000 ; // default loop runs 10,000 times
+int RP16COunt      = 0 ;
 
-
-
-
+int writeRP16Period(void)
+{   int i = 0;
+    while (RP16Iterations > 0) 
+    {   setOutputRp16(1)    ;
+        delay (4)           ;
+        setOutputRp16(0)    ;        
+        for (i=0; i< (RP16PeriodmS/4); i++)
+        {   delay (4)   ;
+            readRadiation() ;
+        }
+        RP16Iterations-- ;
+    }
+    return (0)  ;
+}
+       
+    

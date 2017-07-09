@@ -307,7 +307,7 @@ int i2c2_send_byte_ack(char data)
    // Check for NO_ACK from slave, abort if not found
    if (I2C2STATbits.ACKSTAT == 1)
    { // If NAK-> end of transmission. Stop
-      // i2c2_stop()
+      i2c2_stop();
       I2C2_Snd_Byte_cnt_NAK++ ;
       return I2C2_NAK         ;
    }

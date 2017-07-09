@@ -71,8 +71,8 @@
     int SNS_LastErr[8]  =   {0,0,0,0,0,0,0,0}   ;   // Last retrurned Error
     int SNS_ErrorCnt[8]  =  {0,0,0,0,0,0,0,0}   ;   // Last retrurned Value
 
-    char xRTCTime[18]={"00/00/00 00:00:00\n"}   ;
-    char iRTCTime[18]={"00/00/00 00:00:00\n"}   ;
+    char xRTCTime[18]={"00/00/00 00:00:00"}   ;
+    char iRTCTime[18]={"00/00/00 00:00:00"}   ;
 
 
     char    SNS_Buffer[128] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -202,19 +202,27 @@ int readSensors (void)
     return (errCnt)   ;
 }
 
-int formatSensors()
+int formatSensors(Byte* Ptr)
 {   int BufLen   = 0 ; 
     int BufErr   = BufLenOverflow ;
-    BufLen = sprintf(SNS_Buffer, "SNS_Stg, %18s,%18s,|,%li,%li,%li,|,%i,%i,%i,%i,|,%i,%i,|,%i,%i,%i\n",
-                    xRTCTime, dateTime.getStamp(),
+    BufLen = sprintf(SNS_Buffer, "\r\n %18s,%18s,|,%li,%li,%li,|,%i,%i,%i,%i,|,%i,%i,|,%i,%i,%i " ,
+                    xRTCTime, xRTCTime,
                     SNS_Temperature, SNS_Pressure, SNS_Humidity,
                     SNS_CLR_LIGHT, SNS_RED_LIGHT, SNS_BLU_LIGHT, SNS_GRN_LIGHT, 
                     SNS_EncPeriod, SNS_EncodPos,
-                    SNS_VpotCur, SNS_MotorPos, SNS_MotorDur ) ;
+                    SNS_VpotCur, SNS_MotorPos, SNS_MotorDur                      ) ;
     if(BufLen <= 128)
     { BufErr = 0    ;  }    // We Okay, clear built up error code
     
+    file1.open("DataFile.csv");                                    //Open file DataFile.txt and write SNS_Buffer
+    file1.write((Byte *)SNS_Buffer, BufLen);
+    file1.close()   ;             
     // SHould we write SAD card from here ???
+    /*usb.connect();                                                 //Opens SD card for datalog viewing
+    while (!button.isPressed());
+    while (button.isPressed());
+    usb.eject();*/
+    
     return(BufErr)   ;
 }
 

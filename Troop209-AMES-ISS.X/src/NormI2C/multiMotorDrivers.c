@@ -3,17 +3,18 @@
 #include "../NormI2C/PortBitDrivers.h"
 #include "../NormI2C/Encoder.h"
 
-#define   functionSUCCESS   0
-#define   functionBUSY      1
-#define   functionFAULT     2
-
 // Output COmpare StaTES
-
 #define    RISE     0
 #define    HIGH     1
 #define    FALL     2
 #define    LOW      3
 
+// move check Carousel states:
+#define   functionSUCCESS   0
+#define   functionBUSY      1
+#define   functionFAULT     2
+
+// multiMotorMove states
 #define    FAULT       -4       // general Fault within multiMotorMove
 #define    fPATTERN    -1       // invaliud argumanet for pattern value in user call
 #define    fANGLE      -2       // invalid argumanet for Angle value in user call
@@ -30,7 +31,7 @@
 #define    VERIFY       7       // Verify that motor reached assigned destination based on encoder and or opto responses
 #define    JOG         11       // Position Error, move this short distance to get there
 #define    COMPLETE     8       // Made it- do any end-of-operatioon cleranup
-#define    FAULT       -4       //
+
 // Half steps or Full Steps for motor move
 
 #define   HALFSTEP      0
@@ -50,18 +51,24 @@ const int FSFullStep = 2048 ;
 const int FSHalfStep = 4096 ; 
 const int FSEncoder  = 4096 ;
 
-   int EncoderErrorLog[30] ={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}  ;
-
-    int carouselAngle       = 0   ;   // destination Position of Carousel
-    int motorStepsPerSec    = HALFSTEP  ;
+    int carouselAngle       = 0 ;   // destination Position of Carousel
+    int motorStepsPerSec    = 0 ;
     int duration            = 0 ;   // default to 0 value (calculated below)
-    int motLookUp           = 1 ;   // loop variable for motor position  
-    int moveStatus      =  1 ;
-    int motorStepsPerSec     ;
-    int motComplete = 0;    //move sequence completed =  1
-    char oc8Buffer[48]    = {0}  ;   
-    char oc9Buffer[48]    = {0}  ; 
+    int motLookUp           = 0 ;   // loop variable for motor position  
+    int moveStatus          = 1 ;
+    int motComplete         = 0 ;   // Move Sequence completed =1
+    int MotFlag             = 0 ;
+    int MotHome             = 0 ;   // 0 = Need to HOME carousel; 1= Carousel has been Homed
 
+    int pattern             = 0 ;   // how will motor move
+    int angle               = 0 ;   // where will motro go (0-4095=0-360 deg))
+    int Speed               = 6 ;   // lookup value for speed
+
+    int RetryCount          = 5 ;
+    int LoopCount           = 1 ;
+
+    extern unsigned long BellCurveBuffer[36] ;
+    
 void setOnStepDisable(void)
 {
     setOutputDiag(1); /* set the output to be open */
@@ -89,6 +96,19 @@ void setOnHalfStep(void)
 void setOffHalfStep(void)
 {
     setOutputDiag(0); /* set the output to be closed */
+}
+
+    // ISR int T3Now   = 0 ;
+    // ISR int T3Prev  = 0 ;
+
+// void StepperMotorIrq(void))
+_ISR_ _T3Interrupt(void)
+{       T5CON &= 0x7FFF     ;   // Stop Motor Pulses
+        setOnStepDisable()  ;   // Disable Stepper Motor Driver
+        IFS0bits.T3IF = 0   ;   // Clear T3 Interrupt
+        //IEC0bits.T3IE = 0   ;   // DIsable T3 Interrupt
+        TMR3 = 0 ;          ;   // reset timer 3 time value
+        MotFlag  = 1        ;   // we done
 }
 
 void initStepper(void)
@@ -128,10 +148,14 @@ void initStepper(void)
     RPINR3=0x1010    ;   //Select RP16 to drive TMR3 input
     __builtin_write_OSCCONL(OSCCON | 0x40); // lock Peripheral Pin Select Registers
 
-    T3CON       = 0 ;   // clear everything out
-    T3CON       = 0x8002 ;  // TImer 5 enable, /256, interrnal 16G clock
-    PR3         =   3125 ;  // 20 Hz POeriod  as 16000000/256/3124=20.00000 // /256 is prescaler  /3125 is compare value
-
+    T3CON       = 0 ;       // clear everything out
+    T3CON       = 0x8002 ;  // 
+    PR3         =   5 ;     // set to a very short default motor move
+    
+    IPC2bits.T3IP = 5; // set IRQ level. do not disrupt other settings
+    IFS0bits.T3IF = 0;      // clear any pending interrupt
+    IEC0bits.T3IE = 0;      // enable interrupt with a 1
+    
     /* configure pins */
     _PCFG5  = 1;  // Pin is NOT an A/D pin
     _TRISB5 = 0;  // PWM 1 is an output
@@ -145,32 +169,32 @@ void initStepper(void)
 int ErrorCheck(int ErrorVal)
 {   // function to determine the magnitude of an error value
     int eOfs    = 0 ;
-    if      ( ErrorVal < -4096)   {eOfs=-12 ; }
-    else if ( ErrorVal < -2048)   {eOfs=-11 ; }
-    else if ( ErrorVal < -1024)   {eOfs=-10 ; }
-    else if ( ErrorVal <  -512)   {eOfs=-9  ; }
-    else if ( ErrorVal <  -256)   {eOfs=-8  ; }
-    else if ( ErrorVal <  -128)   {eOfs=-7  ; }
-    else if ( ErrorVal <   -64)   {eOfs=-6  ; }
-    else if ( ErrorVal <   -32)   {eOfs=-5  ; }
-    else if ( ErrorVal <   -16)   {eOfs=-4  ; }
-    else if ( ErrorVal <    -8)   {eOfs=-3  ; }
-    else if ( ErrorVal <    -4)   {eOfs=-2  ; }
-    else if ( ErrorVal <    -2)   {eOfs=-1  ; }
-    else if ( ErrorVal ==   -0)   {eOfs= 0  ; }
-    else if ( ErrorVal <     2)   {eOfs= 1  ; }
-    else if ( ErrorVal <     4)   {eOfs= 2  ; }
-    else if ( ErrorVal <     8)   {eOfs= 3  ; }
-    else if ( ErrorVal <    16)   {eOfs= 4  ; }
-    else if ( ErrorVal <    32)   {eOfs= 5  ; }
-    else if ( ErrorVal <    64)   {eOfs= 6  ; }
-    else if ( ErrorVal <   128)   {eOfs= 7  ; }
-    else if ( ErrorVal <   256)   {eOfs= 8  ; }
-    else if ( ErrorVal <   512)   {eOfs= 9  ; }
-    else if ( ErrorVal <  1024)   {eOfs=10  ; }
-    else if ( ErrorVal <  2048)   {eOfs=11  ; }
-    else if ( ErrorVal <  4096)   {eOfs=12  ; }
-    else                         {eOfs=13  ; }
+    if      ( ErrorVal < -4096)   {eOfs= 0 ; }
+    else if ( ErrorVal < -2048)   {eOfs= 1 ; }
+    else if ( ErrorVal < -1024)   {eOfs= 2 ; }
+    else if ( ErrorVal <  -512)   {eOfs= 3 ; }
+    else if ( ErrorVal <  -256)   {eOfs= 4 ; }
+    else if ( ErrorVal <  -128)   {eOfs= 5 ; }
+    else if ( ErrorVal <   -64)   {eOfs= 6 ; }
+    else if ( ErrorVal <   -32)   {eOfs= 7 ; }
+    else if ( ErrorVal <   -16)   {eOfs= 8 ; }
+    else if ( ErrorVal <    -8)   {eOfs= 9 ; }
+    else if ( ErrorVal <    -4)   {eOfs=10  ; }
+    else if ( ErrorVal <    -2)   {eOfs=11  ; }
+    else if ( ErrorVal ==   -0)   {eOfs=12  ; }
+    else if ( ErrorVal <     2)   {eOfs=13  ; }
+    else if ( ErrorVal <     4)   {eOfs=14  ; }
+    else if ( ErrorVal <     8)   {eOfs=15  ; }
+    else if ( ErrorVal <    16)   {eOfs=16  ; }
+    else if ( ErrorVal <    32)   {eOfs=17  ; }
+    else if ( ErrorVal <    64)   {eOfs=18  ; }
+    else if ( ErrorVal <   128)   {eOfs=19  ; }
+    else if ( ErrorVal <   256)   {eOfs=20  ; }
+    else if ( ErrorVal <   512)   {eOfs=21  ; }
+    else if ( ErrorVal <  1024)   {eOfs=22  ; }
+    else if ( ErrorVal <  2048)   {eOfs=23  ; }
+    else if ( ErrorVal <  4096)   {eOfs=24  ; }
+    else                          {eOfs=25  ; }
     return(eOfs)    ;
 }
 
@@ -204,7 +228,7 @@ int positionPattern(int pattern, int angle)
 
     // User Inpt Value             -8  -7  -6  -5  -4  -3  -2  -1   0   1   2   3   4   5   6   7   8  
     // Motor Move Patterns          0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16
-    const int motorPattern6[17] = { 6, -1,  6, -1,  6, -1,  6, -1,  6, -1,  6, -1,  6, -1,  6, -1,  6}   ;     
+    const int motorPattern6[17] = { 6, -1,  6, -1,  6, -1,  6, -1,  6, -1,  6, -1,  6, -1,  6, -1,  7}   ;     
 
     // motor position in HALF STEP counts (0-4095 as 0 to 360 degrees)
     // User 'Call' offset                -8    -7    -6    -5    -4    -3    -2   -1 
@@ -225,7 +249,7 @@ int positionPattern(int pattern, int angle)
     else if (pattern == 2)
     {   //treat Angle as a relative Angle as in GO angle Degrees forward/Backward
         // COnvert angle to relative to current position
-        SNS_MotorPos  =  carouselPosition[index+8] ;
+        // SNS_MotorPos  =  carouselPosition[index+8] ;
         carouselAngle = (angle -SNS_virtEncoderBgn) % FSHalfStep    ;
     }
      // convert position pattern to position count (0-4095 as 0-360 degree)
@@ -235,11 +259,10 @@ int positionPattern(int pattern, int angle)
         SNS_MotorPos  =  carouselPosition[index+8] ;
         carouselAngle = (carouselPosition[index+8] - SNS_virtEncoderBgn) % FSHalfStep  ;   // use index to get position
         motLookUp++       ;     // count up from -8 to +8
-        delay(1000); // delay for debugging 
+        //delay(1000); // delay for debugging 
         if (motLookUp >= +8)
-        {   
-        motLookUp = 0 ;
-        motComplete = 1 ; //motor has completed a full revolution of positioning
+        {   motLookUp   = 0 ;
+            motComplete = 1 ;    // motor has completed full revolution of positioning
         }
     }
     else if (pattern == 4)
@@ -279,13 +302,13 @@ int positionPattern(int pattern, int angle)
 
         float    duration32 = 0 ;    // Temp holding for duration calc
         long     durationLong   = 0 ;
+        
 int MotorStepper(int motSpeed)
 {   // Perform all motor-specific calculations here
     // motSpeed is index into table of speeds (step periods/frequencies) ranging 0-7
         extern int moveStatus   ;
         extern int SNS_MotorDir ;   // Motor Direction -1 CCW; +1 CW; 0 not set
-
-        long    CountsPerRevolutionStepper    = FSHalfStep  ; //
+        long    CountsPerRevolutionStepper    = 0  ; //
         
         int STEPsEQUENCE = HALFSTEP ;
 
@@ -296,18 +319,20 @@ int MotorStepper(int motSpeed)
         //. Calculate motor speed, duration (number of steps to move) and half/ full step move.
         if(STEPsEQUENCE == FULLSTEP)
         {   motorStepsPerSec = MotorSpeedStepper[motSpeed]*2   ; // lookup in MotorSpeedStepper *2 for Full Step Periods
+            CountsPerRevolutionStepper    = FSFullStep  ;
             durationLong = (CountsPerRevolutionStepper * carouselAngle) ;
-            durationLong = ( durationLong / 2048 )   ;   
-            durationLong = durationLong % (long) 2048 ;
+            durationLong = ( durationLong / FSFullStep )   ;   
+            durationLong = durationLong % (long) FSFullStep ;
             duration    = (int) durationLong  ;
 // DIAG            duration = carouselAngle    ;   // DIAG
             setOffHalfStep()       ;    //  move in half steps (M0=1=setOnDiag & full step  M0=0==setOffDiag)
         }
         if(STEPsEQUENCE == HALFSTEP)
         {   motorStepsPerSec = MotorSpeedStepper[motSpeed]     ; // (times 2 for half step))
+            CountsPerRevolutionStepper    = FSHalfStep  ;
             durationLong = (CountsPerRevolutionStepper * carouselAngle)    ;
-            durationLong = (durationLong / 4096)    ;
-            durationLong = durationLong % (long) 4096 ;
+            durationLong = (durationLong / FSHalfStep)    ;
+            durationLong = durationLong % (long) FSHalfStep ;
             duration    = (int) durationLong  ;
 // DIAG            duration = carouselAngle    ;   // DIAG
             setOnHalfStep()       ;    //  move in half steps (M0=1=setOnDiag & full step  M0=0==setOffDiag)
@@ -329,54 +354,26 @@ int MotorStepper(int motSpeed)
         return (moveStatus) ;
 }    
   
-    int T3Stat  = 0 ;
-    int T3Now   = 0 ;
-    int T3Prev  = 0 ;
-
     
 int checkMotor(void)    
-{   extern int SNS_MotorDir ;   // Motor Direction -1 CCW; +1 CW; 0 not set
+{       // Virtual Encoder Vars    
+
+    extern int SNS_MotorDir ;   // Motor Direction -1 CCW; +1 CW; 0 not set
     extern int moveStatus   ;
-    // Virtual Encoder Vars    
     extern int SNS_virtEncoderBgn   ;  
-    extern int SNS_virtEncoderNow   ;
-
-    int stat    = 0 ;
-    
-
-    // T3 Add
-    T3Now   = TMR3 ;    // get T3 Value
-    if (T3Now > 0)
-    {   // Stepper movement has begun
-        T3Stat  = 1 ;        
-    }
-    if (T3Now < T3Prev)
-    {   // T3 has rolled over or been reset- meaning move is done
-        // Done with move... set of Step clock
-        // NRM MOT OC9CON1 |= 0x7FF8    ;             // NRM MOT SS     
-         T5CON &= 0x7FFF         ;
-        // stat = monitorEncoder(16)    ;       // NRM //
+       
+    if (MotFlag == 1)
+    {   // Motor IRQ says move done
         setOnStepDisable()    ;    // Power Down Stepper Motor
-        T3Stat  = 0 ;   // we done
+        MotFlag  = 0 ;   // we done
         moveStatus = STOP           ;
     }
-    T3Prev = T3Now  ;    // prepare for next pass
-
-    if (SNS_MotorDir == +1)
-        {    SNS_virtEncoderNow = (4096+SNS_virtEncoderBgn + TMR3) % FSHalfStep  ; // Using FSHalfStep since tied to stepoper count
-        }
-        else if (SNS_MotorDir == -1)
-        {    SNS_virtEncoderNow = (4096+SNS_virtEncoderBgn - TMR3) % FSHalfStep  ; // Using FSHalfStep since tied to stepoper count
-        }
-
-        stat = readEncoder()    ;
-        // Read Opto Sensor
-        //readOptoSensor()  ;
-        
-        return (moveStatus)    ;  
+    return (moveStatus)    ;  
 }
 
-
+   int EncoderError = 0 ;
+   int EncoderOfs   = 0 ;
+   
 int multiMotorMove(int AppPattern, int AppAngle, int AppSpeed)
 {   extern int SNS_MotorDir         ;   // Motor Direction -1 CCW; +1 CW; 0 not set
     extern int moveStatus           ;
@@ -384,28 +381,22 @@ int multiMotorMove(int AppPattern, int AppAngle, int AppSpeed)
     extern int SNS_virtEncoderBgn   ;
     extern int SNS_virtEncoderEnd   ;
     extern int SNS_virtEncoderNow   ;
-    int LoopCount   = 1 ;
     int mMMstat     = 0 ;
 
-   int EncoderError = 0 ;
-   int EncoderOfs   = 0 ;
 
    unsigned long motorMoveRequests  = 0 ;  // big so count does not overflow 
-
-    int pattern = 0;
-    int angle   = 0 ;
-    int Speed   = 6 ;
 
     
     // Calc Gear ratio
     // Carousel to Motor Gear Ratio * 1024
     // KGearRatio = ( (long) CarouselGearTeethCount * (long) ScaleGearRatio)/MotorGearTeethCount    ; 
-
+  LoopCount   = 1 ;  
   while (LoopCount > 0)         // Allow State Machine to tell self to iterate
-  { if (moveStatus == INITIALIZE) 
+  { 
+    if (moveStatus == INITIALIZE) 
     {   initStepper()    ;
     }
-    else if      (moveStatus == IDLE) 
+    if      (moveStatus == IDLE) 
     {   pattern = AppPattern    ;
         angle   = AppAngle      ;
         Speed   = AppSpeed      ;
@@ -413,7 +404,7 @@ int multiMotorMove(int AppPattern, int AppAngle, int AppSpeed)
         
         if ( (pattern < -2) || (pattern > 6) ) 
         {    moveStatus = fPATTERN   ;   }
-        if  ( (angle < -4096) || (angle > 4096) )
+        if  ( (angle < -FSEncoder) || (angle > FSEncoder) )
         {    moveStatus = fANGLE   ;   }
         if ( (Speed < 0) || (Speed > 9))
         {    moveStatus = fSPEED   ;   }
@@ -431,10 +422,10 @@ int multiMotorMove(int AppPattern, int AppAngle, int AppSpeed)
         // SNS_virtEncoderBgn   Where does move end?
         // SNS_virtEncoderBgn   Where are we now?
         if (SNS_MotorDir == +1)
-        { SNS_virtEncoderEnd = (4096+ SNS_virtEncoderBgn + duration) % FSHalfStep ;
+        { SNS_virtEncoderEnd = (FSEncoder+ SNS_virtEncoderBgn + duration) % FSEncoder ;
         }
         else if (SNS_MotorDir == -1)
-        { SNS_virtEncoderEnd = (4096+ SNS_virtEncoderBgn - duration) % FSHalfStep ;
+        { SNS_virtEncoderEnd = (FSEncoder+ SNS_virtEncoderBgn - duration) % FSEncoder ;
         }           
         SNS_virtEncoderNow = SNS_virtEncoderBgn ;
         // 5. Load PIC24 Hardware Registers with move variables
@@ -444,6 +435,8 @@ int multiMotorMove(int AppPattern, int AppAngle, int AppSpeed)
             PR3     = duration  ;   // don't use right now       
             // start Step clock and trigger run
             T5CON   |= 0x8000 ;
+            IFS0bits.T3IF = 0 ;   // Clear T3 Interrupt
+            IEC0bits.T3IE = 1 ;         // enable the Interrupt for end-of-move
             moveStatus = CHECK ;
        }
        else
@@ -462,16 +455,54 @@ int multiMotorMove(int AppPattern, int AppAngle, int AppSpeed)
         // Set up for next move
         SNS_virtEncoderBgn = SNS_virtEncoderEnd  ; // Get final vEncoder Position
         
-        EncoderError=SNS_virtEncoderBgn-SNS_EncodPos   ;\
-        EncoderOfs=ErrorCheck(EncoderError)    ;
-        EncoderErrorLog[EncoderOfs+12]++   ;
+        // EncoderError = SNS_virtEncoderEnd-SNS_EncodPos   ;
+        if (SNS_MotorDir == +1)
+        {   EncoderError = SNS_virtEncoderEnd-SNS_EncodPos  ;
+            // EncoderError = ( (FSEncoder+ SNS_virtEncoderEnd)-SNS_EncodPos) % FSEncoder ;
+        }
+        else if (SNS_MotorDir == -1)
+        {   EncoderError = SNS_virtEncoderEnd-SNS_EncodPos  ;
+            // EncoderError = ( (FSEncoder+ SNS_virtEncoderEnd)-SNS_EncodPos) % FSEncoder ;
+        }           
         
+        EncoderOfs=ErrorCheck(EncoderError)    ;
+        BellCurveBuffer[EncoderOfs]++   ;
         moveStatus = VERIFY     ;
     }
     if (moveStatus == VERIFY) 
     {   // Future call to compare XEncoder to vEncoder
         // $ $ $  vEncoder may be 1/2 of xEncoder
         // Future call to verify motor went to position
+    /*    
+        if ( (EncoderError < -125 ) || (EncoderError > 125))
+        {   SNS_virtEncoderEnd = ( (FSEncoder+ SNS_virtEncoderEnd)-EncoderError) % FSEncoder ;
+            SNS_virtEncoderBgn = ( (FSEncoder+ SNS_virtEncoderBgn)-EncoderError) % FSEncoder ;
+            SNS_virtEncoderNow = ( (FSEncoder+ SNS_virtEncoderNow)-EncoderError) % FSEncoder ;
+            angle = EncoderError    ;
+            pattern = 1 ;
+            LoopCount++ ;
+            if ( RetryCount == 0)
+            {   RetryCount = 5  ;
+            }
+        }
+        else
+        {   moveStatus = COMPLETE    ;
+            RetryCount = 0  ;
+            angle =     AppAngle   ;
+            pattern =   AppPattern ;  
+        }
+        if (RetryCount > 0)
+        {   RetryCount-- ;
+            moveStatus = CALC    ;
+        }
+        else 
+        { // Did not make destination
+            moveStatus = COMPLETE    ;
+            RetryCount = 0  ;
+            angle   =   AppAngle   ;
+            pattern =   AppPattern ;
+        }
+    */
         moveStatus = COMPLETE    ;
     }
     if (moveStatus == COMPLETE) 
@@ -484,81 +515,129 @@ int multiMotorMove(int AppPattern, int AppAngle, int AppSpeed)
     return (moveStatus)   ;
 }  
 
+
+int getMotorStatus(void)    
+{   int fstat   = functionSUCCESS ;
+    if 
+    (   (moveStatus == INITIALIZE) ||
+        (moveStatus == IDLE)       ) 
+        { fstat  = functionSUCCESS   ;  // inform application that we successfully done
+        }
+    else if
+    (   (moveStatus == CALC) || 
+        (moveStatus == COMMAND) || 
+        (moveStatus == SEND) || 
+        (moveStatus == CHECK) || 
+        (moveStatus == VERIFY) || 
+        (moveStatus == COMPLETE) || 
+        (moveStatus == STALL) )
+        { fstat  = functionBUSY  ;  // inform application that we are still busy
+        }
+    else if
+    (   (moveStatus == fPATTERN) ||
+        (moveStatus == fANGLE) || 
+        (moveStatus == fSPEED) ) 
+        { fstat  = functionFAULT ;     // inform application that we had a Fault
+        }
+
+    return (fstat)   ;    
+}
+
+
 // COMMAND a Move if Motor not busy, 
 // Returns SUCCESS, BUSY, or FAULT
 int moveCarousel(int pattern, int angle, int speed)
-{   int stat = functionFAULT    ;
-    int fstat   = FAULT ;
+{   int stat    = functionFAULT    ;
     extern int moveStatus   ;
 
     // determine if we can command or if motor busy
     if ( (moveStatus  == INITIALIZE) ||
          (moveStatus  == IDLE)       )
     {   stat= multiMotorMove(pattern, angle, speed) ;
-         if ( (stat == INITIALIZE) ||
-              (stat == IDLE)       ) 
-        {     fstat  = functionSUCCESS   ;
-        }
-        else if
-        ( (stat == CALC) || 
-          (stat == COMMAND) || 
-          (stat == SEND) || 
-          (stat == CHECK) || 
-          (stat == STOP) || 
-          (stat == VERIFY) || 
-          (stat == COMPLETE) || 
-          (stat == STALL) )
-        {    fstat  = functionBUSY  ;
-        }
-        else if
-        ( (stat == fPATTERN) ||
-          (stat == fANGLE) || 
-          (stat == fSPEED) ) 
-        { fstat  = functionFAULT ;   
-        }
-        else 
-        {   fstat  = functionFAULT ;   
-        }
     }
-    return (fstat)   ;    
+    return (getMotorStatus() ) ;
 }
+
+    int ChkStat    = functionFAULT    ;
 
 // TEST if Motor  busy, 
 // Returns SUCCESS (not busy), BUSY, or FAULT
 int checkCarousel(int pattern, int angle, int speed)
 {   extern int moveStatus   ;
-    int stat    = CHECK ;
-    int fstat   = FAULT ;
     
 
     // DO we need to check new status?
     if  (moveStatus == CHECK) 
-    {    stat= multiMotorMove(pattern, angle, speed) ;   
+    {    ChkStat= multiMotorMove(pattern, angle, speed) ;   
     }
-    else 
-    {   stat = moveStatus   ;
-        if 
-        ( (stat == INITIALIZE) ||
-          (stat == IDLE)       ) 
-        { fstat  = functionSUCCESS   ;  // inform application that we successfully done
-        }
-        else if
-        ( (stat == CALC) || 
-          (stat == COMMAND) || 
-          (stat == SEND) || 
-          (stat == CHECK) || 
-          (stat == VERIFY) || 
-          (stat == COMPLETE) || 
-          (stat == STALL) )
-        { fstat  = functionBUSY  ;  // inform application that we are still busy
-        }
-        else if
-        ( (stat == fPATTERN) ||
-          (stat == fANGLE) || 
-          (stat == fSPEED) ) 
-        { fstat  = functionFAULT ;     // inform application that we had a Fault
-        }
+    ChkStat= getMotorStatus()  ;
+    return (ChkStat) ;
+}
+
+int readCarouselHome(void)
+   {    extern int SNS_virtEncoderNow    ;
+        extern int SNS_EncDirFlag        ;   // 0 not set; +1 Encoder moves CW; -1 Encoder moves CCW
+       // function to read following values from NVM
+       SNS_virtEncoderNow   = 2640   ;
+       SNS_EncDirFlag       = +1    ;   // Define encoder increases angle as motor increases angle   
+       return(SNS_virtEncoderNow)   ;
+   }
+
+           int encoderHome = 0    ;   // Preset encoder Hoem Angle
+           int homeStat    = 0    ;
+ 
+int homeCarousel(void)
+{   //    if (moveStatus == HOME)
+    extern int SNS_virtEncoderBgn ;  
+    extern int SNS_virtEncoderEnd ;
+    extern int SNS_virtEncoderNow ;
+    extern int SNS_EncodOffset    ;   // when motor commanded to 180 deg, where encoder, calc 0 offset
+    extern int SNS_EncodPos       ;   // Current encoder position
+    extern int SNS_EncDirFlag     ;   // 0 not set; +1 Encoder moves CW; -1 Encoder moves CCW
+
+    // 1. Zero the Encoder Offset
+    // 2. Get the current Encoder position (Raw Position since Offset = 0)
+    // 3. Get the HOME Encoder Position where carousel at 0 degrees
+    // 4. Calculate angle differences
+    // 5. Command Motor
+    // 6. Wait for move complete
+    // 7. Update encoder and virt Encoder values to home
+  
+    // 1. Zero the Encoder Offset
+    SNS_EncodOffset = 0 ;
+    // 2. Get the current Encoder position (Raw Position since Offset = 0)
+    ChkStat=monitorEncoder(50) ;
+    if (ChkStat == 1)
+    { SNS_virtEncoderBgn = SNS_EncodPos ;        
     }
-    return (fstat)   ;    
+    // 3. Get the HOME Encoder Position where carousel at 0 degrees
+    encoderHome = readCarouselHome()  ; // also set SNS_DirFlg
+    // 4. Calculate angle differences
+    // angle = ( (FSHalfStep + encoderHome - SNS_virtEncoderBgn) % FSHalfStep ) ;
+    angle = encoderHome - SNS_virtEncoderBgn ;
+    // if(SNS_virtEncoderBgn > encoderHome)
+    // {   angle *= -1 ;   // Go in reverse direction
+    // }
+    pattern = 1     ;       // set to perform Absolute move from current position
+
+    // 5. Command Motor
+    homeStat = moveCarousel (pattern, angle, Speed) ;
+    // 6. Wait for move complete
+    while (homeStat == 1)
+    {   homeStat = checkCarousel(pattern, angle, Speed) ;
+    }
+    // 7. Update encoder and virtual Encoder values to home
+     
+    SNS_virtEncoderBgn =    0   ;
+    SNS_virtEncoderEnd =    0   ;
+    SNS_virtEncoderNow =    0   ;
+    SNS_EncodOffset    =    encoderHome ;
+    SNS_EncDirFlag     =    +1 ;       
+    ChkStat=monitorEncoder(25) ;            
+    // MotHome still == 0
+    // now set the standard default values for carousel moves
+    angle = 512     ;
+    pattern = 3     ;       // set to perform RELATIVE move from current position
+    return (0)      ;    
 }
 
